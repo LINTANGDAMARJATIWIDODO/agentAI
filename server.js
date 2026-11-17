@@ -11,6 +11,27 @@ const { exec } = require('child_process');
 
 const PORT = process.env.PORT || 3000;
 const BASE_DIR = __dirname;
+
+// Pure Node.js .env loader (zero dependencies)
+const envFilePath = path.join(BASE_DIR, '.env');
+if (fs.existsSync(envFilePath)) {
+  try {
+    const rawEnv = fs.readFileSync(envFilePath, 'utf-8');
+    rawEnv.split(/\r?\n/).forEach(line => {
+      line = line.trim();
+      if (line && !line.startsWith('#') && line.includes('=')) {
+        const eqIdx = line.indexOf('=');
+        const key = line.slice(0, eqIdx).trim();
+        const val = line.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    });
+  } catch (e) {
+    console.error('Failed to parse .env file:', e.message);
+  }
+}
 const PUBLIC_DIR = path.join(BASE_DIR, 'public');
 const LOGS_FILE = path.join(BASE_DIR, 'logs', 'activity_log.json');
 const REPORT_JSON = path.join(BASE_DIR, 'reports', 'laporan.json');

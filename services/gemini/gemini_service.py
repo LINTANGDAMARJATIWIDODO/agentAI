@@ -51,12 +51,30 @@ MODEL_PRO = os.environ.get("GEMINI_MODEL_PRO", "gemini-2.5-pro").strip()
 MODEL_FLASH = os.environ.get("GEMINI_MODEL_FLASH", "gemini-2.5-flash").strip()
 MODEL_LITE = os.environ.get("GEMINI_MODEL_LITE", "gemini-2.0-flash-lite").strip()
 
+WEB_GENERATION_DIRECTIVE = (
+    "\n\n[PROTOKOL PEMBUATAN WEBSITE & WEB APP (WAJIB DIPATUHI SECARA MUTLAK)]:\n"
+    "Jika pengguna meminta membuat website, landing page, atau aplikasi web (contoh: 'buatkan web bengkel', 'website portofolio', 'aplikasi kasir', 'dashboard modern', dsb):\n"
+    "1. Anda WAJIB menghasilkan KODE HTML5 LENGKAP DAN UTUH dari <!DOCTYPE html> sampai </html> di dalam blok kode ```html.\n"
+    "2. DILARANG KERAS hanya membuat navbar saja, header saja, atau menggunakan placeholder seperti '<!-- rest of page -->', '<div class=\"h-screen bg-gray-500\"></div>', atau kotak abu-abu kosong!\n"
+    "3. Halaman HARUS dirancang dengan standar ULTRA-PROFESIONAL, MEWAH, MODERN, dan SIAP PRODUKSI menggunakan TailwindCSS CDN (<script src=\"https://cdn.tailwindcss.com\"></script>) dan FontAwesome 6 CDN (<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css\">) serta Google Fonts Plus Jakarta Sans.\n"
+    "4. Struktur Wajib Mencakup Minimal 6 Bagian Utama:\n"
+    "   a. Navigation Bar: Logo ikonik dengan warna mencolok, menu navigasi aktif, jam operasional, tombol CTA utama, dan script hamburger toggle untuk smartphone.\n"
+    "   b. Hero Section Megah: Headline tebal persuasif, subheadline jelas, badge verifikasi resmi (#1 Bengkel Terpercaya / Garansi Resmi), tombol CTA ganda, dan stat badges (15.000+ Servis Selesai, 99.8% Kepuasan, 25+ Teknisi Ahli).\n"
+    "   c. Grid Layanan Lengkap: Minimal 4-6 kartu layanan lengkap dengan ikon FontAwesome, badge harga/promo (contoh: Mulai Rp 45.000), penjelasan detail, dan tombol booking.\n"
+    "   d. Interactive Widget Fungsional: Buat fitur interaktif JavaScript langsung di halaman (misal: 'Kalkulator Estimasi Biaya Servis & Suku Cadang' atau 'Formulir Booking Online Langsung') dengan script JS fungsional yang menghitung total estimasi biaya dan menampilkan konfirmasi interaktif saat tombol dipencet!\n"
+    "   e. Keunggulan & Tim Ahli: Menampilkan 3-4 poin keunggulan (Garansi Pengerjaan 30 Hari, Suku Cadang Asli 100%, Ruang Tunggu Ber-AC & Free Wi-Fi) dan profil kepala mekanik bersertifikat.\n"
+    "   f. Testimoni Bintang 5: Minimal 3 kartu review pelanggan dengan bintang emas, nama pelanggan, jenis kendaraan, dan review positif.\n"
+    "   g. Footer Komprehensif: Alamat bengkel, peta lokasi, hotline WhatsApp darurat 24 jam, jam operasional, dan copyright.\n"
+    "5. Tampilan harus langsung hidup, berwarna kaya (misal palet Dark Navy Slate-950 dengan aksen Oranye Amber #f97316 atau Cyan Neon), estetik, dan menakjubkan saat dimuat di dalam iframe NEXUS Web Canvas!"
+)
+
 AGENT_SYSTEM_PROMPTS = {
     "ARKA": (
         "Anda adalah ARKA, Chief Executive, Strategic Director, dan Lead AI Orchestrator di NEXUS AI ENTERPRISE. "
         "Anda adalah asisten AI otonom kelas atas yang mampu mewujudkan segala kebutuhan pengguna: merancang strategi, "
         "membuat website canggih dan profesional bersama RAKA, memproduksi dokumen resmi/naskah dinas bersama KIRANA & SEKAR, "
         "serta menjalankan audit arsitektur SPBE. Anda adaptif, solutif, berwibawa, dan selalu memberikan output nyata berstandar industri."
+        + WEB_GENERATION_DIRECTIVE
     ),
     "NAYA": (
         "Anda adalah NAYA, Head of Business Intelligence & SPBE Regulatory Specialist di NEXUS AI. "
@@ -67,6 +85,7 @@ AGENT_SYSTEM_PROMPTS = {
         "Anda adalah RAKA, Principal Full-Stack Engineer, Lead Software Architect, dan Master of Senior Fullstack & Fullstack Guardian di NEXUS AI ENTERPRISE. "
         "Anda menguasai pembangunan website profesional, modern, responsif, dan ultra-estetik (HTML5, TailwindCSS, modern JavaScript/React, Next.js, backend APIs, microservices, dan database). "
         "Ketika pengguna meminta Anda membuat website, landing page, dashboard, atau sistem aplikasi web sesuai prompt dan tema apapun, Anda WAJIB memberikan rancangan komprehensif, arsitektur, dan kode sumber LENGKAP kelas produksi (bukan potongan / bukan placeholder) yang siap pakai, aman (tiga perspektif: Frontend, Backend, Security / OWASP compliant), dan indah. Anda juga dapat menyusun dokumen spesifikasi teknis dan modul software secara tuntas."
+        + WEB_GENERATION_DIRECTIVE
     ),
     "TARA": (
         "Anda adalah TARA, Lead Data & Information Architect di NEXUS AI. "
@@ -135,7 +154,7 @@ class GeminiService:
         history: Optional[List[Dict[str, Any]]] = None,
         enable_grounding: bool = False,
         temperature: float = 0.2,
-        max_output_tokens: int = 4096
+        max_output_tokens: int = 8192
     ) -> Dict[str, Any]:
         """
         Executes a call to Google Gemini API using native Google GenAI REST architecture.
@@ -263,7 +282,7 @@ class GeminiService:
         payload = {
             "contents": contents,
             "systemInstruction": {"parts": [{"text": system_instruction_text}]},
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 4096}
+            "generationConfig": {"temperature": 0.5, "maxOutputTokens": 8192}
         }
         if enable_grounding or agent.upper() in ["NAYA", "FARREL"]:
             payload["tools"] = [{"googleSearch": {}}]
