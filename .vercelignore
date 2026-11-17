@@ -1,0 +1,11 @@
+.git
+.github
+node_modules
+uploads
+tests
+scratch
+reports/SPBE_AUDIT
+logs/*.log
+__pycache__
+*.pyc
+*.tmp

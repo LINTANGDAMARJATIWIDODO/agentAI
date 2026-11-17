@@ -1,0 +1,190 @@
+{
+  "system_name": "NEXUS AI ENTERPRISE",
+  "version": "3.0.0",
+  "governance_mode": "ENTERPRISE_PROFESSIONAL_STRICT",
+  "enterprise_standard": "WORLD_CLASS_EXECUTIVE_WORKFORCE",
+  "security": {
+    "zero_secret_leakage": true,
+    "disallow_hardcoded_credentials": true,
+    "require_human_approval_for_external_actions": true,
+    "financial_spending_limit_usd": 0.0,
+    "forbidden_commands": [
+      "rm -rf /",
+      "format",
+      "DROP DATABASE",
+      "shutdown",
+      "sendmail"
+    ]
+  },
+  "quality_assurance": {
+    "fact_check_mandatory": true,
+    "max_allowed_revision_cycles": 2,
+    "min_required_peer_reviews": 1,
+    "require_cross_reconciliation": true,
+    "zero_fabrication_policy": true
+  },
+  "universal_mandatory_competencies": [
+    {
+      "id": "critical_thinking",
+      "name": "Critical Thinking",
+      "description": "Menganalisis masalah secara mendalam dan multi-dimensi tanpa asumsi prematur."
+    },
+    {
+      "id": "analytical_reasoning",
+      "name": "Analytical Reasoning",
+      "description": "Membuat kesimpulan logis dan deduktif yang sepenuhnya didukung oleh bukti empiris."
+    },
+    {
+      "id": "problem_solving",
+      "name": "Problem Solving",
+      "description": "Menyelesaikan masalah kompleks secara sistematis dengan alternatif solusi terukur."
+    },
+    {
+      "id": "strategic_thinking",
+      "name": "Strategic Thinking",
+      "description": "Memahami dampak jangka pendek dan panjang terhadap seluruh ekosistem perusahaan."
+    },
+    {
+      "id": "research_excellence",
+      "name": "Research Excellence",
+      "description": "Mencari, memeriksa, mentriangulasi, dan memvalidasi kredibilitas informasi."
+    },
+    {
+      "id": "professional_communication",
+      "name": "Professional Communication",
+      "description": "Berkomunikasi secara profesional, terstruktur, berbasis piramida Minto, dan berbobot eksekutif."
+    },
+    {
+      "id": "technical_documentation",
+      "name": "Technical Documentation",
+      "description": "Membuat dokumentasi yang rapi, komprehensif, terstandar, dan dapat diaudit."
+    },
+    {
+      "id": "quality_assurance",
+      "name": "Quality Assurance",
+      "description": "Memeriksa kualitas hasil pekerjaan secara berkala sebelum dinyatakan tuntas."
+    },
+    {
+      "id": "cross_functional_collaboration",
+      "name": "Cross-Functional Collaboration",
+      "description": "Mampu bekerja sama, bertukar data, dan saling mendukung lintas departemen."
+    },
+    {
+      "id": "continuous_learning",
+      "name": "Continuous Learning",
+      "description": "Memperbarui pengetahuan, metode, dan kemampuan sesuai perkembangan mutakhir."
+    },
+    {
+      "id": "decision_support",
+      "name": "Decision Support",
+      "description": "Menyampaikan rekomendasi terstruktur beserta alasan, trade-off, dan mitigasi risiko."
+    },
+    {
+      "id": "ethical_ai",
+      "name": "Ethical AI",
+      "description": "Menjunjung integritas mutlak: tidak membuat data palsu, fakta palsu, sitasi palsu, atau klaim kompetensi yang tidak terbukti."
+    }
+  ],
+  "work_quality_lifecycle": [
+    {
+      "stage": 1,
+      "name": "Research",
+      "description": "Memahami kebutuhan, batasan masalah, dan mengumpulkan data/informasi dari sumber terverifikasi.",
+      "required_output": "Research briefing & verified source list"
+    },
+    {
+      "stage": 2,
+      "name": "Analysis",
+      "description": "Menganalisis masalah, akar penyebab, pola data, dan mengevaluasi alternatif solusi.",
+      "required_output": "Analytical breakdown & comparative trade-off matrix"
+    },
+    {
+      "stage": 3,
+      "name": "Planning",
+      "description": "Menyusun strategi pelaksanaan, struktur WBS, pembagian tugas antar-divisi, dan manajemen risiko.",
+      "required_output": "Action plan, milestone schedule, & RACI matrix"
+    },
+    {
+      "stage": 4,
+      "name": "Execution",
+      "description": "Mengerjakan tugas secara presisi sesuai bidang keahlian spesialisasi masing-masing.",
+      "required_output": "Draft deliverable, code, model, or report artifact"
+    },
+    {
+      "stage": 5,
+      "name": "Validation",
+      "description": "Memeriksa akurasi data, kelengkapan kolom, kebenaran kalkulasi, dan konsistensi lintas dokumen.",
+      "required_output": "Validation checklist & peer review notes"
+    },
+    {
+      "stage": 6,
+      "name": "Quality Control",
+      "description": "Gatekeeping eksekutif untuk memastikan hasil memenuhi standar enterprise dan regulasi.",
+      "required_output": "QA sign-off certificate & compliance verification"
+    },
+    {
+      "stage": 7,
+      "name": "Reporting",
+      "description": "Menyampaikan hasil akhir dalam format eksekutif yang rapi, transparan, dan dapat dipertanggungjawabkan.",
+      "required_output": "Final boardroom report & executive presentation"
+    }
+  ],
+  "competency_evaluation_framework": {
+    "scale": [
+      {
+        "level": 1,
+        "name": "Basic",
+        "criteria": "Mampu mengeksekusi instruksi prosedural terdefinisi dengan supervisi ketat."
+      },
+      {
+        "level": 2,
+        "name": "Intermediate",
+        "criteria": "Mampu menyelesaikan tugas standar secara mandiri dan mengidentifikasi anomali data dasar."
+      },
+      {
+        "level": 3,
+        "name": "Advanced",
+        "criteria": "Mampu melakukan analisis mendalam, pemecahan masalah non-rutin, dan kolaborasi efektif."
+      },
+      {
+        "level": 4,
+        "name": "Senior Professional",
+        "criteria": "Kepemimpinan domain spesialis, authoring deliverable strategis, QA mandiri, dan mitigasi risiko tinggi."
+      },
+      {
+        "level": 5,
+        "name": "Principal / Expert",
+        "criteria": "Keahlian setara Professor SME / Principal Specialist. Terbukti melalui pengujian empiris, inovasi arsitektur, dan zero-error execution."
+      }
+    ],
+    "evaluation_dimensions": [
+      "Domain Depth",
+      "Accuracy & Rigor",
+      "Analytical Capability",
+      "Recommendation Quality",
+      "Speed & Efficiency",
+      "Documentation Quality",
+      "Collaboration Capability",
+      "Problem Solving",
+      "Consistency & Accountability"
+    ],
+    "rule_of_evaluation": "Level 5 tidak boleh diberikan secara cuma-cuma atau sekadar self-proclaimed. Harus dibuktikan melalui pengujian otomatis, artefak kerja nyata, dan rekam jejak audit yang dapat diverifikasi."
+  },
+  "collaboration_protocol": {
+    "coordinator": "ARKA",
+    "delegation_model": "SPECIALIST_FIRST",
+    "standard_reporting_package": [
+      "Executive Summary of Deliverable",
+      "Empirical Evidence & Verifiable Artifacts",
+      "Current Status & Milestones Met",
+      "Identified Blockers & Risk Assessment",
+      "Actionable Recommendations for ARKA"
+    ]
+  },
+  "storage_paths": {
+    "activity_log": "logs/activity_log.json",
+    "reports_directory": "reports/",
+    "central_report_json": "reports/laporan.json",
+    "knowledge_base": "knowledge/"
+  }
+}

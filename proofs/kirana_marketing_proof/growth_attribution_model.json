@@ -1,0 +1,44 @@
+{
+  "director": "KIRANA (Chief Marketing Officer)",
+  "analysis_type": "Multi-Channel Growth Marketing & CAC/LTV Attribution",
+  "blended_cac_idr": 229712.86,
+  "channels_analysis": [
+    {
+      "channel": "Organic Search (SEO)",
+      "paying_customers": 108.0,
+      "cac_idr": 138888.89,
+      "ltv_idr": 3500000,
+      "ltv_cac_ratio": 25.2,
+      "payback_months": 0.6,
+      "efficiency": "EXCELLENT"
+    },
+    {
+      "channel": "Performance Ads (SEM)",
+      "paying_customers": 144.4,
+      "cac_idr": 311634.35,
+      "ltv_idr": 3920000,
+      "ltv_cac_ratio": 12.58,
+      "payback_months": 1.1,
+      "efficiency": "EXCELLENT"
+    },
+    {
+      "channel": "Social & Community",
+      "paying_customers": 55.1,
+      "cac_idr": 362976.41,
+      "ltv_idr": 3080000,
+      "ltv_cac_ratio": 8.49,
+      "payback_months": 1.6,
+      "efficiency": "EXCELLENT"
+    },
+    {
+      "channel": "Referral & Partnerships",
+      "paying_customers": 93.0,
+      "cac_idr": 129032.26,
+      "ltv_idr": 4340000,
+      "ltv_cac_ratio": 33.63,
+      "payback_months": 0.4,
+      "efficiency": "EXCELLENT"
+    }
+  ],
+  "strategic_recommendation": "Scale Referral & Partnerships (+35% budget) and Organic SEO (+25% budget) due to >3.0x LTV:CAC efficiency."
+}

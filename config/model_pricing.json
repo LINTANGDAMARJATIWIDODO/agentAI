@@ -1,0 +1,101 @@
+{
+  "currency": "USD",
+  "exchange_rate_usd_idr": 16250.0,
+  "budget": {
+    "daily_limit_usd": 5.0,
+    "warning_threshold_usd": 3.5,
+    "monthly_limit_usd": 100.0,
+    "hard_stop_enabled": true
+  },
+  "providers": {
+    "gemini": {
+      "display_name": "Google Gemini API",
+      "status": "active",
+      "is_primary": true,
+      "env_key": "GEMINI_API_KEY",
+      "models": {
+        "gemini-2.0-flash": {
+          "tier": "BALANCED",
+          "input_cost_per_1m": 0.10,
+          "output_cost_per_1m": 0.40,
+          "context_window": 1048576,
+          "supports_tools": true,
+          "recommended_for": ["general", "coding", "spbe_analysis", "mcp_execution"]
+        },
+        "gemini-2.0-flash-lite": {
+          "tier": "CHEAP_FAST",
+          "input_cost_per_1m": 0.075,
+          "output_cost_per_1m": 0.30,
+          "context_window": 1048576,
+          "supports_tools": true,
+          "recommended_for": ["classification", "summarization", "triage", "micro_tasks"]
+        },
+        "gemini-1.5-pro": {
+          "tier": "HEAVY_REASONING",
+          "input_cost_per_1m": 1.25,
+          "output_cost_per_1m": 5.00,
+          "context_window": 2097152,
+          "supports_tools": true,
+          "recommended_for": ["deep_architecture", "strategic_mandate", "legal_synthesis"]
+        }
+      }
+    },
+    "openai": {
+      "display_name": "OpenAI API",
+      "status": "fallback",
+      "is_primary": false,
+      "env_key": "OPENAI_API_KEY",
+      "models": {
+        "gpt-4o-mini": {
+          "tier": "CHEAP_FAST",
+          "input_cost_per_1m": 0.15,
+          "output_cost_per_1m": 0.60,
+          "context_window": 128000,
+          "supports_tools": true,
+          "recommended_for": ["fallback_cheap", "data_extraction"]
+        },
+        "gpt-4o": {
+          "tier": "HEAVY_REASONING",
+          "input_cost_per_1m": 2.50,
+          "output_cost_per_1m": 10.00,
+          "context_window": 128000,
+          "supports_tools": true,
+          "recommended_for": ["fallback_advanced"]
+        }
+      }
+    },
+    "anthropic": {
+      "display_name": "Anthropic Claude API",
+      "status": "disabled_by_default",
+      "is_primary": false,
+      "is_enabled": false,
+      "env_key": "ANTHROPIC_API_KEY",
+      "models": {
+        "claude-3-5-sonnet-20241022": {
+          "tier": "SPECIALIST",
+          "input_cost_per_1m": 3.00,
+          "output_cost_per_1m": 15.00,
+          "context_window": 200000,
+          "supports_tools": true,
+          "recommended_for": ["specialist_review"]
+        },
+        "claude-3-5-haiku-20241022": {
+          "tier": "CHEAP_FAST",
+          "input_cost_per_1m": 0.80,
+          "output_cost_per_1m": 4.00,
+          "context_window": 200000,
+          "supports_tools": true,
+          "recommended_for": ["specialist_fast"]
+        }
+      }
+    }
+  },
+  "routing_rules": {
+    "default_model": "gemini-2.0-flash",
+    "fallback_chain": ["gemini-2.0-flash", "gpt-4o-mini", "mock-offline-brain"],
+    "circuit_breaker": {
+      "failure_threshold": 3,
+      "cooldown_seconds": 60
+    }
+  }
+}

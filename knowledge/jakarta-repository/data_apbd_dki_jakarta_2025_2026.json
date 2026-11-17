@@ -1,0 +1,24 @@
+{
+  "sumber": "Satu Data Jakarta (data.jakarta.go.id) & BPKD Provinsi DKI Jakarta",
+  "portal_url": "https://data.jakarta.go.id/dataset/anggaran-pendapatan-dan-belanja-daerah-dki-jakarta",
+  "tahun_anggaran": 2025,
+  "status_data": "Realisasi Semester II & Prognosis 2026",
+  "ringkasan_apbd": {
+    "total_anggaran_apbd_idr": 85150000000000,
+    "pendapatan_asli_daerah_pad_idr": 54200000000000,
+    "belanja_daerah_idr": 78900000000000,
+    "alokasi_transformasi_digital_spbe_idr": 1280000000000
+  },
+  "indikator_ekonomi_jakarta": {
+    "pertumbuhan_ekonomi_dki_persen": 5.08,
+    "inflasi_tahunan_persen": 2.15,
+    "jumlah_penduduk_dki_jiwa": 10672100,
+    "jumlah_umkm_terdaftar": 1145000
+  },
+  "sektor_prioritas_digital": [
+    "Otomasi Layanan Publik Kelurahan/Kecamatan",
+    "Sistem Transportasi Terintegrasi JakLingko & MRT",
+    "Pengendalian Banjir & Smart City Command Center",
+    "Integrasi Big Data SPBE Lintas OPD"
+  ]
+}

@@ -1,0 +1,457 @@
+{
+  "total_skills": 50,
+  "skills": [
+    {
+      "id": "agile-scrum-operations",
+      "name": "agile-scrum-operations",
+      "description": "Govern enterprise Agile Scrum execution, sprint backlogs, user story estimation (Story Points), daily standup tracking, and retrospectives. Use when managing sprints, backlogs, or agile ceremonies.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "antigravity-git-workflow",
+      "name": "antigravity-git-workflow",
+      "description": "Enforce Conventional Commits specification, semantic versioning (SemVer), feature branch naming conventions, and pull request hygiene in Antigravity agent workspaces. Use when committing code or managing git branches.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "automated-qa-testing",
+      "name": "automated-qa-testing",
+      "description": "Playwright Automated UI/E2E Testing, REST API Contract Verification, Continuous Regression Test Suites, and Defect Triage",
+      "category": "Quality Assurance",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "backend-api-design",
+      "name": "backend-api-design",
+      "description": "Design robust, versioned, idempotent, and secure RESTful and gRPC API contracts. Define OpenAPI schemas, pagination, error models, and rate limits. Use when designing or reviewing backend endpoints and API contracts.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "brand-guidelines",
+      "name": "brand-guidelines",
+      "description": "Enforce corporate brand identity, tone of voice, visual styling parameters, editorial guidelines, and corporate design standards across all external and internal communications. Use when writing public or brand-aligned collateral.",
+      "category": "Marketing & Growth",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "business-development",
+      "name": "business-development",
+      "description": "Formulate Go-To-Market (GTM) strategies, B2B sales pipelines, customer acquisition funnels, and brand positioning. Use when developing commercialization plans or scaling revenue channels.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "cloud-architecture-well-architected",
+      "name": "cloud-architecture-well-architected",
+      "description": "Evaluate and design multi-cloud infrastructures using the Well-Architected Framework (Operational Excellence, Security, Reliability, Performance, Cost Optimization, Sustainability). Use when designing or auditing cloud infrastructure.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "competitive-intelligence",
+      "name": "competitive-intelligence",
+      "description": "Conduct adversarial competitor teardowns, reverse-engineer product roadmaps, dissect pricing models, assess economic moats, and produce sales battle cards. Use when benchmarking competitors or identifying market vulnerabilities.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "compliance-review",
+      "name": "compliance-review",
+      "description": "Audit business operations, technology architectures, and data handling against legal regulations, data protection laws (GDPR, UU PDP), and industry standards. Use when reviewing legal compliance or conducting audit reviews.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "corporate-communication",
+      "name": "corporate-communication",
+      "description": "Formulate corporate public relations strategies, executive investor briefings, crisis management communications, and internal stakeholder change management. Use when crafting high-stakes corporate communications.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "corporate-reporting",
+      "name": "corporate-reporting",
+      "description": "Synthesize cross-divisional findings into boardroom-ready executive summaries, comprehensive feasibility studies, and final project reports. Use when producing executive-level consolidated documentation.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "cybersecurity-hardening",
+      "name": "cybersecurity-hardening",
+      "description": "Implement enterprise application security, OWASP Top 10 defenses, zero-trust network boundaries, secret lifecycle management, and threat modeling. Use when auditing code security or hardening system configurations.",
+      "category": "Cybersecurity & Governance",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "cybersecurity-owasp-audit",
+      "name": "cybersecurity-owasp-audit",
+      "description": "Static and Dynamic Security Auditing, OWASP Top 10 Vulnerability Remediation, Secret Detection, and Threat Modeling",
+      "category": "Cybersecurity & Governance",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "data-analytics",
+      "name": "data-analytics",
+      "description": "Perform advanced statistical data analytics, trend forecasting, quantitative correlation analysis, and data synthesis. Use when processing structured datasets or validating quantitative claims.",
+      "category": "Data & AI",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "data-engineering-etl",
+      "name": "data-engineering-etl",
+      "description": "Relational Schema Modeling, Idempotent ETL/ELT Data Pipelines, Star Schema Marts, and Great Expectations Quality Checks",
+      "category": "Data & AI",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "data-engineering-pipelines",
+      "name": "data-engineering-pipelines",
+      "description": "Architect and operate scalable ETL/ELT data pipelines, streaming architectures (Kafka/Redis Streams), lakehouse storage, and data quality frameworks. Use when engineering data ingestion, transformation, or analytical storage.",
+      "category": "Data & AI",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "database-engineering",
+      "name": "database-engineering",
+      "description": "Model enterprise relational and NoSQL database schemas, write idempotent migrations, design B-Tree/GIN indexes, manage transactions, and handle partitioning. Use when designing, migrating, or optimizing database schemas.",
+      "category": "Data & AI",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "decision-intelligence",
+      "name": "decision-intelligence",
+      "description": "Evaluate complex corporate trade-offs, construct multi-criteria decision matrices (MCDA), quantify risk-reward ratios, and synthesize executive consensus. Use when making strategic executive decisions.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "deep-research",
+      "name": "deep-research",
+      "description": "Conduct rigorous, multi-iteration deep web research, academic paper synthesis, expert consensus gathering, and statistical source triangulations. Use when deep factual research or exhaustive technical/market investigation is required.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "devops-ci-cd",
+      "name": "devops-ci-cd",
+      "description": "Formulate and maintain automated CI/CD deployment pipelines, containerization standards (Docker), release strategies (Blue-Green/Canary), and environment promotion. Use when building or optimizing build and deployment workflows.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "financial-analysis",
+      "name": "financial-analysis",
+      "description": "Build comprehensive financial models, CAPEX/OPEX breakdowns, ROI/NPV/IRR valuations, and budget feasibility reports. Use when calculating costs, cash flow projections, or evaluating business profitability.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "financial-forecasting",
+      "name": "financial-forecasting",
+      "description": "Build multi-scenario 3-statement financial forecasts (Income Statement, Balance Sheet, Cash Flow), run Monte Carlo simulations, stress-test working capital, and project cash runway. Use when forecasting corporate financials.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "fraud-risk-assessment",
+      "name": "fraud-risk-assessment",
+      "description": "Detect internal control gaps, conduct Fraud Triangle evaluations, detect anomalous financial transactions, and design anti-fraud controls. Use when auditing internal controls or evaluating fraud vulnerabilities.",
+      "category": "Finance & Risk",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "frontend-engineering-patterns",
+      "name": "frontend-engineering-patterns",
+      "description": "Engineer accessible, responsive, high-performance web frontends and enterprise dashboards using React, Next.js, and TypeScript. Implement state management, optimistic UI, and Web Vitals optimization. Use when building client interfaces.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "fullstack-guardian",
+      "name": "fullstack-guardian",
+      "description": "Enterprise skill for fullstack-guardian",
+      "category": "Cybersecurity & Governance",
+      "assigned_agents": [
+        "RAKA",
+        "ARKA"
+      ]
+    },
+    {
+      "id": "google-drive-connector",
+      "name": "google-drive-connector",
+      "description": "Search, retrieve, inspect, and parse files, spreadsheets, and documents from Google Drive. Use when checking Google Drive documents, reading shared company folders, or ingesting Drive spreadsheets.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "growth-marketing-seo",
+      "name": "growth-marketing-seo",
+      "description": "Multi-Channel Growth Marketing, CAC/LTV Attribution Modeling, Semantic Technical SEO, and Corporate Brand Strategy",
+      "category": "Marketing & Growth",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "humanize",
+      "name": "humanize",
+      "description": "Transform AI-generated text into natural, human-like content that bypasses AI detectors like GPTZero, Turnitin, and Originality.ai. Uses credits based on word count.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "humanizer-zh",
+      "name": "humanizer-zh",
+      "description": "编辑中文文章、评论和文档中的空话、重复及模板化表达，让文字更自然，同时保留事实、确定程度和作者声音。适用于润色已有文本，不用于判断作者身份或保证通过 AI 检测器。",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "jakarta-repository-connector",
+      "name": "jakarta-repository-connector",
+      "description": "Query, fetch, and analyze public datasets, government regulations, and municipal documents from Satu Data Jakarta (data.jakarta.go.id) and Repositori SPBE DKI Jakarta. Use when researching Jakarta regional data, APBD budgets, demographic statistics, or municipal regulations.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "market-research",
+      "name": "market-research",
+      "description": "Conduct rigorous empirical market research, competitor intelligence, industry benchmarking, and macro-environmental analysis. Use when evaluating market viability, market size, or competitive landscape.",
+      "category": "Marketing & Growth",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "mcp-builder",
+      "name": "mcp-builder",
+      "description": "Design, build, test, and package Model Context Protocol (MCP) servers and tools. Expose enterprise databases, APIs, and CLI tools securely to AI agents. Use when integrating custom tools or MCP services.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "mlops-pipeline",
+      "name": "mlops-pipeline",
+      "description": "Operationalize, deploy, monitor, and govern AI/ML models and LLM agent chains. Implement model versioning, prompt management, evaluation benchmarks, and latency/drift monitoring. Use when operationalizing AI/ML services.",
+      "category": "Data & AI",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "performance-engineering",
+      "name": "performance-engineering",
+      "description": "Profile system bottlenecks, optimize algorithmic complexity, tune database query execution plans, configure caching strategies, and conduct load stress testing. Use when tuning latency, throughput, or resource consumption.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "procurement-analysis",
+      "name": "procurement-analysis",
+      "description": "Analyze enterprise procurement requests, evaluate vendor RFPs, calculate Total Cost of Ownership (TCO), negotiate enterprise software licensing tiers, and ensure supplier compliance. Use when auditing vendor procurement.",
+      "category": "Finance & Risk",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "product-design-system",
+      "name": "product-design-system",
+      "description": "Enterprise UI/UX Design System, Figma Design Token Architecture, and WCAG 2.1 AA/AAA Accessibility Standards",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "project-management",
+      "name": "project-management",
+      "description": "Plan, track, and optimize corporate projects, Gantt milestones, resource allocation, and agile sprints. Use when structuring delivery schedules, operational timelines, or managing cross-functional initiatives.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "quality-assurance",
+      "name": "quality-assurance",
+      "description": "Rigorous cross-divisional quality control, fact-checking, consistency verification, and acceptance gate enforcement. Use when evaluating agent deliverables, verifying factual claims, or approving reports.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "requesting-code-review",
+      "name": "requesting-code-review",
+      "description": "Prepare structured, context-rich code review submissions, execute rigorous peer reviews covering architecture, performance, security, and maintainability, and document actionable critique. Use during code reviews.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "risk-management",
+      "name": "risk-management",
+      "description": "Identify, quantify, and mitigate enterprise risks using 5x5 Probability-Impact matrices, failure mode analysis, and contingency planning. Use when conducting risk assessments or stress-testing corporate strategies.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "senior-fullstack",
+      "name": "senior-fullstack",
+      "description": "Start a fullstack project or audit a codebase: pick a stack (Next.js, FastAPI, MERN, Django), scaffold it and score code quality. Use whenever the user asks which stack to use, wants a new web app set up, or asks how good or messy their codebase is.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "RAKA",
+        "ARKA"
+      ]
+    },
+    {
+      "id": "software-engineering",
+      "name": "software-engineering",
+      "description": "Enterprise software engineering, production code development, testing frameworks, and secure coding practices across Python, TypeScript, and backend architectures. Use when building, debugging, or reviewing production software.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "source-verification",
+      "name": "source-verification",
+      "description": "Audit facts, statistical claims, and data provenance. Verify data credibility, detect corporate bias, detect hallucinated statistics, and maintain verifiable bibliographies. Use when validating claims or auditing research integrity.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "strategic-marketing-seo",
+      "name": "strategic-marketing-seo",
+      "description": "Formulate high-conversion B2B strategic marketing funnels, technical search engine optimization (SEO), programmatic content strategy, and demand generation. Use when developing acquisition funnels or organic search visibility.",
+      "category": "Marketing & Growth",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "strategic-planning",
+      "name": "strategic-planning",
+      "description": "Formulate enterprise-level strategic plans, goal alignment, corporate vision decomposition, and organizational prioritization. Use when setting corporate direction or scoping complex multi-division initiatives.",
+      "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "subagent-driven-development",
+      "name": "subagent-driven-development",
+      "description": "Orchestrate parallel and staged multi-agent execution, break down complex work streams into discrete subagent briefs, enforce automated review loops, and synthesize results. Use when delegating tasks across specialized agents.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "system-architecture",
+      "name": "system-architecture",
+      "description": "Design scalable cloud architectures, microservices topologies, database schemas, and zero-trust security postures. Use when architecting enterprise systems or evaluating technical infrastructure.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "systematic-debugging",
+      "name": "systematic-debugging",
+      "description": "Execute systematic multi-phase root-cause debugging. Reproduce bugs with minimal test cases, formulate and test hypotheses, isolate defects, and verify fixes without introducing collateral regressions. Use when fixing errors.",
+      "category": "Quality Assurance",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "test-driven-development",
+      "name": "test-driven-development",
+      "description": "Enforce strict Red-Green-Refactor development cycles. Author automated tests that fail before writing implementation code, verify edge cases, and eliminate regressions. Use when authoring or refactoring software modules.",
+      "category": "Quality Assurance",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "writing-plans",
+      "name": "writing-plans",
+      "description": "Author actionable, bite-sized implementation plans and execution roadmaps. Break initiatives into incremental tasks with explicit verification steps and rollback strategies. Use when planning complex features or projects.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    }
+  ]
+}

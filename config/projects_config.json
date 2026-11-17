@@ -1,0 +1,364 @@
+{
+  "projects": [
+    {
+      "id": "PRJ-BUATKAN_WEB_BENGKEL-261116",
+      "title": "NEXUS ENTERPRISE — BUATKAN WEB BENGKEL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/buatkan_web_bengkel/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_BUATKAN_WEB_BENGKEL.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/buatkan_web_bengkel/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_BUATKAN_WEB_BENGKEL.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T18:00:10.058628"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T15:07:45.646392"
+    },
+    {
+      "id": "PRJ-BUATKAN_WEB_PORTOFOL-261116",
+      "title": "NEXUS ENTERPRISE — BUATKAN WEB PORTOFOLIO ARCHITECT MO",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/buatkan_web_portofol/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_BUATKAN_WEB_PORTOFOL.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/buatkan_web_portofol/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_BUATKAN_WEB_PORTOFOL.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T15:06:23.030870"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T15:05:51.782936"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T15:04:57.819468"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T14:52:50.772525"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T12:50:47.520033"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T12:50:06.881181"
+    },
+    {
+      "id": "PRJ-UNDANGAN-261116",
+      "title": "THE ROYAL WEDDING OF ARYA & NABILA — UNDANGAN PERNIKAHAN DIGITAL",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/undangan/index.html",
+      "doc_download_url": "/api/download/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "/undangan/index.html (Production SPA)",
+        "reports/DOKUMEN_SPESIFIKASI_WEB_UNDANGAN_PERNIKAHAN.xlsx",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T10:24:40.762466"
+    },
+    {
+      "id": "PRJ-SPBE-001",
+      "title": "Audit Forensik 3C SPBE 22 Perangkat Daerah DKI Jakarta",
+      "status": "COMPLETED_AND_VERIFIED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "collaborators": [
+        "NAYA",
+        "RAKA",
+        "SEKAR",
+        "DIMAS",
+        "TARA",
+        "FARREL"
+      ],
+      "deliverables": [
+        "LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.xlsx (7 Sheets)",
+        "REKAP_DATA_BELUM_ADA_FORMAT_RESMI.xlsx (28 Sheets)",
+        "REKAP_DATA_GAGAL_UPLOAD_FORMAT_RESMI.xlsx (5 Kolom)"
+      ],
+      "last_updated": "2026-11-15T23:45:00Z"
+    },
+    {
+      "id": "PRJ-WEBAPP-002",
+      "title": "Enterprise Web Application & Portal Services Lifecycle",
+      "status": "IN_PROGRESS",
+      "progress_percent": 85,
+      "orchestrator": "ARKA",
+      "workflow_lifecycle": [
+        {
+          "step": 1,
+          "owner": "DIMAS",
+          "phase": "Business Needs & Functional Scope Analysis",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 2,
+          "owner": "ADITYA",
+          "phase": "Product Concept, PRD & UI/UX Figma Design Tokens",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 3,
+          "owner": "RAKA",
+          "phase": "Frontend & Backend Microservice Engineering",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 4,
+          "owner": "TARA",
+          "phase": "PostgreSQL Schema, Star Schema Mart & ETL Pipeline",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 5,
+          "owner": "BIMA",
+          "phase": "Cybersecurity SAST Audit & OWASP Top 10 Clearance",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 6,
+          "owner": "FARREL",
+          "phase": "Automated Playwright & API Regression Testing",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 7,
+          "owner": "NAYA",
+          "phase": "Data Intelligence & Empirical Validation",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 8,
+          "owner": "SEKAR",
+          "phase": "Budget Audit, Financial ROI & Compliance Review",
+          "status": "COMPLETED"
+        },
+        {
+          "step": 9,
+          "owner": "KIRANA",
+          "phase": "Growth Marketing, SEO & Launch Positioning",
+          "status": "IN_PROGRESS"
+        },
+        {
+          "step": 10,
+          "owner": "ARKA",
+          "phase": "Final Executive Orchestration & Boardroom Sign-Off",
+          "status": "IN_PROGRESS"
+        }
+      ],
+      "last_updated": "2026-11-15T23:50:00Z"
+    },
+    {
+      "id": "PRJ-CAFE-003",
+      "title": "Nexus Coffee Lab & Artisan Cafe Web Platform",
+      "status": "COMPLETED_AND_DEPLOYED",
+      "progress_percent": 100,
+      "orchestrator": "ARKA",
+      "url": "/cafe/index.html",
+      "collaborators": [
+        "ARKA",
+        "ADITYA",
+        "RAKA",
+        "TARA",
+        "BIMA",
+        "FARREL",
+        "KIRANA",
+        "SEKAR",
+        "DIMAS",
+        "NAYA"
+      ],
+      "deliverables": [
+        "public/cafe/index.html (Interactive Production SPA)",
+        "reports/CAFE_PRODUCT_SPECIFICATION.md",
+        "8/8 Automated QA Tests Passed (FARREL)"
+      ],
+      "last_updated": "2026-11-16T10:16:49.407158"
+    }
+  ]
+}

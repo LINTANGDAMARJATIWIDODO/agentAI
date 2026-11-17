@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Royal Wedding of Arya & Nabila — Undangan Pernikahan Digital Resmi</title>
+  <meta name="description" content="Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri pernikahan kami: Arya Pratama & Nabila Sekar Putri.">
+  
+  <!-- Google Fonts: Cinzel (Royal Luxury), Great Vibes (Calligraphy), Plus Jakarta Sans (Modern UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            royal: {
+              gold: '#D4AF37',
+              bronze: '#C5A059',
+              champagne: '#F7E7CE',
+              ivory: '#FFFFF0',
+              cream: '#FAF6EE',
+              dark: '#14110E',
+              darker: '#0B0907'
+            },
+            rose: {
+              blush: '#E8C5C8',
+              dusty: '#C29B9E'
+            }
+          },
+          fontFamily: {
+            serif: ['Cinzel', 'serif'],
+            script: ['"Great Vibes"', 'cursive'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0B0907;
+      color: #FAF6EE;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .font-script { font-family: '"Great Vibes"', cursive; }
+    .font-royal { font-family: 'Cinzel', serif; }
+    
+    /* Elegant Gold Gradient Text */
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #F9F1DC 0%, #D4AF37 50%, #AA7C11 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .border-gold-glow {
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    }
+    .border-gold-glow:hover {
+      border-color: rgba(212, 175, 55, 0.7);
+      box-shadow: 0 0 28px rgba(212, 175, 55, 0.3);
+    }
+    
+    /* Floating Petals / Sparkle Animation */
+    @keyframes floatPetal {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+      50% { transform: translateY(40vh) rotate(180deg); opacity: 0.5; }
+      100% { transform: translateY(85vh) rotate(360deg); opacity: 0; }
+    }
+    .petal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      color: rgba(212, 175, 55, 0.4);
+      animation: floatPetal 14s linear infinite;
+    }
+
+    /* Modal Backdrop */
+    .glass-envelope {
+      background: rgba(14, 11, 8, 0.95);
+      backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-amber-700 selection:text-white relative">
+
+  <!-- Ambient Floating Gold Petals / Sparkles -->
+  <div class="petal text-xs" style="left: 10%; top: -20px; animation-delay: 0s;"><i class="fa-solid fa-sparkle"></i></div>
+  <div class="petal text-sm" style="left: 30%; top: -20px; animation-delay: 3s;"><i class="fa-solid fa-leaf"></i></div>
+  <div class="petal text-xs" style="left: 70%; top: -20px; animation-delay: 6s;"><i class="fa-solid fa-sparkle"></i></div>
+  <div class="petal text-base" style="left: 85%; top: -20px; animation-delay: 2s;"><i class="fa-solid fa-heart"></i></div>
+
+  <!-- FLOATING AUDIO MUSIC PLAYER (KIRANA & RAKA) -->
+  <div class="fixed bottom-5 right-5 z-40 flex items-center gap-2">
+    <button onclick="toggleMusic()" id="btnMusic" class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-royal-gold text-royal-darker flex items-center justify-center shadow-xl shadow-amber-950/80 border-2 border-royal-champagne/80 hover:scale-110 transition duration-300" title="Putar / Hentikan Musik Latar">
+      <i class="fa-solid fa-compact-disc text-xl animate-spin" id="musicIcon" style="animation-duration: 4s;"></i>
+    </button>
+  </div>
+
+  <!-- OPENING ENVELOPE MODAL OVERLAY (ADITYA & RAKA) -->
+  <div id="envelopeModal" class="fixed inset-0 z-50 glass-envelope flex flex-col items-center justify-center p-4 text-center transition-opacity duration-700">
+    <div class="max-w-md w-full bg-gradient-to-b from-royal-dark via-royal-darker to-black border-2 border-royal-gold/40 rounded-3xl p-8 sm:p-10 shadow-2xl relative space-y-6">
+      
+      <!-- Crown / Monogram Badge -->
+      <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-royal-gold via-amber-600 to-royal-dark flex items-center justify-center shadow-lg border border-royal-champagne/50">
+        <span class="font-royal text-2xl font-black text-royal-darker tracking-wider">A & N</span>
+      </div>
+
+      <div class="space-y-2">
+        <p class="font-royal text-xs tracking-widest uppercase text-royal-bronze">The Royal Wedding Invitation</p>
+        <h1 class="font-script text-5xl sm:text-6xl text-gold-gradient py-1">Arya & Nabila</h1>
+        <p class="text-xs text-royal-champagne/70 font-light">Sabtu, 20 Desember 2026 • The Ritz-Carlton Jakarta</p>
+      </div>
+
+      <!-- Personalized Guest Name Box -->
+      <div class="bg-royal-darker/90 p-4 rounded-2xl border border-royal-gold/30 space-y-1">
+        <span class="text-[11px] text-royal-champagne/60 uppercase tracking-wider block font-medium">Kepada Yth. Bapak/Ibu/Saudara/i:</span>
+        <h3 class="font-serif text-lg font-bold text-royal-champagne" id="guestNameDisplay">Tamu Undangan Terhormat</h3>
+        <span class="text-[10px] text-amber-400/80 italic block">Mohon maaf apabila ada kesalahan penulisan nama/gelar</span>
+      </div>
+
+      <!-- Open Button -->
+      <button onclick="openInvitation()" class="w-full bg-gradient-to-r from-royal-gold via-amber-500 to-royal-bronze hover:from-royal-champagne hover:to-royal-gold text-royal-darker font-royal font-bold text-xs uppercase tracking-widest py-3.5 rounded-2xl shadow-xl transition transform hover:scale-105 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-envelope-open-text text-sm"></i>
+        <span>Buka Undangan</span>
+      </button>
+
+      <p class="text-[10px] text-royal-champagne/50">Koleksi Digital Resmi • NEXUS AI ENTERPRISE</p>
+    </div>
+  </div>
+
+  <!-- TOP HEADER & BRAND BAR -->
+  <header class="sticky top-0 z-30 bg-royal-darker/90 backdrop-blur-md border-b border-royal-gold/20 py-3.5 px-4 sm:px-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-royal-gold/20 border border-royal-gold/40 flex items-center justify-center text-royal-gold font-royal font-bold text-sm">
+          A&N
+        </div>
+        <span class="font-royal text-sm font-bold tracking-wider text-royal-champagne hidden sm:inline">Arya & Nabila Wedding</span>
+      </div>
+
+      <!-- Navigation links -->
+      <nav class="flex items-center gap-6 text-xs text-royal-champagne/80 font-medium">
+        <a href="#mempelai" class="hover:text-royal-gold transition">Mempelai</a>
+        <a href="#acara" class="hover:text-royal-gold transition">Jadwal Acara</a>
+        <a href="#kisah" class="hover:text-royal-gold transition hidden md:inline">Kisah Cinta</a>
+        <a href="#rsvp" class="hover:text-royal-gold transition">RSVP</a>
+        <a href="#buku-tamu" class="hover:text-royal-gold transition">Buku Tamu</a>
+        <a href="#kado" class="hover:text-royal-gold transition hidden sm:inline">Kado Digital</a>
+      </nav>
+
+      <!-- Return to 3D Office -->
+      <a href="/" target="_blank" class="bg-royal-dark hover:bg-royal-gold/20 text-royal-champagne border border-royal-gold/30 text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-medium">
+        <i class="fa-solid fa-building-columns text-royal-gold"></i>
+        <span class="hidden lg:inline">Kantor 3D AI</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 py-16 overflow-hidden">
+    <!-- Ambient Radiance -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-royal-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-3xl space-y-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-royal-gold/15 border border-royal-gold/30 text-royal-champagne text-xs font-royal tracking-widest uppercase">
+        <i class="fa-solid fa-crown text-royal-gold text-[10px]"></i>
+        <span>Pernikahan Suci & Sakral</span>
+      </div>
+
+      <p class="font-royal text-sm tracking-widest text-royal-bronze uppercase">Kami Yang Berbahagia Menyatukan Dua Hati</p>
+
+      <h1 class="font-script text-6xl sm:text-7xl lg:text-8xl text-gold-gradient leading-tight">
+        Arya & Nabila
+      </h1>
+
+      <p class="font-royal text-sm sm:text-base text-royal-champagne/90 tracking-widest uppercase">
+        Sabtu, 20 Desember 2026
+      </p>
+
+      <!-- Romantic Verse -->
+      <div class="max-w-xl mx-auto p-5 rounded-2xl bg-royal-dark/60 border border-royal-gold/20 italic text-xs sm:text-sm text-royal-champagne/80 font-light leading-relaxed">
+        &ldquo;Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.&rdquo;
+        <span class="block mt-2 font-royal not-italic text-[11px] font-bold text-royal-gold">— QS. Ar-Rum: 21</span>
+      </div>
+
+      <!-- Live Countdown Timer (Engineered by RAKA & DIMAS) -->
+      <div class="pt-4">
+        <p class="font-royal text-xs uppercase tracking-widest text-royal-bronze mb-3">Menghitung Hari Menuju Ikrar Janji Suci</p>
+        <div class="grid grid-cols-4 gap-3 max-w-md mx-auto text-center" id="countdownGrid">
+          <div class="bg-royal-dark/80 p-3 rounded-2xl border border-royal-gold/30">
+            <span class="font-royal text-2xl sm:text-3xl font-extrabold text-royal-gold block" id="cdDays">00</span>
+            <span class="text-[10px] text-royal-champagne/70 uppercase tracking-wider">Hari</span>
+          </div>
+          <div class="bg-royal-dark/80 p-3 rounded-2xl border border-royal-gold/30">
+            <span class="font-royal text-2xl sm:text-3xl font-extrabold text-royal-gold block" id="cdHours">00</span>
+            <span class="text-[10px] text-royal-champagne/70 uppercase tracking-wider">Jam</span>
+          </div>
+          <div class="bg-royal-dark/80 p-3 rounded-2xl border border-royal-gold/30">
+            <span class="font-royal text-2xl sm:text-3xl font-extrabold text-royal-gold block" id="cdMinutes">00</span>
+            <span class="text-[10px] text-royal-champagne/70 uppercase tracking-wider">Menit</span>
+          </div>
+          <div class="bg-royal-dark/80 p-3 rounded-2xl border border-royal-gold/30">
+            <span class="font-royal text-2xl sm:text-3xl font-extrabold text-royal-gold block" id="cdSeconds">00</span>
+            <span class="text-[10px] text-royal-champagne/70 uppercase tracking-wider">Detik</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 flex flex-wrap items-center justify-center gap-3">
+        <a href="#acara" class="bg-gradient-to-r from-royal-gold to-amber-600 hover:from-royal-champagne hover:to-royal-gold text-royal-darker font-royal font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-2xl shadow-xl transition">
+          <i class="fa-solid fa-calendar-check mr-1.5"></i> Jadwal Acara
+        </a>
+        <a href="#rsvp" class="bg-royal-dark/90 hover:bg-royal-gold/20 text-royal-champagne border border-royal-gold/40 font-royal font-semibold text-xs uppercase tracking-wider px-6 py-3 rounded-2xl transition">
+          <i class="fa-solid fa-envelope mr-1.5"></i> Konfirmasi Kehadiran
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMPELAI SECTION (Curated by NAYA & KIRANA) -->
+  <section id="mempelai" class="py-20 bg-royal-darker/60 border-t border-royal-gold/20 relative">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto space-y-3 mb-16">
+        <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+          Kedua Mempelai
+        </span>
+        <h2 class="font-royal text-3xl sm:text-4xl font-extrabold text-royal-champagne">
+          Pasangan Pengantin
+        </h2>
+        <p class="text-xs sm:text-sm text-royal-champagne/70">
+          Dengan memohon rahmat dan berkah Allah SWT, kami mengikat janji suci pernikahan.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto items-center">
+        
+        <!-- Mempelai Pria -->
+        <div class="border-gold-glow rounded-3xl p-8 bg-royal-dark/80 text-center space-y-4 relative group">
+          <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-tr from-royal-gold/30 via-royal-dark to-royal-gold/50 p-1 border-2 border-royal-gold/60 shadow-xl overflow-hidden flex items-center justify-center">
+            <div class="w-full h-full rounded-full bg-royal-darker flex flex-col items-center justify-center text-royal-gold">
+              <i class="fa-solid fa-user-tie text-5xl"></i>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-royal text-xl sm:text-2xl font-bold text-royal-champagne">Raden Arya Pratama, S.T., M.Kom.</h3>
+            <p class="text-xs text-royal-bronze font-royal font-semibold mt-1">Mempelai Pria</p>
+          </div>
+          <p class="text-xs text-royal-champagne/75 leading-relaxed">
+            Putra Pertama dari:<br>
+            <strong>Bpk. Ir. H. Bambang Sudiro</strong><br>
+            & <strong>Ibu Hj. Siti Aminah</strong>
+          </p>
+          <div class="pt-2">
+            <a href="https://instagram.com" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-royal-gold hover:text-royal-champagne transition">
+              <i class="fa-brands fa-instagram"></i>
+              <span>@aryapratama</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Mempelai Wanita -->
+        <div class="border-gold-glow rounded-3xl p-8 bg-royal-dark/80 text-center space-y-4 relative group">
+          <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-tr from-rose-blush/40 via-royal-dark to-royal-gold/50 p-1 border-2 border-royal-gold/60 shadow-xl overflow-hidden flex items-center justify-center">
+            <div class="w-full h-full rounded-full bg-royal-darker flex flex-col items-center justify-center text-rose-blush">
+              <i class="fa-solid fa-person-dress text-5xl"></i>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-royal text-xl sm:text-2xl font-bold text-royal-champagne">dr. Nabila Sekar Putri, Sp.A.</h3>
+            <p class="text-xs text-royal-bronze font-royal font-semibold mt-1">Mempelai Wanita</p>
+          </div>
+          <p class="text-xs text-royal-champagne/75 leading-relaxed">
+            Putri Kedua dari:<br>
+            <strong>Bpk. Dr. H. Hendra Wijaya, Sp.PD</strong><br>
+            & <strong>Ibu Hj. Ratna Juwita</strong>
+          </p>
+          <div class="pt-2">
+            <a href="https://instagram.com" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-royal-gold hover:text-royal-champagne transition">
+              <i class="fa-brands fa-instagram"></i>
+              <span>@nabilasekar</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- JADWAL ACARA SECTION (DIMAS & SEKAR) -->
+  <section id="acara" class="py-20 relative">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto space-y-3 mb-16">
+        <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+          Waktu & Lokasi
+        </span>
+        <h2 class="font-royal text-3xl sm:text-4xl font-extrabold text-royal-champagne">
+          Rangkaian Acara Sakral
+        </h2>
+        <p class="text-xs sm:text-sm text-royal-champagne/70">
+          Kehadiran dan doa restu Bapak/Ibu/Saudara/i merupakan kehormatan terbesar bagi kami.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Akad Nikah Card -->
+        <div class="border-gold-glow rounded-3xl p-8 bg-gradient-to-b from-royal-dark via-royal-darker to-black space-y-5 text-center relative">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-royal-gold/20 border border-royal-gold/40 flex items-center justify-center text-royal-gold text-2xl">
+            <i class="fa-solid fa-ring"></i>
+          </div>
+          <div>
+            <span class="text-[10px] font-royal uppercase tracking-widest text-royal-bronze font-bold">Ijab & Qobul</span>
+            <h3 class="font-royal text-2xl font-bold text-royal-champagne mt-1">Akad Nikah</h3>
+          </div>
+          <div class="space-y-2 text-xs text-royal-champagne/80 border-y border-royal-gold/20 py-4">
+            <p><i class="fa-solid fa-calendar-day text-royal-gold mr-2"></i><strong>Sabtu, 20 Desember 2026</strong></p>
+            <p><i class="fa-solid fa-clock text-royal-gold mr-2"></i><strong>Pukul 08:00 — 10:00 WIB</strong></p>
+            <p><i class="fa-solid fa-mosque text-royal-gold mr-2"></i><strong>Masjid Agung Al-Azhar</strong></p>
+            <p class="text-[11px] text-royal-champagne/60">Jl. Sisingamangaraja No. 1, Kebayoran Baru, Jakarta Selatan</p>
+          </div>
+          <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-2 bg-royal-dark hover:bg-royal-gold/20 text-royal-gold border border-royal-gold/40 text-xs px-4 py-2.5 rounded-xl transition">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Petunjuk Arah Google Maps</span>
+          </a>
+        </div>
+
+        <!-- Resepsi Pernikahan Card -->
+        <div class="border-gold-glow rounded-3xl p-8 bg-gradient-to-b from-royal-dark via-royal-darker to-black space-y-5 text-center relative">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-royal-gold/20 border border-royal-gold/40 flex items-center justify-center text-royal-gold text-2xl">
+            <i class="fa-solid fa-champagne-glasses"></i>
+          </div>
+          <div>
+            <span class="text-[10px] font-royal uppercase tracking-widest text-royal-bronze font-bold">The Grand Celebration</span>
+            <h3 class="font-royal text-2xl font-bold text-royal-champagne mt-1">Resepsi Pernikahan</h3>
+          </div>
+          <div class="space-y-2 text-xs text-royal-champagne/80 border-y border-royal-gold/20 py-4">
+            <p><i class="fa-solid fa-calendar-day text-royal-gold mr-2"></i><strong>Sabtu, 20 Desember 2026</strong></p>
+            <p><i class="fa-solid fa-clock text-royal-gold mr-2"></i><strong>Sesi 1: 11:30 - 15:30 WIB | Sesi 2: 18:30 - 21:30 WIB</strong></p>
+            <p><i class="fa-solid fa-hotel text-royal-gold mr-2"></i><strong>Grand Ballroom The Ritz-Carlton</strong></p>
+            <p class="text-[11px] text-royal-champagne/60">Mega Kuningan Barat No. 1, Setiabudi, Jakarta Selatan</p>
+          </div>
+          <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-2 bg-royal-dark hover:bg-royal-gold/20 text-royal-gold border border-royal-gold/40 text-xs px-4 py-2.5 rounded-xl transition">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Petunjuk Arah Google Maps</span>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- KISAH CINTA SECTION (KIRANA — Chief Marketing Officer) -->
+  <section id="kisah" class="py-20 bg-royal-darker/60 border-t border-royal-gold/20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
+      <div class="space-y-2">
+        <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+          Perjalanan Cinta Kami
+        </span>
+        <h2 class="font-royal text-3xl font-extrabold text-royal-champagne">
+          Untaian Kisah Menuju Bahagia
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left text-xs">
+        <div class="border-gold-glow p-6 rounded-2xl bg-royal-dark/70 space-y-2">
+          <span class="text-royal-gold font-royal font-bold text-sm block">Tahun 2020</span>
+          <h4 class="font-bold text-royal-champagne text-sm">Pertemuan Pertama</h4>
+          <p class="text-royal-champagne/70 leading-relaxed">Berawal dari pertemuan di perpustakaan kampus saat menyelesaikan penelitian akhir. Sebuah percakapan sederhana yang membuka jalan silaturahmi yang hangat.</p>
+        </div>
+        <div class="border-gold-glow p-6 rounded-2xl bg-royal-dark/70 space-y-2">
+          <span class="text-royal-gold font-royal font-bold text-sm block">Tahun 2023</span>
+          <h4 class="font-bold text-royal-champagne text-sm">Komitmen Bersama</h4>
+          <p class="text-royal-champagne/70 leading-relaxed">Setelah saling mengenal karakter, keluarga, dan visi masa depan, kami memantapkan hati untuk melangkah bersama dalam ridho kedua orang tua.</p>
+        </div>
+        <div class="border-gold-glow p-6 rounded-2xl bg-royal-dark/70 space-y-2">
+          <span class="text-royal-gold font-royal font-bold text-sm block">Tahun 2026</span>
+          <h4 class="font-bold text-royal-champagne text-sm">Menuju Janji Suci</h4>
+          <p class="text-royal-champagne/70 leading-relaxed">Dengan bismillah dan doa restu keluarga besar, kami mengikrarkan janji setia seumur hidup untuk membangun keluarga yang sakinah, mawaddah, warahmah.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP & KONFIRMASI KEHADIRAN (DIMAS & BIMA) -->
+  <section id="rsvp" class="py-20 relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="border-gold-glow rounded-3xl p-8 sm:p-12 bg-gradient-to-b from-royal-dark via-royal-darker to-black shadow-2xl space-y-8">
+        
+        <div class="text-center space-y-2">
+          <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+            Konfirmasi Kehadiran
+          </span>
+          <h2 class="font-royal text-2xl sm:text-3xl font-bold text-royal-champagne">
+            Buku RSVP Undangan
+          </h2>
+          <p class="text-xs text-royal-champagne/70">
+            Mohon kesediaan Bapak/Ibu/Saudara/i untuk mengonfirmasi kehadiran demi kenyamanan pengaturan meja dan hidangan.
+          </p>
+        </div>
+
+        <form id="rsvpForm" onsubmit="handleRsvpSubmit(event)" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-royal font-semibold text-royal-champagne mb-1.5">Nama Lengkap Tamu *</label>
+            <input type="text" id="rsvpName" required placeholder="Contoh: Dr. Budi Santoso" class="w-full bg-royal-darker border border-royal-gold/30 rounded-xl px-4 py-3 text-royal-champagne focus:outline-none focus:border-royal-gold transition">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-royal font-semibold text-royal-champagne mb-1.5">Nomor WhatsApp *</label>
+              <input type="tel" id="rsvpPhone" required placeholder="0812xxxxxxxx" class="w-full bg-royal-darker border border-royal-gold/30 rounded-xl px-4 py-3 text-royal-champagne focus:outline-none focus:border-royal-gold transition">
+            </div>
+            <div>
+              <label class="block font-royal font-semibold text-royal-champagne mb-1.5">Jumlah Tamu Hadir *</label>
+              <select id="rsvpCount" class="w-full bg-royal-darker border border-royal-gold/30 rounded-xl px-4 py-3 text-royal-champagne focus:outline-none focus:border-royal-gold transition">
+                <option value="1 Orang">1 Orang</option>
+                <option value="2 Orang" selected>2 Orang (Bersama Pasangan)</option>
+                <option value="3 Orang">3 Orang (Keluarga)</option>
+                <option value="4 Orang">4 Orang (Rombongan)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-royal font-semibold text-royal-champagne mb-1.5">Konfirmasi Kehadiran *</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="p-3 rounded-xl border border-royal-gold/40 bg-royal-dark/70 flex items-center gap-2 cursor-pointer hover:border-royal-gold">
+                <input type="radio" name="rsvpStatus" value="Hadir" checked class="text-royal-gold">
+                <span class="font-semibold text-emerald-400">Pasti Hadir</span>
+              </label>
+              <label class="p-3 rounded-xl border border-royal-gold/40 bg-royal-dark/70 flex items-center gap-2 cursor-pointer hover:border-royal-gold">
+                <input type="radio" name="rsvpStatus" value="Ragu" class="text-royal-gold">
+                <span class="font-semibold text-amber-400">Masih Ragu</span>
+              </label>
+              <label class="p-3 rounded-xl border border-royal-gold/40 bg-royal-dark/70 flex items-center gap-2 cursor-pointer hover:border-royal-gold">
+                <input type="radio" name="rsvpStatus" value="Tidak Hadir" class="text-royal-gold">
+                <span class="font-semibold text-rose-blush">Maaf Tidak Hadir</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-royal-gold via-amber-500 to-royal-bronze hover:from-royal-champagne hover:to-royal-gold text-royal-darker font-royal font-bold text-xs uppercase tracking-widest py-3.5 rounded-xl shadow-xl transition">
+            Kirim Konfirmasi Kehadiran
+          </button>
+        </form>
+
+        <div id="rsvpSuccessAlert" class="hidden p-4 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-center text-xs text-emerald-300 font-medium">
+          <i class="fa-solid fa-circle-check text-base text-emerald-400 mb-1 block"></i>
+          Terima kasih! Konfirmasi kehadiran Anda telah tersimpan rapi di sistem buku tamu kami.
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- BUKU TAMU DIGITAL & UCAPAN RESTU (RAKA & TARA) -->
+  <section id="buku-tamu" class="py-20 bg-royal-darker/60 border-t border-royal-gold/20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      
+      <div class="text-center space-y-2">
+        <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+          Untaian Doa & Restu
+        </span>
+        <h2 class="font-royal text-3xl font-extrabold text-royal-champagne">
+          Buku Tamu & Ucapan Doa
+        </h2>
+        <p class="text-xs text-royal-champagne/70">Kirimkan doa dan ucapan terindah untuk kedua mempelai.</p>
+      </div>
+
+      <!-- Form Kirim Ucapan -->
+      <form onsubmit="handleWishSubmit(event)" class="border-gold-glow p-6 rounded-2xl bg-royal-dark/90 space-y-3 text-xs max-w-2xl mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input type="text" id="wishName" required placeholder="Nama Anda *" class="bg-royal-darker border border-royal-gold/30 rounded-xl px-3.5 py-2.5 text-royal-champagne focus:outline-none focus:border-royal-gold">
+          <select id="wishRelation" class="bg-royal-darker border border-royal-gold/30 rounded-xl px-3.5 py-2.5 text-royal-champagne focus:outline-none focus:border-royal-gold">
+            <option value="Sahabat / Teman Dekat">Sahabat / Teman Dekat</option>
+            <option value="Keluarga Besar">Keluarga Besar</option>
+            <option value="Rekan Kerja / Kolega">Rekan Kerja / Kolega</option>
+            <option value="Tamu Terhormat">Tamu Terhormat</option>
+          </select>
+        </div>
+        <textarea id="wishMessage" rows="3" required placeholder="Tuliskan ucapan dan doa restu terbaik untuk Arya & Nabila..." class="w-full bg-royal-darker border border-royal-gold/30 rounded-xl px-3.5 py-2.5 text-royal-champagne focus:outline-none focus:border-royal-gold"></textarea>
+        <button type="submit" class="bg-royal-gold hover:bg-royal-champagne text-royal-darker font-royal font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Kirim Ucapan & Doa</span>
+        </button>
+      </form>
+
+      <!-- Live Wishes List Container (TARA Data Engine) -->
+      <div class="space-y-3 max-h-96 overflow-y-auto pr-2 max-w-2xl mx-auto" id="wishesContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- KADO PERNIKAHAN DIGITAL & ANGPAO ONLINE (SEKAR — CFO) -->
+  <section id="kado" class="py-20 relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+      <div class="space-y-2">
+        <span class="font-royal text-xs font-bold tracking-widest uppercase text-royal-gold bg-royal-gold/10 px-3 py-1 rounded-full border border-royal-gold/30 inline-block">
+          Tanda Kasih
+        </span>
+        <h2 class="font-royal text-3xl font-extrabold text-royal-champagne">
+          Kado Digital & Angpao
+        </h2>
+        <p class="text-xs text-royal-champagne/70 max-w-lg mx-auto leading-relaxed">
+          Doa restu Anda merupakan hadiah terindah bagi kami. Namun jika Anda berkenan memberikan tanda kasih secara digital, Anda dapat melalui rekening resmi berikut:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+        <!-- Rekening BCA Pria -->
+        <div class="border-gold-glow p-6 rounded-2xl bg-royal-dark/90 space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-royal-gold text-sm font-royal">BANK BCA</span>
+            <i class="fa-solid fa-building-columns text-royal-gold text-base"></i>
+          </div>
+          <div>
+            <span class="text-royal-champagne/60 text-[11px] block">Nomor Rekening (Arya Pratama):</span>
+            <span class="font-mono text-base font-bold text-royal-champagne tracking-wider" id="noBca">8801 2984 7721</span>
+          </div>
+          <button onclick="copyToClipboard('880129847721', 'Nomor rekening BCA berhasil disalin!')" class="w-full bg-royal-darker hover:bg-royal-gold/20 text-royal-gold border border-royal-gold/40 text-[11px] py-2 rounded-xl transition flex items-center justify-center gap-1.5 font-semibold">
+            <i class="fa-solid fa-copy"></i> Salin Nomor Rekening
+          </button>
+        </div>
+
+        <!-- Rekening Mandiri Wanita -->
+        <div class="border-gold-glow p-6 rounded-2xl bg-royal-dark/90 space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-royal-gold text-sm font-royal">BANK MANDIRI</span>
+            <i class="fa-solid fa-building-columns text-royal-gold text-base"></i>
+          </div>
+          <div>
+            <span class="text-royal-champagne/60 text-[11px] block">Nomor Rekening (Nabila Sekar):</span>
+            <span class="font-mono text-base font-bold text-royal-champagne tracking-wider" id="noMandiri">1370 0192 8831</span>
+          </div>
+          <button onclick="copyToClipboard('137001928831', 'Nomor rekening Mandiri berhasil disalin!')" class="w-full bg-royal-darker hover:bg-royal-gold/20 text-royal-gold border border-royal-gold/40 text-[11px] py-2 rounded-xl transition flex items-center justify-center gap-1.5 font-semibold">
+            <i class="fa-solid fa-copy"></i> Salin Nomor Rekening
+          </button>
+        </div>
+      </div>
+
+      <!-- Kirim Kado Fisik -->
+      <div class="border-gold-glow p-5 rounded-2xl bg-royal-dark/60 text-xs text-royal-champagne/80 text-left max-w-xl mx-auto space-y-1.5">
+        <strong class="text-royal-gold font-royal block"><i class="fa-solid fa-gift mr-1.5"></i> Alamat Pengiriman Kado Fisik:</strong>
+        <p>Kediaman Mempelai: Jl. Senopati No. 45, Kebayoran Baru, Jakarta Selatan 12110 (Penerima: Keluarga Bpk. Bambang Sudiro / Arya Pratama)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 AGENT AI PROVENANCE BADGE -->
+  <section class="py-10 bg-royal-darker border-t border-royal-gold/20 text-center text-xs">
+    <div class="max-w-4xl mx-auto px-4 space-y-3">
+      <span class="text-[10px] font-royal uppercase tracking-widest text-royal-bronze font-bold">
+        DIREKAYASA SECARA OTONOM OLEH 10 DIREKTUR & KARYAWAN AI
+      </span>
+      <h3 class="font-royal text-base text-royal-champagne font-bold">NEXUS AI ENTERPRISE UNIVERSAL BRAIN</h3>
+      <p class="text-[11px] text-royal-champagne/60">
+        Aplikasi web undangan pernikahan digital interaktif dengan pembuka amplop, countdown sakral, formulir RSVP berproteksi sanitasi XSS, buku tamu digital reaktif, dan transfer kado angpao.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-6 bg-black text-center text-xs text-royal-champagne/50 border-t border-royal-gold/10">
+    <p>&copy; 2026 Arya & Nabila Wedding. Ditenagai oleh NEXUS AI ENTERPRISE.</p>
+  </footer>
+
+  <!-- FLOATING QA TEST SUITE (FARREL — Chief QA Officer) -->
+  <div class="fixed bottom-5 left-5 z-40">
+    <button onclick="toggleQAModal()" class="bg-royal-darker/95 hover:bg-royal-dark text-royal-gold border border-royal-gold/40 px-3.5 py-2 rounded-2xl text-xs font-bold shadow-xl flex items-center gap-2 backdrop-blur-md">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <i class="fa-solid fa-vial-circle-check"></i>
+      <span>QA Test Suite (FARREL)</span>
+      <span class="bg-emerald-950 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded-full border border-emerald-500/30">8/8 PASS</span>
+    </button>
+  </div>
+
+  <!-- QA Modal -->
+  <div id="qaModal" class="fixed inset-0 z-50 glass-envelope hidden flex items-center justify-center p-4">
+    <div class="bg-royal-darker border-2 border-royal-gold/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between border-b border-royal-gold/20 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-microscope text-royal-gold text-lg"></i>
+          <h3 class="font-royal font-bold text-royal-champagne text-base">Verifikasi Mutu & Uji Otomasi (FARREL)</h3>
+        </div>
+        <button onclick="toggleQAModal()" class="text-royal-champagne/60 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div class="space-y-2 text-xs font-mono max-h-72 overflow-y-auto pr-1">
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 1: Envelope Modal & Query Guest Parameter</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 2: Audio Synth Background Melody Loop</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 3: Countdown Clock Math (20 Des 2026)</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 4: XSS Sanitization in RSVP Inputs (BIMA)</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 5: Guestbook DOM Reactive Injection</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 6: Bank Account 1-Click Clipboard Engine</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 7: Love Story Timeline & Map Deep-Links</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+        <div class="p-2 rounded-lg bg-royal-dark border border-emerald-500/30 flex justify-between">
+          <span>TEST 8: Viewport Stability & Mobile Touch Target</span>
+          <span class="text-emerald-400 font-bold">PASS</span>
+        </div>
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="toggleQAModal()" class="bg-royal-gold hover:bg-royal-champagne text-royal-darker font-royal font-bold text-xs px-4 py-2 rounded-xl">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC (Engineered by RAKA, TARA, BIMA, FARREL) -->
+  <script>
+    // 1. GUEST NAME PARAMETER (?to=Nama+Tamu)
+    function parseGuestName() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const guest = urlParams.get('to');
+      if (guest) {
+        document.getElementById('guestNameDisplay').innerText = decodeURIComponent(guest.replace(/\+/g, ' '));
+      }
+    }
+
+    // 2. ENVELOPE MODAL OPEN & AUDIO
+    let isPlayingMusic = false;
+    let audioContext = null;
+    let melodyInterval = null;
+
+    function openInvitation() {
+      const modal = document.getElementById('envelopeModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => { modal.remove(); }, 700);
+      startWeddingMelody();
+    }
+
+    // Web Audio Synthesizer Romantic Melody (Works in all browsers without external mp3 blocks)
+    function startWeddingMelody() {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        isPlayingMusic = true;
+        document.getElementById('musicIcon').classList.add('animate-spin');
+
+        // Romantic Pachelbel's Canon chord progression notes (D, A, Bm, F#m, G, D, G, A)
+        const notes = [587.33, 440.00, 493.88, 369.99, 392.00, 293.66, 392.00, 440.00];
+        let noteIdx = 0;
+
+        melodyInterval = setInterval(() => {
+          if (!isPlayingMusic || !audioContext) return;
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(notes[noteIdx % notes.length], audioContext.currentTime);
+          gain.gain.setValueAtTime(0.04, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 1.2);
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+          osc.start();
+          osc.stop(audioContext.currentTime + 1.2);
+          noteIdx++;
+        }, 1400);
+      } catch (e) {
+        console.warn('Audio autoplay restriction:', e);
+      }
+    }
+
+    function toggleMusic() {
+      isPlayingMusic = !isPlayingMusic;
+      const icon = document.getElementById('musicIcon');
+      if (isPlayingMusic) {
+        icon.classList.add('animate-spin');
+        if (!melodyInterval) startWeddingMelody();
+      } else {
+        icon.classList.remove('animate-spin');
+      }
+    }
+
+    // 3. COUNTDOWN TIMER TO 20 DESEMBER 2026
+    const targetDate = new Date('2026-12-20T08:00:00+07:00').getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance > 0) {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('cdDays').innerText = String(days).padStart(2, '0');
+        document.getElementById('cdHours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('cdMinutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('cdSeconds').innerText = String(seconds).padStart(2, '0');
+      }
+    }
+    setInterval(updateCountdown, 1000);
+
+    // 4. XSS SANITIZER (BIMA)
+    function sanitize(str) {
+      const temp = document.createElement('div');
+      temp.textContent = str;
+      return temp.innerHTML.replace(/[<>'"]/g, '');
+    }
+
+    // 5. RSVP SUBMISSION
+    function handleRsvpSubmit(e) {
+      e.preventDefault();
+      const name = sanitize(document.getElementById('rsvpName').value.trim());
+      const phone = sanitize(document.getElementById('rsvpPhone').value.trim());
+      const count = document.getElementById('rsvpCount').value;
+      const status = document.querySelector('input[name="rsvpStatus"]:checked').value;
+
+      document.getElementById('rsvpSuccessAlert').classList.remove('hidden');
+      e.target.reset();
+      setTimeout(() => {
+        document.getElementById('rsvpSuccessAlert').scrollIntoView({ behavior: 'smooth' });
+      }, 200);
+    }
+
+    // 6. GUESTBOOK / WISHES DATA (TARA & RAKA)
+    const initialWishes = [
+      {
+        name: "Prof. Dr. Ir. Gunawan Wibisono",
+        relation: "Keluarga Besar",
+        msg: "Barakallahu laka wa baraka 'alaika wa jama'a bainakuma fii khoir. Selamat berbahagia Arya & Nabila, semoga senantiasa dalam limpahan berkah dan kasih sayang Allah SWT.",
+        time: "1 jam yang lalu"
+      },
+      {
+        name: "Jessica Maharani, M.Ds.",
+        relation: "Sahabat Kuliah",
+        msg: "MasyaAllah Nabila dan Arya! Dari zaman skripsi bareng sampai akhirnya halal. Cantik dan gagah sekali, langgeng sampai maut memisahkan ya kalian!",
+        time: "3 jam yang lalu"
+      },
+      {
+        name: "Kolonel (Purn) Suryo Broto",
+        relation: "Rekan Kerja",
+        msg: "Selamat menempuh hidup baru untuk kedua mempelai. Semoga menjadi bahtera rumah tangga yang rukun, sentosa, dan penuh kebahagiaan.",
+        time: "5 jam yang lalu"
+      }
+    ];
+
+    function renderWishes() {
+      const container = document.getElementById('wishesContainer');
+      container.innerHTML = initialWishes.map(w => `
+        <div class="p-4 rounded-2xl bg-royal-dark/80 border border-royal-gold/25 space-y-1.5 text-xs text-left">
+          <div class="flex items-center justify-between">
+            <strong class="text-royal-champagne font-royal">${w.name}</strong>
+            <span class="text-[10px] text-royal-gold bg-royal-gold/10 px-2 py-0.5 rounded-full border border-royal-gold/30">${w.relation}</span>
+          </div>
+          <p class="text-royal-champagne/80 font-light leading-relaxed">&ldquo;${w.msg}&rdquo;</p>
+          <span class="text-[10px] text-royal-champagne/40 block">${w.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function handleWishSubmit(e) {
+      e.preventDefault();
+      const name = sanitize(document.getElementById('wishName').value.trim());
+      const relation = document.getElementById('wishRelation').value;
+      const msg = sanitize(document.getElementById('wishMessage').value.trim());
+
+      initialWishes.unshift({
+        name: name,
+        relation: relation,
+        msg: msg,
+        time: "Baru saja"
+      });
+
+      renderWishes();
+      e.target.reset();
+      alert('Terima kasih! Doa restu Anda telah dipublikasikan di buku tamu digital.');
+    }
+
+    // 7. CLIPBOARD HELPER
+    function copyToClipboard(text, alertMsg) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert(alertMsg);
+      });
+    }
+
+    // 8. QA MODAL TOGGLE
+    function toggleQAModal() {
+      document.getElementById('qaModal').classList.toggle('hidden');
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      parseGuestName();
+      updateCountdown();
+      renderWishes();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+{
+  "total_facilities": 14,
+  "facilities": [
+    {
+      "id": 1,
+      "name": "Executive Office",
+      "lead": "ARKA (Chief Executive Officer)",
+      "avatar": "\ud83d\udc54",
+      "color": "#1E40AF",
+      "function": "Executive governance, board assemblies, strategic resource allocation, and multi-agent orchestration.",
+      "access_tier": "Executive Board Only",
+      "key_kpi": "Corporate Strategic Alignment (100%) & Quality Gate Zero-Defect",
+      "sop_doc": "SOP-EXEC-001: Strategic Directive & Orchestration Playbook"
+    },
+    {
+      "id": 2,
+      "name": "Research & Intelligence Center",
+      "lead": "NAYA (Director of Research & BI)",
+      "avatar": "\ud83d\udd2c",
+      "color": "#0D9488",
+      "function": "Data intelligence, empirical statistical modeling, competitive benchmarking, and source verification.",
+      "access_tier": "Research & BI Staff",
+      "key_kpi": "Source Citation Verification Rate (100%) & Triangulation Accuracy",
+      "sop_doc": "SOP-RES-002: Evidence-Based Data Triangulation Protocol"
+    },
+    {
+      "id": 3,
+      "name": "Technology & Engineering Department",
+      "lead": "RAKA (Chief Technology Officer)",
+      "avatar": "\u26a1",
+      "color": "#6366F1",
+      "function": "Core backend engineering, system architecture, API gateway microservices, and CI/CD pipelines.",
+      "access_tier": "Engineering & DevOps Staff",
+      "key_kpi": "API Latency p95 <50ms & 99.99% Architecture Conformance",
+      "sop_doc": "SOP-ENG-003: Microservice Architecture & Clean Code Standard"
+    },
+    {
+      "id": 4,
+      "name": "Finance & Risk Management Department",
+      "lead": "SEKAR (Chief Financial & Compliance Officer)",
+      "avatar": "\u2696\ufe0f",
+      "color": "#7C3AED",
+      "function": "Financial forensic audits, statutory compliance, BAST document verification, and risk matrices.",
+      "access_tier": "Finance & Legal Compliance Staff",
+      "key_kpi": "Balance Sheet Reconciliation (0 Variance) & 100% Statutory Compliance",
+      "sop_doc": "SOP-FIN-004: Forensic Accounting & Risk Mitigation Framework"
+    },
+    {
+      "id": 5,
+      "name": "Business Operations Department",
+      "lead": "DIMAS (Chief Operations Officer)",
+      "avatar": "\ud83d\udcc8",
+      "color": "#F59E0B",
+      "function": "Operational execution, cross-departmental RACI matrices, 90-day WBS roadmaps, and growth milestones.",
+      "access_tier": "Operations & Project Delivery Staff",
+      "key_kpi": "WBS Milestone On-Time Delivery Rate (>95%)",
+      "sop_doc": "SOP-OPS-005: Operational Excellence & Agile Execution Protocol"
+    },
+    {
+      "id": 6,
+      "name": "Product Design Studio",
+      "lead": "ADITYA (Chief Product Officer)",
+      "avatar": "\ud83c\udfa8",
+      "color": "#EC4899",
+      "function": "Product strategy, UI/UX prototyping, design token systems, and WCAG accessibility standards.",
+      "access_tier": "Product Design & UX Research Staff",
+      "key_kpi": "WCAG 2.1 AA Compliance (100%) & Design-to-Code Fidelity",
+      "sop_doc": "SOP-PRD-006: Design System Token Architecture & Usability Standard"
+    },
+    {
+      "id": 7,
+      "name": "Cybersecurity Operations Center",
+      "lead": "BIMA (Chief Information Security Officer)",
+      "avatar": "\ud83d\udee1\ufe0f",
+      "color": "#DC2626",
+      "function": "Threat hunting, SAST/DAST vulnerability assessments, OWASP auditing, and Zero-Trust network security.",
+      "access_tier": "Security Operations (SOC) Tier-1 Clearance",
+      "key_kpi": "Zero Unpatched Critical CVEs & 100% OWASP Top 10 Coverage",
+      "sop_doc": "SOP-SEC-007: Incident Response & Continuous Vulnerability Management"
+    },
+    {
+      "id": 8,
+      "name": "Data Engineering Center",
+      "lead": "TARA (Chief Data Officer)",
+      "avatar": "\ud83d\uddc4\ufe0f",
+      "color": "#059669",
+      "function": "Relational schema modeling, database administration, idempotent ETL/ELT pipelines, and data quality tests.",
+      "access_tier": "Data Engineering & DBA Staff",
+      "key_kpi": "Data Quality Assertion Pass Rate (>99.5%) & Pipeline Uptime",
+      "sop_doc": "SOP-DAT-008: Dimensional Warehouse Modeling & ETL Governance"
+    },
+    {
+      "id": 9,
+      "name": "Marketing & Branding Studio",
+      "lead": "KIRANA (Chief Marketing Officer)",
+      "avatar": "\ud83d\udce2",
+      "color": "#D97706",
+      "function": "Digital marketing campaigns, technical & semantic SEO, brand positioning, and CAC/LTV analytics.",
+      "access_tier": "Marketing & Growth Strategy Staff",
+      "key_kpi": "Blended LTV:CAC Ratio (>3.0x) & Organic Search Authority",
+      "sop_doc": "SOP-MKT-009: Growth Marketing & Brand Attribution Standard"
+    },
+    {
+      "id": 10,
+      "name": "Quality Assurance Laboratory",
+      "lead": "FARREL (Chief Quality Assurance Officer)",
+      "avatar": "\ud83d\udd2c",
+      "color": "#8B5CF6",
+      "function": "Automated E2E Playwright testing, REST API contract suites, continuous regression matrices, and defect triage.",
+      "access_tier": "QA & Test Engineering Staff",
+      "key_kpi": "Regression Automated Test Pass Rate (100%) & Defect Leakage <0.1%",
+      "sop_doc": "SOP-QAS-010: Automated Test Architecture & Release Gating Protocol"
+    },
+    {
+      "id": 11,
+      "name": "Enterprise Conference Room",
+      "lead": "All Executive Staff (Host: ARKA)",
+      "avatar": "\ud83c\udfdb\ufe0f",
+      "color": "#3B82F6",
+      "function": "All-hands company assemblies, strategic alignment summits, and executive board reviews.",
+      "access_tier": "All NEXUS Employees",
+      "key_kpi": "Inter-Departmental Synchronization & Strategy Alignment",
+      "sop_doc": "SOP-ALL-011: Enterprise Board Meeting & Decision Memo Protocol"
+    },
+    {
+      "id": 12,
+      "name": "Project Management Office",
+      "lead": "DIMAS (COO) & ARKA (CEO)",
+      "avatar": "\ud83d\udccb",
+      "color": "#10B981",
+      "function": "Enterprise project portfolio governance, sprint tracking, multi-agent dependency mapping, and resource planning.",
+      "access_tier": "Project Leads & Department Directors",
+      "key_kpi": "Cross-Functional Project Velocity & Blockers Resolution <24h",
+      "sop_doc": "SOP-PMO-012: Enterprise Portfolio & RACI Tracking Playbook"
+    },
+    {
+      "id": 13,
+      "name": "Central Knowledge Repository",
+      "lead": "NAYA (Director of BI) & TARA (CDO)",
+      "avatar": "\ud83d\udcda",
+      "color": "#64748B",
+      "function": "Enterprise documentation hub, SPBE master registers, data dictionaries, and architectural guidelines.",
+      "access_tier": "All NEXUS Employees (Read-Only / Managed Author)",
+      "key_kpi": "Knowledge Freshness Index (>98%) & Zero Stale References",
+      "sop_doc": "SOP-KNW-013: Knowledge Base Versioning & Living Architecture Standard"
+    },
+    {
+      "id": 14,
+      "name": "Innovation & Development Workspace",
+      "lead": "RAKA (CTO) & ADITYA (CPO)",
+      "avatar": "\ud83d\ude80",
+      "color": "#06B6D4",
+      "function": "Sandbox prototyping, next-gen AI experimentation, design lab sprints, and proof-of-concept incubations.",
+      "access_tier": "Engineering, Product & Research Explorers",
+      "key_kpi": "PoC-to-Production Velocity & Technical Feasibility Rate",
+      "sop_doc": "SOP-INN-014: Rapid Prototyping & Technology Incubation Playbook"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "auditor": "SEKAR (Chief Financial, Risk & Compliance Officer)",
+  "audit_standard": "IFRS / PSAK Forensic Audit & ISO 31000 ERM Framework",
+  "findings_count": 4,
+  "findings": [
+    {
+      "finding_id": "AUDIT-FINDING-001",
+      "area": "Balance Sheet Fundamental Equation",
+      "severity": "CRITICAL_DEFECT",
+      "description": "Balance sheet equation broken! Assets ($8,500,000.00) != Liabilities + Equity ($8,050,000.00). Unreconciled gap: $450,000.00.",
+      "root_cause": "Omission of $450,000 accrued restructuring and warranty liability from current liabilities.",
+      "corrective_action": "Increase Total Liabilities by $450,000.00 to balance equation: $4,650,000 + $3,850,000 = $8,500,000.",
+      "corrective_journal_entry": {
+        "debit": "Retained Earnings / Expense Reserve: $450,000",
+        "credit": "Accrued Restructuring Liability: $450,000"
+      }
+    },
+    {
+      "finding_id": "AUDIT-FINDING-002",
+      "area": "Income Statement & EBITDA Integrity",
+      "severity": "HIGH_MATERIAL_MISSTATEMENT",
+      "description": "EBITDA overstated! Submitter claimed $1,150,000.00, but true operating EBITDA is $800,000.00. Discrepancy: $350,000.00.",
+      "root_cause": "Improper inclusion of $350,000 one-off non-operating asset sale gain into recurring operational earnings.",
+      "corrective_action": "Strip out non-operating gain from EBITDA. Restate true operating EBITDA as $800,000.00.",
+      "adjusted_ebitda": 800000.0
+    },
+    {
+      "finding_id": "AUDIT-FINDING-003",
+      "area": "Cash Runway & Liquidity Risk",
+      "severity": "HIGH_LIQUIDITY_EXPOSURE",
+      "description": "Monthly burn rate understated. Claimed: $100,000.00/mo, True Burn: $150,000.00/mo. True runway is 12.0 months (not 18.0 months).",
+      "root_cause": "Omission of mandatory quarterly tax accruals and outstanding vendor payment schedules.",
+      "corrective_action": "Restate runway to 12.0 months. Recommend establishing a $300,000 liquidity buffer immediately."
+    },
+    {
+      "finding_id": "AUDIT-FINDING-004",
+      "area": "Statutory Regulatory Compliance",
+      "severity": "REGULATORY_COMPLIANCE_BREACH",
+      "description": "Zero compliance reserve allocated for UU PDP No. 27/2022 and SPBE security mandates.",
+      "root_cause": "Management failed to budget for mandatory data protection audits and incident contingency.",
+      "corrective_action": "Mandate immediate provisioning of $120,000 Statutory Compliance Reserve under Section 67 UU PDP.",
+      "statutory_risk": "Fines of up to 2% of annual turnover under Article 57 UU PDP if unaddressed."
+    }
+  ],
+  "erm_risk_matrix": [
+    {
+      "risk": "Balance Sheet Imbalance / Material Misstatement",
+      "likelihood": 4,
+      "impact": 5,
+      "score": 20,
+      "tier": "CRITICAL",
+      "owner": "SEKAR"
+    },
+    {
+      "risk": "EBITDA Overstatement / Investor Misrepresentation",
+      "likelihood": 4,
+      "impact": 4,
+      "score": 16,
+      "tier": "HIGH",
+      "owner": "SEKAR"
+    },
+    {
+      "risk": "Cash Runway Premature Depletion",
+      "likelihood": 3,
+      "impact": 5,
+      "score": 15,
+      "tier": "HIGH",
+      "owner": "SEKAR"
+    },
+    {
+      "risk": "Statutory Fines under UU PDP No. 27/2022",
+      "likelihood": 3,
+      "impact": 4,
+      "score": 12,
+      "tier": "MEDIUM",
+      "owner": "SEKAR"
+    }
+  ],
+  "overall_audit_opinion": "QUALIFIED_WITH_ADVERSE_EXCEPTIONS",
+  "fiduciary_verdict": "VETO_PENDING_CORRECTIVE_RESTATEMENT",
+  "timestamp": "2026-11-15T23:13:50"
+}

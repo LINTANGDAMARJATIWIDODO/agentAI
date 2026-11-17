@@ -1,0 +1,87 @@
+{
+  "system": "NEXUS Design Tokens",
+  "designer": "ADITYA (Chief Product Officer)",
+  "standards": "WCAG 2.1 AA / Tokens Studio / Figma Sync",
+  "tokens": {
+    "colors": {
+      "brand-primary": "#2563EB",
+      "brand-primary-hover": "#1D4ED8",
+      "brand-surface-dark": "#0B1120",
+      "brand-surface-card": "#1E293B",
+      "text-primary-on-dark": "#F8FAFC",
+      "text-secondary-on-dark": "#94A3B8",
+      "accent-emerald": "#10B981",
+      "accent-rose": "#F43F5E",
+      "border-subtle": "#334155"
+    },
+    "typography": {
+      "font-family-sans": "Inter, system-ui, -apple-system, sans-serif",
+      "scale": {
+        "xs": "0.75rem",
+        "sm": "0.875rem",
+        "base": "1rem",
+        "lg": "1.125rem",
+        "xl": "1.25rem",
+        "2xl": "1.5rem"
+      }
+    },
+    "spacing": {
+      "space-1": "4px",
+      "space-2": "8px",
+      "space-3": "12px",
+      "space-4": "16px",
+      "space-6": "24px",
+      "space-8": "32px"
+    }
+  },
+  "audit": [
+    {
+      "test": "WCAG AA Normal Text",
+      "fg": "text-primary-on-dark (#F8FAFC)",
+      "bg": "brand-surface-dark (#0B1120)",
+      "ratio": 18.0,
+      "threshold": 4.5,
+      "status": "PASS"
+    },
+    {
+      "test": "WCAG AA Normal Text",
+      "fg": "text-primary-on-dark (#F8FAFC)",
+      "bg": "brand-surface-card (#1E293B)",
+      "ratio": 13.98,
+      "threshold": 4.5,
+      "status": "PASS"
+    },
+    {
+      "test": "WCAG AA Large/Muted Text",
+      "fg": "text-secondary-on-dark (#94A3B8)",
+      "bg": "brand-surface-dark (#0B1120)",
+      "ratio": 7.34,
+      "threshold": 3.0,
+      "status": "PASS"
+    },
+    {
+      "test": "Primary Button Text Contrast",
+      "fg": "text-primary-on-dark (#F8FAFC)",
+      "bg": "brand-primary (#2563EB)",
+      "ratio": 4.94,
+      "threshold": 4.5,
+      "status": "PASS"
+    },
+    {
+      "test": "Badge Indicator Contrast",
+      "fg": "accent-emerald (#10B981)",
+      "bg": "brand-surface-card (#1E293B)",
+      "ratio": 5.77,
+      "threshold": 3.0,
+      "status": "PASS"
+    },
+    {
+      "test": "Alert Status Contrast",
+      "fg": "accent-rose (#F43F5E)",
+      "bg": "brand-surface-card (#1E293B)",
+      "ratio": 3.98,
+      "threshold": 3.0,
+      "status": "PASS"
+    }
+  ]
+}

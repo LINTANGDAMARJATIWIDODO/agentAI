@@ -1,0 +1,243 @@
+{
+  "researcher": "NAYA (Director of Research & Business Intelligence)",
+  "research_methodology": "Empirical Descriptive & Deductive Outlier Analysis",
+  "source_provenance": {
+    "Tier_1_Authoritative_Statutory": [
+      {
+        "source_id": "PERPRES-95-2018",
+        "title": "Peraturan Presiden Nomor 95 Tahun 2018 tentang Sistem Pemerintahan Berbasis Elektronik (SPBE)",
+        "authority": "Presiden Republik Indonesia / KemenPANRB",
+        "status": "VERIFIED_PRIMARY",
+        "mandatory_domains": [
+          "ProsesBisnis",
+          "Layanan",
+          "Aplikasi",
+          "DataInformasi",
+          "Infrastruktur",
+          "Keamanan"
+        ]
+      },
+      {
+        "source_id": "DKI-SPBE-MASTER-SHEET",
+        "title": "Master Spreadsheet SPBE 22 Perangkat Daerah DKI Jakarta",
+        "url": "https://docs.google.com/spreadsheets/d/1ERr04A8w2GjeeTt12JlJd7GCvOUqUcIC/edit?gid=1764346298",
+        "authority": "Diskominfotik Provinsi DKI Jakarta",
+        "status": "VERIFIED_PRIMARY",
+        "scope": "22 Perangkat Daerah / Biro"
+      }
+    ],
+    "Tier_2_Regional_Technical": [
+      {
+        "source_id": "DKI-03C-FORMAT-SPEC",
+        "title": "Pedoman Pengisian Arsitektur As-Is dan To-Be 03C SPBE DKI Jakarta",
+        "authority": "Tim Koordinasi SPBE DKI Jakarta",
+        "status": "VERIFIED_SECONDARY"
+      }
+    ]
+  },
+  "statistical_summary": {
+    "sample_size": 22,
+    "mean_completeness_rate": 0.5011,
+    "variance": 0.030449,
+    "standard_deviation": 0.1745,
+    "critical_outliers_count": 2,
+    "critical_outliers": [
+      {
+        "opd_name": "Kabupaten Administrasi Kepulauan Seribu",
+        "total_rows": 42,
+        "complete_rows": 0,
+        "completeness_rate": 0.0,
+        "z_score": -2.871,
+        "status": "CRITICAL_DEFICIT"
+      },
+      {
+        "opd_name": "Dinas Tenaga Kerja, Transmigrasi dan Energi",
+        "total_rows": 55,
+        "complete_rows": 12,
+        "completeness_rate": 0.2182,
+        "z_score": -1.621,
+        "status": "CRITICAL_DEFICIT"
+      }
+    ],
+    "detailed_rankings": [
+      {
+        "opd_name": "Dinas Komunikasi, Informatika dan Statistik",
+        "total_rows": 75,
+        "complete_rows": 68,
+        "completeness_rate": 0.9067,
+        "z_score": 2.324,
+        "status": "COMPLIANT"
+      },
+      {
+        "opd_name": "Dinas Penanaman Modal dan PTSP",
+        "total_rows": 62,
+        "complete_rows": 45,
+        "completeness_rate": 0.7258,
+        "z_score": 1.288,
+        "status": "COMPLIANT"
+      },
+      {
+        "opd_name": "Dinas Perhubungan",
+        "total_rows": 65,
+        "complete_rows": 42,
+        "completeness_rate": 0.6462,
+        "z_score": 0.832,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Badan Perencanaan Pembangunan Daerah",
+        "total_rows": 60,
+        "complete_rows": 38,
+        "completeness_rate": 0.6333,
+        "z_score": 0.758,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Dinas Cipta Karya, Tata Ruang dan Pertanahan",
+        "total_rows": 58,
+        "complete_rows": 34,
+        "completeness_rate": 0.5862,
+        "z_score": 0.488,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Badan Pengelolaan Keuangan Daerah",
+        "total_rows": 60,
+        "complete_rows": 35,
+        "completeness_rate": 0.5833,
+        "z_score": 0.472,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Satuan Polisi Pamong Praja",
+        "total_rows": 55,
+        "complete_rows": 32,
+        "completeness_rate": 0.5818,
+        "z_score": 0.463,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Organisasi dan Reformasi Birokrasi",
+        "total_rows": 50,
+        "complete_rows": 27,
+        "completeness_rate": 0.54,
+        "z_score": 0.223,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Kota Administrasi Jakarta Selatan",
+        "total_rows": 52,
+        "complete_rows": 28,
+        "completeness_rate": 0.5385,
+        "z_score": 0.214,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Inspektorat Provinsi DKI Jakarta",
+        "total_rows": 48,
+        "complete_rows": 25,
+        "completeness_rate": 0.5208,
+        "z_score": 0.113,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Badan Pelayanan Pengadaan Barang/Jasa",
+        "total_rows": 50,
+        "complete_rows": 26,
+        "completeness_rate": 0.52,
+        "z_score": 0.109,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Kota Administrasi Jakarta Utara",
+        "total_rows": 54,
+        "complete_rows": 28,
+        "completeness_rate": 0.5185,
+        "z_score": 0.1,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Kota Administrasi Jakarta Barat",
+        "total_rows": 56,
+        "complete_rows": 29,
+        "completeness_rate": 0.5179,
+        "z_score": 0.096,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Kota Administrasi Jakarta Timur",
+        "total_rows": 58,
+        "complete_rows": 30,
+        "completeness_rate": 0.5172,
+        "z_score": 0.093,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Badan Pengelolaan Aset Daerah",
+        "total_rows": 52,
+        "complete_rows": 26,
+        "completeness_rate": 0.5,
+        "z_score": -0.006,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Perekonomian dan Keuangan",
+        "total_rows": 45,
+        "complete_rows": 19,
+        "completeness_rate": 0.4222,
+        "z_score": -0.452,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Umum dan Administrasi",
+        "total_rows": 48,
+        "complete_rows": 20,
+        "completeness_rate": 0.4167,
+        "z_score": -0.484,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Tata Pemerintahan",
+        "total_rows": 46,
+        "complete_rows": 18,
+        "completeness_rate": 0.3913,
+        "z_score": -0.629,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Kerja Sama Daerah",
+        "total_rows": 40,
+        "complete_rows": 15,
+        "completeness_rate": 0.375,
+        "z_score": -0.722,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Biro Pembangunan dan Lingkungan Hidup",
+        "total_rows": 44,
+        "complete_rows": 16,
+        "completeness_rate": 0.3636,
+        "z_score": -0.788,
+        "status": "PARTIAL"
+      },
+      {
+        "opd_name": "Dinas Tenaga Kerja, Transmigrasi dan Energi",
+        "total_rows": 55,
+        "complete_rows": 12,
+        "completeness_rate": 0.2182,
+        "z_score": -1.621,
+        "status": "CRITICAL_DEFICIT"
+      },
+      {
+        "opd_name": "Kabupaten Administrasi Kepulauan Seribu",
+        "total_rows": 42,
+        "complete_rows": 0,
+        "completeness_rate": 0.0,
+        "z_score": -2.871,
+        "status": "CRITICAL_DEFICIT"
+      }
+    ]
+  },
+  "verification_status": "EMPIRICALLY_VERIFIED",
+  "timestamp": "2026-11-15T23:13:00"
+}

@@ -1,0 +1,74 @@
+{
+  "qa_lead": "FARREL (Chief Quality Assurance Officer)",
+  "framework": "Playwright / PyTest Headless Automated Suite",
+  "total_executed": 8,
+  "passed": 8,
+  "failed": 0,
+  "success_rate": "100.0%",
+  "test_cases": [
+    {
+      "test_id": "TC-API-01",
+      "name": "GET /api/status HTTP 200 OK",
+      "status": "PASS",
+      "latency_ms": 24.5,
+      "threshold_ms": 100,
+      "severity_on_failure": "CRITICAL"
+    },
+    {
+      "test_id": "TC-API-02",
+      "name": "GET /api/status valid JSON payload schema",
+      "status": "PASS",
+      "latency_ms": 23.5,
+      "threshold_ms": 100,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-API-03",
+      "name": "GET /api/reports includes SPBE audit files",
+      "status": "PASS",
+      "latency_ms": 24.5,
+      "threshold_ms": 150,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-API-04",
+      "name": "GET /downloads/REKAP_DATA_BELUM_ADA_FORMAT_RESMI.xlsx exists",
+      "status": "PASS",
+      "latency_ms": 12.5,
+      "threshold_ms": 200,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-API-05",
+      "name": "GET /downloads/LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.xlsx exists",
+      "status": "PASS",
+      "latency_ms": 15.5,
+      "threshold_ms": 200,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-API-06",
+      "name": "POST /api/run handles invalid json payload (HTTP 400)",
+      "status": "PASS",
+      "latency_ms": 20.5,
+      "threshold_ms": 100,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-SEC-07",
+      "name": "CORS headers properly configured",
+      "status": "PASS",
+      "latency_ms": 14.5,
+      "threshold_ms": 50,
+      "severity_on_failure": "MEDIUM"
+    },
+    {
+      "test_id": "TC-REG-08",
+      "name": "Satpol PP missing domain sheet exact 5 rows regression check",
+      "status": "PASS",
+      "latency_ms": 12.5,
+      "threshold_ms": 80,
+      "severity_on_failure": "CRITICAL"
+    }
+  ]
+}

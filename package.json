@@ -1,0 +1,21 @@
+{
+  "name": "nexus-ai-enterprise",
+  "version": "2.0.0",
+  "description": "NEXUS AI ENTERPRISE — Autonomous Multi-Agent Corporate Workforce & Virtual AI Office",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build complete')\"",
+    "test": "python -m unittest discover tests"
+  },
+  "keywords": [
+    "antigravity",
+    "multi-agent",
+    "enterprise",
+    "ai-office",
+    "autonomous-agents"
+  ],
+  "author": "NEXUS Corporate Systems",
+  "license": "MIT"
+}

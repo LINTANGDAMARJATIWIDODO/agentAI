@@ -1,0 +1,1180 @@
+{
+  "summary": {
+    "total_opd": 53,
+    "missing_bast": [
+      {
+        "opd": "KABUPATEN ADMINISTRASI KEPULAUAN SERIBU",
+        "pic": "Adi Widiantono",
+        "status": "Belum",
+        "ket": "Blm ada BAST"
+      },
+      {
+        "opd": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": "Belum",
+        "ket": "Blm ada BAST"
+      },
+      {
+        "opd": "BADAN PENGELOLAAN ASET DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": "Belum",
+        "ket": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+      },
+      {
+        "opd": "BIRO PEMERINTAHAN",
+        "pic": "Adi Widiantono",
+        "status": "Belum",
+        "ket": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+      },
+      {
+        "opd": "BIRO PEMBANGUNAN DAN LINGKUNGAN HIDUP",
+        "pic": "Rico Sugiyono",
+        "status": "Belum",
+        "ket": "Sudah ada soft copy TTd Es 3, masih dikirim"
+      },
+      {
+        "opd": "BIRO KERJA SAMA DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": "Belum",
+        "ket": "Harus TTD ES 3"
+      },
+      {
+        "opd": "BIRO PEREKONOMIAN DAN KEUANGAN",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": "Belum",
+        "ket": "Hard copy BAST blm ada di Dinas"
+      },
+      {
+        "opd": "BIRO UMUM DAN ADMINISTRASI",
+        "pic": "Rivan Dely Kusuna",
+        "status": "Belum",
+        "ket": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+      },
+      {
+        "opd": "DINAS KOMUNIKASI, INFORMATIKA DAN STATISTIK",
+        "pic": "Rivan Dely Kusuna",
+        "status": "Belum",
+        "ket": ""
+      },
+      {
+        "opd": "Untuk yang sudah upload dokumen mohon untuk menambahkan keterangan \"Ada\" atau tanggal update pada kolom dokumen yang di upload, agar dapat diketahui Team QA dan Leader",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      },
+      {
+        "opd": "Untuk melihat isi Folder masing2 PD bisa klik di kolom Link Folder",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      }
+    ],
+    "missing_ba": [
+      {
+        "opd": "KABUPATEN ADMINISTRASI KEPULAUAN SERIBU",
+        "pic": "Adi Widiantono",
+        "status": "",
+        "ket": "Blm ada BAST"
+      },
+      {
+        "opd": "BADAN PENGELOLAAN KEUANGAN DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": "",
+        "ket": "BA BPKD belum ttd Bu Kabid"
+      },
+      {
+        "opd": "Untuk yang sudah upload dokumen mohon untuk menambahkan keterangan \"Ada\" atau tanggal update pada kolom dokumen yang di upload, agar dapat diketahui Team QA dan Leader",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      },
+      {
+        "opd": "Untuk melihat isi Folder masing2 PD bisa klik di kolom Link Folder",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      }
+    ],
+    "missing_record": [
+      {
+        "opd": "BADAN PENANGGULANGAN BENCANA DAERAH",
+        "pic": "Adi Widiantono",
+        "status": "Belum",
+        "ket": "Record Zoom tidak ada."
+      },
+      {
+        "opd": "DINAS PENANGGULANGAN KEBAKARAN DAN PENYELAMATAN",
+        "pic": "Adi Widiantono",
+        "status": "Belum",
+        "ket": "Kirim softcopy"
+      },
+      {
+        "opd": "INSPEKTORAT",
+        "pic": "Rivan Dely Kusuna",
+        "status": "Belum",
+        "ket": "BAST akan di Kirim Ke Dinas"
+      },
+      {
+        "opd": "KABUPATEN ADMINISTRASI KEPULAUAN SERIBU",
+        "pic": "Adi Widiantono",
+        "status": "",
+        "ket": "Blm ada BAST"
+      },
+      {
+        "opd": "Untuk yang sudah upload dokumen mohon untuk menambahkan keterangan \"Ada\" atau tanggal update pada kolom dokumen yang di upload, agar dapat diketahui Team QA dan Leader",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      },
+      {
+        "opd": "Untuk melihat isi Folder masing2 PD bisa klik di kolom Link Folder",
+        "pic": "",
+        "status": "",
+        "ket": ""
+      }
+    ],
+    "missing_notulensi": [
+      {
+        "opd": "SATUAN POLISI PAMONG PRAJA",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PENANGGULANGAN BENCANA DAERAH",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PENANGGULANGAN KEBAKARAN DAN PENYELAMATAN",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PENDIDIKAN",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PERHUBUNGAN",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PERENCANAAN PEMBANGUNAN DAERAH",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "INSPEKTORAT",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "DINAS KEBUDAYAAN",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS TENAGA KERJA, TRANSMIGRASI DAN ENERGI",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PELAYANAN PENGADAAN BARANG/JASA",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "KOTA ADMINISTRASI JAKARTA TIMUR",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "KABUPATEN ADMINISTRASI KEPULAUAN SERIBU",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "KOTA ADMINISTRASI JAKARTA PUSAT",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "KOTA ADMINISTRASI JAKARTA BARAT",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "DINAS KESEHATAN",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PERINDUSTRIAN, PERDAGANGAN, KOPERASI, USAHA KECIL DAN MENENGAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "KOTA ADMINISTRASI JAKARTA SELATAN",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "KOTA ADMINISTRASI JAKARTA UTARA",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PEMBERDAYAAN, PERLINDUNGAN ANAK DAN PENGENDALIAN PENDUDUK",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PENGELOLAAN ASET DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BIRO PEMERINTAHAN",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "BIRO KEPALA DAERAH",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "SEKRETARIAT DEWAN PERWAKILAN RAKYAT DAERAH",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "BIRO KESEJAHTERAAN SOSIAL",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "BIRO KERJA SAMA DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BIRO PEREKONOMIAN DAN KEUANGAN",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BIRO ORGANISASI DAN REFORMASI BIROKRASI",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "BIRO HUKUM",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "BIRO PENDIDIKAN DAN MENTAL SPIRITUAL",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PENGELOLAAN KEUANGAN DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BIRO UMUM DAN ADMINISTRASI",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS KOMUNIKASI, INFORMATIKA DAN STATISTIK",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "pic": "Rivan Dely Kusuna",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PERPUSTAKAAN DAN KEARSIPAN",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS PEMUDA DAN OLAHRAGA",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PEMBINAAN BADAN USAHA MILIK DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "DINAS KETAHANAN PANGAN, KELAUTAN DAN PERTANIAN",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "BADAN KEPEGAWAIAN DAERAH",
+        "pic": "Adi Widiantono",
+        "status": ""
+      },
+      {
+        "opd": "DINAS SOSIAL",
+        "pic": "Budi Hartono",
+        "status": ""
+      },
+      {
+        "opd": "BADAN PENDAPATAN DAERAH",
+        "pic": "Sulistyo Aris Hirtranusi",
+        "status": ""
+      },
+      {
+        "opd": "Untuk yang sudah upload dokumen mohon untuk menambahkan keterangan \"Ada\" atau tanggal update pada kolom dokumen yang di upload, agar dapat diketahui Team QA dan Leader",
+        "pic": "",
+        "status": ""
+      },
+      {
+        "opd": "Untuk melihat isi Folder masing2 PD bisa klik di kolom Link Folder",
+        "pic": "",
+        "status": ""
+      }
+    ],
+    "draft_status": [
+      {
+        "opd": "DINAS PERHUBUNGAN",
+        "ket": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali"
+      },
+      {
+        "opd": "DINAS TENAGA KERJA, TRANSMIGRASI DAN ENERGI",
+        "ket": "03 Masih Draft"
+      },
+      {
+        "opd": "BADAN PELAYANAN PENGADAAN BARANG/JASA",
+        "ket": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali, BAST diantar Hard Copy"
+      }
+    ],
+    "ttd_eselon3_pending": [
+      {
+        "opd": "BIRO PEMBANGUNAN DAN LINGKUNGAN HIDUP",
+        "ket": "Sudah ada soft copy TTd Es 3, masih dikirim"
+      },
+      {
+        "opd": "BIRO KERJA SAMA DAERAH",
+        "ket": "Harus TTD ES 3"
+      },
+      {
+        "opd": "BIRO ORGANISASI DAN REFORMASI BIROKRASI",
+        "ket": "Harus TTD ES 3, Sudah di Dinas"
+      },
+      {
+        "opd": "BIRO UMUM DAN ADMINISTRASI",
+        "ket": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+      },
+      {
+        "opd": "DINAS CIPTA KARYA, TATA RUANG DAN PERTANAHAN",
+        "ket": "Harus TTD ES 3, soft copy"
+      }
+    ],
+    "hardcopy_missing_in_dinas": [
+      {
+        "opd": "BADAN PENGELOLAAN ASET DAERAH",
+        "ket": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+      },
+      {
+        "opd": "BIRO PEMERINTAHAN",
+        "ket": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+      },
+      {
+        "opd": "BIRO PEREKONOMIAN DAN KEUANGAN",
+        "ket": "Hard copy BAST blm ada di Dinas"
+      }
+    ]
+  },
+  "incomplete_opd": [
+    {
+      "opd": "SATUAN POLISI PAMONG PRAJA",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "24 Satuan Polisi Pamong Praja",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BADAN KESATUAN BANGSA DAN POLITIK",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "17 Badan Kesatuan Bangsa dan Politik",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Record Zoom sama dengan satpol PP"
+        }
+      ],
+      "keterangan": "Record Zoom sama dengan satpol PP"
+    },
+    {
+      "opd": "BADAN PENANGGULANGAN BENCANA DAERAH",
+      "pic": "Adi Widiantono",
+      "folder": "16 Badan Penanggulangan Bencana Daerah",
+      "issues": [
+        {
+          "field": "Record Zoom",
+          "status": "Belum",
+          "detail": "Record Zoom tidak ada."
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Record Zoom tidak ada."
+        }
+      ],
+      "keterangan": "Record Zoom tidak ada."
+    },
+    {
+      "opd": "DINAS PENANGGULANGAN KEBAKARAN DAN PENYELAMATAN",
+      "pic": "Adi Widiantono",
+      "folder": "25 Dinas Gulkamat",
+      "issues": [
+        {
+          "field": "Record Zoom",
+          "status": "Belum",
+          "detail": "Kirim softcopy"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Kirim softcopy"
+        }
+      ],
+      "keterangan": "Kirim softcopy"
+    },
+    {
+      "opd": "DINAS PENDIDIKAN",
+      "pic": "Budi Hartono",
+      "folder": "18 Dinas Pendidikan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "37 Dinas Pariwisata dan Ekonomi Kreatif",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS PERHUBUNGAN",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "32 Dinas Perhubungan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali"
+        },
+        {
+          "field": "Status Dokumen",
+          "status": "Masih Draft/Review",
+          "detail": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali"
+        }
+      ],
+      "keterangan": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali"
+    },
+    {
+      "opd": "BADAN PERENCANAAN PEMBANGUNAN DAERAH",
+      "pic": "Adi Widiantono",
+      "folder": "08 Badan Perencanaan Pembangunan Daerah",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "INSPEKTORAT",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "01 Inspektorat",
+      "issues": [
+        {
+          "field": "Record Zoom",
+          "status": "Belum",
+          "detail": "BAST akan di Kirim Ke Dinas"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST akan di Kirim Ke Dinas"
+        }
+      ],
+      "keterangan": "BAST akan di Kirim Ke Dinas"
+    },
+    {
+      "opd": "DINAS KEBUDAYAAN",
+      "pic": "Budi Hartono",
+      "folder": "35 Dinas Kebudayaan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS TENAGA KERJA, TRANSMIGRASI DAN ENERGI",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "27 Dinas Tenaga Kerja, Transmigrasi dan Energi",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "03 Masih Draft"
+        },
+        {
+          "field": "Status Dokumen",
+          "status": "Masih Draft/Review",
+          "detail": "03 Masih Draft"
+        }
+      ],
+      "keterangan": "03 Masih Draft"
+    },
+    {
+      "opd": "BADAN PELAYANAN PENGADAAN BARANG/JASA",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "13 Badan Pelayanan Pengadaan Barang/Jasa",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali, BAST diantar Hard Copy"
+        },
+        {
+          "field": "Status Dokumen",
+          "status": "Masih Draft/Review",
+          "detail": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali, BAST diantar Hard Copy"
+        }
+      ],
+      "keterangan": "Tobe, hasil scan yg sudah di ttd, tapi masih di bawa oleh PD untuk di review kembali, BAST diantar Hard Copy"
+    },
+    {
+      "opd": "KOTA ADMINISTRASI JAKARTA TIMUR",
+      "pic": "Adi Widiantono",
+      "folder": "05 Kota Administrasi Jakarta Timur",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "KABUPATEN ADMINISTRASI KEPULAUAN SERIBU",
+      "pic": "Adi Widiantono",
+      "folder": "07 Kabupaten Administrasi Kepulauan Seribu",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "Blm ada BAST"
+        },
+        {
+          "field": "Berita Acara (BA)",
+          "status": "KOSONG",
+          "detail": "Blm ada BAST"
+        },
+        {
+          "field": "Record Zoom",
+          "status": "KOSONG",
+          "detail": "Blm ada BAST"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Blm ada BAST"
+        }
+      ],
+      "keterangan": "Blm ada BAST"
+    },
+    {
+      "opd": "KOTA ADMINISTRASI JAKARTA PUSAT",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "02 Kota Administrasi Jakarta Pusat",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "KOTA ADMINISTRASI JAKARTA BARAT",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "03 Kota Administrasi Jakarta Barat",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Record Zoom sama dengan Jakpus"
+        }
+      ],
+      "keterangan": "Record Zoom sama dengan Jakpus"
+    },
+    {
+      "opd": "DINAS KESEHATAN",
+      "pic": "Budi Hartono",
+      "folder": "19 Dinas Kesehatan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "33 Dinas Penanaman Modal Dan PTSP",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "Blm ada BAST"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Blm ada BAST"
+        }
+      ],
+      "keterangan": "Blm ada BAST"
+    },
+    {
+      "opd": "DINAS PERINDUSTRIAN, PERDAGANGAN, KOPERASI, USAHA KECIL DAN MENENGAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "39 Dinas Perindustrian, Perdagangan, Koperasi, UKM",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "KOTA ADMINISTRASI JAKARTA SELATAN",
+      "pic": "Adi Widiantono",
+      "folder": "04 Kota Administrasi Jakarta Selatan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Sudah dikirim Ke Dinas"
+        }
+      ],
+      "keterangan": "Sudah dikirim Ke Dinas"
+    },
+    {
+      "opd": "KOTA ADMINISTRASI JAKARTA UTARA",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "06 Kota Administrasi Jakarta Utara",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS PEMBERDAYAAN, PERLINDUNGAN ANAK DAN PENGENDALIAN PENDUDUK",
+      "pic": "Budi Hartono",
+      "folder": "28 Dinas Pemberdayaan, Perlindungan Anak dan Pengendalian Penduduk",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BADAN PENGELOLAAN ASET DAERAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "11 Badan Pengelolaan Aset Daerah",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+        }
+      ],
+      "keterangan": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+    },
+    {
+      "opd": "BIRO PEMERINTAHAN",
+      "pic": "Adi Widiantono",
+      "folder": "41 Biro Pemerintahan",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+        }
+      ],
+      "keterangan": "BAST Kirim softcopy, Hard copy BAST blm ada di Dinas"
+    },
+    {
+      "opd": "BIRO KEPALA DAERAH",
+      "pic": "Adi Widiantono",
+      "folder": "44 Biro Kepala Daerah",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "SEKRETARIAT DEWAN PERWAKILAN RAKYAT DAERAH",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "40 Dewan Perwakilan Rakyat Daerah",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BIRO KESEJAHTERAAN SOSIAL",
+      "pic": "Budi Hartono",
+      "folder": "49 Biro Kesejahteraan Sosial",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BIRO PEMBANGUNAN DAN LINGKUNGAN HIDUP",
+      "pic": "Rico Sugiyono",
+      "folder": "48 Biro Pembangunan dan Lingkungan Hidup",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "Sudah ada soft copy TTd Es 3, masih dikirim"
+        },
+        {
+          "field": "Pengesahan",
+          "status": "Menunggu TTD Eselon 3",
+          "detail": "Sudah ada soft copy TTd Es 3, masih dikirim"
+        }
+      ],
+      "keterangan": "Sudah ada soft copy TTd Es 3, masih dikirim"
+    },
+    {
+      "opd": "BIRO KERJA SAMA DAERAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "47 Biro Kerja Sama Daerah",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "Harus TTD ES 3"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Harus TTD ES 3"
+        },
+        {
+          "field": "Pengesahan",
+          "status": "Menunggu TTD Eselon 3",
+          "detail": "Harus TTD ES 3"
+        }
+      ],
+      "keterangan": "Harus TTD ES 3"
+    },
+    {
+      "opd": "BIRO PEREKONOMIAN DAN KEUANGAN",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "46 Biro Perekonomian dan Keuangan",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "Hard copy BAST blm ada di Dinas"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Hard copy BAST blm ada di Dinas"
+        }
+      ],
+      "keterangan": "Hard copy BAST blm ada di Dinas"
+    },
+    {
+      "opd": "BIRO ORGANISASI DAN REFORMASI BIROKRASI",
+      "pic": "Adi Widiantono",
+      "folder": "43 Biro Organisasi dan Reformasi Birokrasi",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "Harus TTD ES 3, Sudah di Dinas"
+        },
+        {
+          "field": "Pengesahan",
+          "status": "Menunggu TTD Eselon 3",
+          "detail": "Harus TTD ES 3, Sudah di Dinas"
+        }
+      ],
+      "keterangan": "Harus TTD ES 3, Sudah di Dinas"
+    },
+    {
+      "opd": "BIRO HUKUM",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "42 Biro Hukum",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BIRO PENDIDIKAN DAN MENTAL SPIRITUAL",
+      "pic": "Budi Hartono",
+      "folder": "50 Biro Pendidikan dan Mental Spiritual",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BADAN PENGELOLAAN KEUANGAN DAERAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "09 Badan Pengelolaan Keuangan Daerah",
+      "issues": [
+        {
+          "field": "Berita Acara (BA)",
+          "status": "KOSONG",
+          "detail": "BA BPKD belum ttd Bu Kabid"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BA BPKD belum ttd Bu Kabid"
+        }
+      ],
+      "keterangan": "BA BPKD belum ttd Bu Kabid"
+    },
+    {
+      "opd": "BIRO UMUM DAN ADMINISTRASI",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "45 Biro Umum dan Administrasi",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+        },
+        {
+          "field": "Pengesahan",
+          "status": "Menunggu TTD Eselon 3",
+          "detail": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+        }
+      ],
+      "keterangan": "BAST Harus TTD ES 3, Record Zoom Sama dengan BPSDM"
+    },
+    {
+      "opd": "BADAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+      "pic": "Adi Widiantono",
+      "folder": "15 Badan Pengembangan SDM",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS KOMUNIKASI, INFORMATIKA DAN STATISTIK",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "51 Dinas Komunikasi, Informatika dan Statistik",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "Belum",
+          "detail": ""
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+      "pic": "Rivan Dely Kusuna",
+      "folder": "31 Dinas Kependudukan dan Pencatatan Sipil",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS PERPUSTAKAAN DAN KEARSIPAN",
+      "pic": "Budi Hartono",
+      "folder": "36 Dinas Perpustakaan dan Kearsipan",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS PEMUDA DAN OLAHRAGA",
+      "pic": "Budi Hartono",
+      "folder": "34 Dinas Pemuda dan Olahraga",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": "BAST ttd di FGD"
+        }
+      ],
+      "keterangan": "BAST ttd di FGD"
+    },
+    {
+      "opd": "DINAS CIPTA KARYA, TATA RUANG DAN PERTANAHAN",
+      "pic": "Rico Sugiyono",
+      "folder": "22 Dinas Cipta Karya, Tata Ruang dan Pertanahan",
+      "issues": [
+        {
+          "field": "Pengesahan",
+          "status": "Menunggu TTD Eselon 3",
+          "detail": "Harus TTD ES 3, soft copy"
+        }
+      ],
+      "keterangan": "Harus TTD ES 3, soft copy"
+    },
+    {
+      "opd": "BADAN PEMBINAAN BADAN USAHA MILIK DAERAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "12 Badan Pembinaan BUMD",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS KETAHANAN PANGAN, KELAUTAN DAN PERTANIAN",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "29 Dinas Ketahanan Pangan, Kelautan dan Pertanian",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BADAN KEPEGAWAIAN DAERAH",
+      "pic": "Adi Widiantono",
+      "folder": "14 Badan Kepegawaian Daerah",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "DINAS SOSIAL",
+      "pic": "Budi Hartono",
+      "folder": "26 Dinas Sosial",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "BADAN PENDAPATAN DAERAH",
+      "pic": "Sulistyo Aris Hirtranusi",
+      "folder": "10 Badan Pendapatan Daerah",
+      "issues": [
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "Untuk yang sudah upload dokumen mohon untuk menambahkan keterangan \"Ada\" atau tanggal update pada kolom dokumen yang di upload, agar dapat diketahui Team QA dan Leader",
+      "pic": "",
+      "folder": "",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Berita Acara (BA)",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Record Zoom",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    },
+    {
+      "opd": "Untuk melihat isi Folder masing2 PD bisa klik di kolom Link Folder",
+      "pic": "",
+      "folder": "",
+      "issues": [
+        {
+          "field": "BAST",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Berita Acara (BA)",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Record Zoom",
+          "status": "KOSONG",
+          "detail": ""
+        },
+        {
+          "field": "Notulensi",
+          "status": "KOSONG",
+          "detail": ""
+        }
+      ],
+      "keterangan": ""
+    }
+  ]
+}

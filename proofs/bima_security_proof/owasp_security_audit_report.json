@@ -1,0 +1,39 @@
+{
+  "auditor": "BIMA (Chief Information Security Officer)",
+  "standard": "OWASP Top 10 / CIS Benchmark / NIST 800-53",
+  "total_findings": 3,
+  "findings_by_severity": {
+    "CRITICAL": 1,
+    "HIGH": 1,
+    "MEDIUM": 1
+  },
+  "findings": [
+    {
+      "rule_id": "SEC-001",
+      "owasp_category": "A01:2021-Broken Access Control",
+      "vulnerability": "Hardcoded AWS / API Key Secret",
+      "severity": "CRITICAL",
+      "file": "test_vulnerable_app.py",
+      "line": 5,
+      "matched_code": "API_KEY = \"sk-live-998877665544332211aabbccddeeff\""
+    },
+    {
+      "rule_id": "SEC-003",
+      "owasp_category": "A05:2021-Security Misconfiguration",
+      "vulnerability": "Overly Permissive CORS Origin (*)",
+      "severity": "MEDIUM",
+      "file": "test_vulnerable_app.py",
+      "line": 12,
+      "matched_code": "res.setHeader('Access-Control-Allow-Origin', '*')"
+    },
+    {
+      "rule_id": "SEC-004",
+      "owasp_category": "A07:2021-Identification and Authentication Failures",
+      "vulnerability": "Weak Hash Algorithm (MD5 / SHA1)",
+      "severity": "HIGH",
+      "file": "test_vulnerable_app.py",
+      "line": 6,
+      "matched_code": "password_hash = hashlib.md5(b\"user_pass\").hexdigest()"
+    }
+  ]
+}
