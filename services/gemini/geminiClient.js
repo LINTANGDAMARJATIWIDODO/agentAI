@@ -36,11 +36,13 @@ const PYTHON_EXEC = process.platform === 'win32' ? 'python' : 'python3';
 
 class GeminiClient {
   static async chat({ prompt, agent = 'ARKA', tier = 'flash', history = [], enable_grounding = false }) {
+    if (process.env.VERCEL) {
+      return await GeminiClient.chatDirectRest({ prompt, agent, tier, history, enable_grounding });
+    }
     // Attempt local python orchestrator first
     try {
       return await GeminiClient.chatViaPython({ prompt, agent, tier, history, enable_grounding });
     } catch (pyErr) {
-      console.warn('[GEMINI CLIENT] Python runner unavailable or failed, switching to native Direct REST API:', pyErr.message);
       return await GeminiClient.chatDirectRest({ prompt, agent, tier, history, enable_grounding });
     }
   }

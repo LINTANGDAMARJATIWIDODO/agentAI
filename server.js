@@ -87,8 +87,18 @@ function requestHandler(req, res) {
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost:3000'}`);
 
-  // API Routes
-  if (url.pathname === '/api/status') {
+  // Unified Status and Document Intelligence Router
+  if (
+    url.pathname === '/api/status' ||
+    url.pathname.startsWith('/api/document/') ||
+    ['/api/upload-pdf', '/api/detect', '/api/humanize', '/api/grammar', '/api/paraphrase', '/api/summarize'].includes(url.pathname)
+  ) {
+    const action = url.searchParams.get('action') || '';
+    if (action || req.method === 'POST' || url.pathname !== '/api/status') {
+      const statusHandler = require('./api/status');
+      return statusHandler(req, res);
+    }
+
     const logData = readJsonFile(LOGS_FILE, {});
     const reportData = readJsonFile(REPORT_JSON, {});
     const configData = readJsonFile(CONFIG_FILE, { enterprise_roster: [] });
@@ -205,7 +215,7 @@ function requestHandler(req, res) {
       try {
         const payload = JSON.parse(body || '{}');
         const GeminiClient = require('./services/gemini/geminiClient');
-        const result = await GeminiClient.chat({
+        const result = await GeminiClient.chatDirectRest({
           prompt: payload.prompt || '',
           agent: payload.agent || 'ARKA',
           tier: payload.tier || 'flash',
@@ -215,7 +225,7 @@ function requestHandler(req, res) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
       } catch (err) {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'error', message: err.message }));
       }
     });
