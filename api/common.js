@@ -1,6 +1,6 @@
 /**
- * Shared Serverless Utilities for NEXUS AI
- * Standard Node.js core library only (0 dependencies)
+ * Universal Serverless Utilities for NEXUS AI
+ * Zero external dependencies — pure Node.js core
  */
 
 function sendJson(res, statusCode, data) {
