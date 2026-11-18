@@ -7,8 +7,20 @@
     { "source": "/landing_startup/(.*)", "destination": "/public/landing_startup/$1" },
     { "source": "/cafe/(.*)", "destination": "/public/cafe/$1" },
     { "source": "/undangan/(.*)", "destination": "/public/undangan/$1" },
-    { "source": "/api/ai/chat", "destination": "/api/gemini/chat" },
-    { "source": "/api/ai/models", "destination": "/api/gemini/telemetry" },
-    { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry" }
+    { "source": "/api/upload-pdf", "destination": "/api/upload-pdf.js" },
+    { "source": "/api/detect", "destination": "/api/detect.js" },
+    { "source": "/api/humanize", "destination": "/api/humanize.js" },
+    { "source": "/api/grammar", "destination": "/api/grammar.js" },
+    { "source": "/api/paraphrase", "destination": "/api/paraphrase.js" },
+    { "source": "/api/summarize", "destination": "/api/summarize.js" },
+    { "source": "/api/gemini/chat", "destination": "/api/gemini/chat.js" },
+    { "source": "/api/gemini/telemetry", "destination": "/api/gemini/telemetry.js" },
+    { "source": "/api/ai/chat", "destination": "/api/gemini/chat.js" },
+    { "source": "/api/ai/models", "destination": "/api/gemini/telemetry.js" },
+    { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry.js" },
+    { "source": "/api/status", "destination": "/api/status.js" },
+    { "source": "/api/report/(.*)", "destination": "/api/report.js?file=$1" },
+    { "source": "/api/spbe", "destination": "/api/spbe.js" },
+    { "source": "/api/(.*)", "destination": "/api/index.js" }
   ]
 }
