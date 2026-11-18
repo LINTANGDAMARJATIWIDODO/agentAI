@@ -45,17 +45,20 @@ AI_CLICHE_PHRASES = [
     "memberikan kontribusi nyata"
 ]
 
+# Legitimate academic markers (EXCLUDED from AI suspicion per ai-authorship-forensics):
+# "selain itu", "dengan demikian", "oleh karena itu", "berdasarkan hasil penelitian"
+LEGITIMATE_ACADEMIC_CONNECTORS = {
+    "selain itu", "dengan demikian", "oleh karena itu", "berdasarkan hasil penelitian"
+}
+
+# Formulaic repetitive transition markers over-indexed in LLM outputs:
 AI_TRANSITION_MARKERS = [
-    "selain itu",
     "lebih lanjut",
-    "oleh karena itu",
-    "dengan demikian",
     "di sisi lain",
-    "oleh sebab itu",
-    "meskipun demikian",
     "secara keseluruhan",
     "sebagai penutup",
-    "di samping itu",
+    "pada intinya",
+    "dalam konteks ini",
     "pada akhirnya",
     "namun demikian"
 ]

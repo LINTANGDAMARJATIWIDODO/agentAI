@@ -673,8 +673,11 @@ class AIHumanizer:
             s = pat.sub(r', \1', s)
 
         # 4. Koma Perincian Majemuk (Serial Comma / Oxford Comma dalam EYD V)
-        # Pada deretan tiga unsur atau lebih, wajib ada koma sebelum konjungsi penutup
-        s = re.sub(r',\s*([^,]+?)\s+(dan|serta|atau)\s+([^,]+?)(?=[.;!?]|$)', r', \1, \2 \3', s)
+        # Pada deretan tiga unsur atau lebih (A, B, dan C), wajib ada koma sebelum konjungsi penutup.
+        # DILARANG menambahkan koma jika hanya dua unsur (A dan B).
+        s = re.sub(r'([^,]+,\s*[^,]+?)\s+(dan|serta|atau)\s+([^,]+?)(?=[.;!?]|$)', r'\1, \2 \3', s)
+        # Bersihkan koma keliru sebelum 'dan' pada kalimat yang hanya memuat dua unsur
+        s = re.sub(r'(^|(?<=[\.\!\?\n]\s))([^,]+),\s+(dan|serta|atau)\s+([^,]+?)(?=[.;!?]|$)', r'\1\2 \3 \4', s)
 
         # 5. Koma Keterangan Awal Kalimat (Anak Kalimat / Frasa Preposisional Mendahului Induk)
         s = re.sub(r'(^|(?<=[\.\!\?\n]\s))(Untuk setiap [^,]+?)\s+(pembahasan|analisis|evaluasi|setiap)\b', r'\1\2, \3', s, flags=re.IGNORECASE)
@@ -1177,8 +1180,31 @@ class AIHumanizer:
                 elif status == "human" and ai_prob < 30.0 and not kbbi_hits:
                     transformed = s_orig
                     action_label = "DIPERTAHANKAN"
-                    action_note = "Bahasa sudah alami, faktual, dan sesuai standar baku KBBI. Tidak perlu diganti."
+                # INDONESIAN LINGUISTIC INTELLIGENCE & AUDITING (KBBI, EYD V, 4 DECISIONS)
+                from services.detection_engine.linguistic_auditor import IndonesianLinguisticAuditor
+                ling_auditor = IndonesianLinguisticAuditor()
+                audit_res = ling_auditor.audit_sentence(s_orig)
+
+                if status == "human" and audit_res["decision"] == "SUDAH BAIK":
+                    action_label = "SUDAH BAIK"
+                    action_note = "Tidak diperlukan perubahan. Kalimat telah memenuhi kaidah bahasa Indonesia dalam konteks penggunaannya."
                     replacement_text = "✓ Dipertahankan (Sesuai naskah asli)"
+                    transformed = s_orig
+                elif audit_res["decision"] == "PERLU VERIFIKASI":
+                    action_label = "PERLU VERIFIKASI"
+                    action_note = audit_res["findings"] + " " + audit_res["reason_for_revision"]
+                    replacement_text = audit_res["recommended_revision"]
+                    transformed = s_orig
+                elif audit_res["decision"] == "REVISI SUBSTANTIF":
+                    action_label = "REVISI SUBSTANTIF"
+                    action_note = audit_res["findings"] + " -> " + audit_res["reason_for_revision"]
+                    replacement_text = audit_res["recommended_revision"]
+                    transformed = audit_res["recommended_revision"]
+                elif audit_res["decision"] == "REVISI MINOR" and status == "human":
+                    action_label = "REVISI MINOR"
+                    action_note = audit_res["findings"]
+                    replacement_text = audit_res["recommended_revision"]
+                    transformed = audit_res["recommended_revision"]
                 else:
                     transformed = s_orig
 
@@ -1196,14 +1222,7 @@ class AIHumanizer:
                     for pat, repl, _ in self.KBBI_SPELLING_CORRECTIONS:
                         transformed = re.sub(pat, repl, transformed, flags=re.IGNORECASE)
 
-                    # 4. Eliminate repetitive discourse starters
-                    transformed = re.sub(r"^Selain itu,\s*", "Di samping itu, ", transformed, flags=re.IGNORECASE)
-                    transformed = re.sub(r"^Hal ini menunjukkan bahwa\s*", "Ini membuktikan ", transformed, flags=re.IGNORECASE)
-                    transformed = re.sub(r"^Hal ini penting untuk dicatat bahwa\s*", "Catatan penting: ", transformed, flags=re.IGNORECASE)
-                    transformed = re.sub(r"^Oleh karena itu,\s*", "Oleh sebab itu, ", transformed, flags=re.IGNORECASE)
-                    transformed = re.sub(r"^Dengan demikian,\s*", "Dengan demikian, ", transformed, flags=re.IGNORECASE)
-
-                    # 5. Mode-specific adjustments
+                    # 4. Mode-specific adjustments (ONLY genuine cliches, NEVER replace legitimate transitions like 'Selain itu' or 'Oleh karena itu')
                     if mode == "formal_spbe":
                         transformed = re.sub(r"\bDengan adanya hal tersebut,\b", "Dampaknya,", transformed, flags=re.IGNORECASE)
                         transformed = re.sub(r"\bSebagaimana yang telah kita ketahui bersama,\b", "Sebagaimana diketahui,", transformed, flags=re.IGNORECASE)
@@ -1217,54 +1236,21 @@ class AIHumanizer:
                         transformed = re.sub(r"\bBisa dibilang bahwa\b", "Secara konseptual,", transformed, flags=re.IGNORECASE)
                         transformed = re.sub(r"\bHal yang sangat penting adalah\b", "Faktor penentu utama adalah", transformed, flags=re.IGNORECASE)
 
-                    elif mode == "casual_pro":
-                        transformed = re.sub(r"\bOleh karena itu,\b", "Maka,", transformed, flags=re.IGNORECASE)
-                        transformed = re.sub(r"\bDapat disimpulkan bahwa\b", "Simpulannya,", transformed, flags=re.IGNORECASE)
-                        transformed = re.sub(r"\bMerupakan hal yang krusial\b", "Kuncinya adalah", transformed, flags=re.IGNORECASE)
-
-                    # 6. Intensity-based sentence restructuring (Burstiness Injection)
-                    if intensity in ["balanced", "strong"]:
-                        words = transformed.split()
-                        if global_s_idx % 2 == 1 and len(words) > 15:
-                            parts = re.split(r",\s+(?:sehingga|namun|karena|maka)\s+", transformed, maxsplit=1, flags=re.IGNORECASE)
-                            if len(parts) == 2:
-                                p1, p2 = parts[0].strip(), parts[1].strip()
-                                if not p1.endswith("."):
-                                    p1 += "."
-                                if p2 and p2[0].islower():
-                                    p2 = p2[0].upper() + p2[1:]
-                                transformed = f"{p1} {p2}"
-
-                    # 7. Clean typography, punctuation, and capitalization (EYD V)
+                    # 5. Clean typography, punctuation, and capitalization (EYD V)
                     transformed = self.clean_typography_and_punctuation(transformed)
 
+                    # PROHIBITED BEHAVIOR:
+                    # NEVER replace "Selain itu" with "Di samping itu"
+                    # NEVER replace "Oleh karena itu" with "Oleh sebab itu"
+                    # NEVER replace "dapat" with "bisa"
+                    # NEVER insert "Secara substantif"
+                    # NEVER replace " adalah " with " mencakup "
                     if status == "ai":
-                        action_label = "WAJIB DIGANTI"
-                        action_note = "Terdeteksi klise robotik khas AI dan/atau ketidaksesuaian baku KBBI. Wajib diganti dengan naskah rekomendasi baku KBBI."
-                    elif kbbi_hits and status == "human":
-                        action_label = "REVISI BAKU KBBI"
-                        action_note = f"Ditemukan kosakata tidak baku KBBI: {', '.join([h['non_standard'] for h in kbbi_hits])}. Disesuaikan ke bentuk baku KBBI."
+                        action_label = "REVISI KLISÉ AI"
+                        action_note = "Terdeteksi klise robotik khas AI dan/atau ketidaksesuaian baku KBBI. Disesuaikan dengan rekomendasi baku KBBI tanpa mengubah makna asli."
                     else:
-                        action_label = "PERTIMBANGKAN REVISI"
-                        action_note = "Pola kalimat berisiko terdeteksi AI. Disarankan untuk disempurnakan ke standar KBBI."
-
-                    # CRITICAL JUSTDONE AI UPGRADE:
-                    # Apply full dynamic humanize and paraphrasing engine
-                    transformed = self.dynamic_humanize_paraphrase(transformed, mode=mode, intensity=intensity)
-
-                    # Secondary safety net: 100% guarantee distinction
-                    if transformed.strip().lower() == s_orig.strip().lower():
-                        if s_orig.startswith("Bab "):
-                            transformed = f"Dalam bab ini, {s_orig[4].lower()}{s_orig[5:]}"
-                        elif s_orig.startswith("Pada "):
-                            transformed = f"Melalui {s_orig[5:]}"
-                        elif " adalah " in s_orig:
-                            transformed = s_orig.replace(" adalah ", " mencakup ")
-                        elif " mencakup " in s_orig:
-                            transformed = s_orig.replace(" mencakup ", " meliputi ")
-                        else:
-                            transformed = f"Secara substantif, {s_orig[0].lower()}{s_orig[1:]}"
-                        transformed = self.clean_typography_and_punctuation(transformed)
+                        action_label = "SUDAH BAIK"
+                        action_note = "Tidak diperlukan perubahan. Kalimat telah memenuhi kaidah bahasa Indonesia dalam konteks penggunaannya."
 
                     replacement_text = transformed
 

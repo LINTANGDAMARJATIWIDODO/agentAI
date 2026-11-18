@@ -32,17 +32,15 @@ const AI_CLICHE_PHRASES = [
   "memberikan kontribusi nyata"
 ];
 
+// Formulaic repetitive transition markers over-indexed in LLM outputs
+// Legitimate academic connectors ('selain itu', 'dengan demikian', 'oleh karena itu') are protected per ai-authorship-forensics
 const AI_TRANSITION_MARKERS = [
-  "selain itu",
   "lebih lanjut",
-  "oleh karena itu",
-  "dengan demikian",
   "di sisi lain",
-  "oleh sebab itu",
-  "meskipun demikian",
   "secara keseluruhan",
   "sebagai penutup",
-  "di samping itu",
+  "pada intinya",
+  "dalam konteks ini",
   "pada akhirnya",
   "namun demikian"
 ];
