@@ -324,6 +324,17 @@
       color: #f8fafc;
     }
 
+    /* Mobile dynamic viewport and responsive typography */
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     /* Mobile scrollbar hiding for horizontal tabs */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -335,7 +346,7 @@
   </style>
 
 </head>
-<body class="text-slate-100 flex h-screen w-screen overflow-hidden bg-[#080c14] font-sans antialiased">
+<body class="text-slate-100 flex h-full h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-[#080c14] font-sans antialiased selection:bg-blue-600 selection:text-white">
 
   
   <!-- MOBILE BACKDROP OVERLAY -->
@@ -439,10 +450,10 @@
 
   
   <!-- MAIN WORKSPACE AREA -->
-  <main id="mainWorkspaceArea" class="flex-1 flex flex-col h-full overflow-hidden relative bg-[#080c14] w-full min-w-0">
+  <main id="mainWorkspaceArea" class="flex-1 flex flex-col h-full h-[100dvh] overflow-hidden relative bg-[#080c14] w-full min-w-0">
 
     <!-- TOP EXECUTIVE HEADER: RESPONSIVE FOR MOBILE & DESKTOP -->
-    <header class="h-14 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur-xl px-2 sm:px-4 flex items-center justify-between z-30 shrink-0 gap-1.5 sm:gap-3">
+    <header class="h-14 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur-xl px-2 sm:px-4 flex items-center justify-between z-30 shrink-0 gap-1 sm:gap-3">
       <!-- Left: Hamburger Toggle & Agent Selector -->
       <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
         <button onclick="toggleSidebarCollapse()" class="text-slate-300 hover:text-white p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition lg:hidden shrink-0" title="Buka Menu Navigasi">
@@ -450,7 +461,7 @@
         </button>
 
         <!-- Active Agent Selector Dropdown -->
-        <div class="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-2 py-1.5 shadow-sm max-w-[155px] sm:max-w-none">
+        <div class="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-2 py-1.5 shadow-sm max-w-[135px] xs:max-w-[160px] sm:max-w-none">
           <span class="text-xs text-blue-400 shrink-0">
             <i class="fa-solid fa-user-tie"></i>
           </span>
@@ -502,13 +513,13 @@
           </button>
         </div>
 
-        <!-- Quick Access to Humanizer & Reports -->
-        <button onclick="switchWorkspaceView('humanizer')" class="px-2 sm:px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-bold transition flex items-center gap-1 shadow-sm" title="Buka JustDone Humanizer">
+        <!-- Quick Access to Humanizer & Reports (Clean Icon on Mobile) -->
+        <button onclick="switchWorkspaceView('humanizer')" class="w-8 h-8 sm:w-auto px-0 sm:px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm" title="Buka JustDone Humanizer">
           <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
           <span class="hidden md:inline">Humanizer</span>
         </button>
 
-        <button onclick="toggleReportDrawer()" class="px-2 sm:px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/30 text-xs font-bold transition flex items-center gap-1 shadow-sm" title="Buka Dokumen & Laporan SPBE">
+        <button onclick="toggleReportDrawer()" class="w-8 h-8 sm:w-auto px-0 sm:px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/30 text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm" title="Buka Dokumen & Laporan SPBE">
           <i class="fa-solid fa-file-contract"></i>
           <span class="hidden md:inline">Laporan</span>
         </button>
@@ -527,58 +538,58 @@
         <div id="chatFeedColumn" class="w-full lg:w-1/2 flex flex-col h-full bg-[#080c14] relative transition-all duration-300 min-w-0">
           
           <!-- Messages Scrollable Feed -->
-          <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-5">
-            <!-- Hero Welcome Card (Shown if empty) -->
-            <div id="chatHeroWelcome" class="my-3 sm:my-6 max-w-xl mx-auto text-center space-y-3 sm:space-y-4 px-2">
-              <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 mx-auto flex items-center justify-center text-white text-xl sm:text-2xl shadow-xl shadow-blue-600/30">
+          <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-2.5 sm:p-6 space-y-3 sm:space-y-5">
+            <!-- Hero Welcome Card: Ultra Responsive for Mobile & Desktop -->
+            <div id="chatHeroWelcome" class="my-auto py-2 sm:py-6 max-w-xl mx-auto text-center space-y-2 sm:space-y-4 px-2">
+              <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 mx-auto flex items-center justify-center text-white text-lg sm:text-2xl shadow-xl shadow-blue-600/30 shrink-0">
                 <i class="fa-solid fa-sparkles"></i>
               </div>
               <div>
-                <h2 class="text-base sm:text-xl font-extrabold text-white">NEXUS AI ENTERPRISE</h2>
-                <p class="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                <h2 class="text-sm sm:text-xl font-extrabold text-white">NEXUS AI ENTERPRISE</h2>
+                <p class="text-[10px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 max-w-md mx-auto leading-relaxed line-clamp-2 sm:line-clamp-none">
                   Asisten riset otonom, rekayasa naskah dinas, audit arsitektur SPBE, dan standardisasi KBBI terintegrasi dengan Google Gemini Exclusive Provider.
                 </p>
               </div>
 
-              <!-- Quick Prompt Chips: Responsive 1 col on mobile, 2 col on desktop -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left pt-1 sm:pt-2">
-                <button onclick="setAndSendChatPrompt('Buatkan website landing page modern, futuristik, dan responsif dengan TailwindCSS dan animasi interaktif untuk startup teknologi NEXUS AI.')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-cyan-500/40 transition group">
-                  <div class="flex items-center gap-2 font-bold text-cyan-400 mb-0.5 sm:mb-1">
-                    <i class="fa-solid fa-laptop-code"></i>
-                    <span>Buatkan Website Modern</span>
+              <!-- Quick Prompt Chips: Responsive 2-col Grid on Mobile & Desktop -->
+              <div class="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left pt-1 sm:pt-2">
+                <button onclick="setAndSendChatPrompt('Buatkan website landing page modern, futuristik, dan responsif dengan TailwindCSS dan animasi interaktif untuk startup teknologi NEXUS AI.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-cyan-500/40 transition group flex flex-col justify-between">
+                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-cyan-400 mb-0.5">
+                    <i class="fa-solid fa-laptop-code text-xs"></i>
+                    <span class="text-[11px] sm:text-xs truncate">Buat Website</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 group-hover:text-slate-300">Rancang dan bangun website lengkap + live interactive preview.</p>
+                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Website modern interaktif + live preview.</p>
                 </button>
 
-                <button onclick="setAndSendChatPrompt('Susun dokumen SOP dan naskah dinas resmi integrasi Satu Data SPBE berstandar baku KBBI & EYD V.')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-emerald-500/40 transition group">
-                  <div class="flex items-center gap-2 font-bold text-emerald-400 mb-0.5 sm:mb-1">
-                    <i class="fa-solid fa-file-signature"></i>
-                    <span>Susun Dokumen Resmi</span>
+                <button onclick="setAndSendChatPrompt('Susun dokumen SOP dan naskah dinas resmi integrasi Satu Data SPBE berstandar baku KBBI & EYD V.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-emerald-500/40 transition group flex flex-col justify-between">
+                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-emerald-400 mb-0.5">
+                    <i class="fa-solid fa-file-signature text-xs"></i>
+                    <span class="text-[11px] sm:text-xs truncate">Susun Dokumen</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 group-hover:text-slate-300">Hasilkan draf naskah dinas, dokumen teknis, atau laporan eksekutif.</p>
+                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Draf naskah dinas baku KBBI & EYD V.</p>
                 </button>
 
-                <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-blue-500/40 transition group">
-                  <div class="flex items-center gap-2 font-bold text-blue-400 mb-0.5 sm:mb-1">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>Audit Dokumen SPBE</span>
+                <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-blue-500/40 transition group flex flex-col justify-between">
+                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-blue-400 mb-0.5">
+                    <i class="fa-solid fa-shield-halved text-xs"></i>
+                    <span class="text-[11px] sm:text-xs truncate">Audit SPBE</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 group-hover:text-slate-300">Telaah naskah regulasi dan dokumen arsitektur SPBE.</p>
+                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Telaah regulasi & kepatuhan arsitektur.</p>
                 </button>
 
-                <button onclick="switchWorkspaceView('humanizer')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-purple-500/40 transition group">
-                  <div class="flex items-center gap-2 font-bold text-purple-400 mb-0.5 sm:mb-1">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>JustDone Humanizer</span>
+                <button onclick="switchWorkspaceView('humanizer')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-purple-500/40 transition group flex flex-col justify-between">
+                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-purple-400 mb-0.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    <span class="text-[11px] sm:text-xs truncate">Humanizer AI</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 group-hover:text-slate-300">Deteksi probabilitas AI per kalimat & rekonstruksi baku KBBI.</p>
+                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Deteksi skor AI & parafrase 13-in-1.</p>
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Attachment Pill Preview -->
-          <div id="chatAttachmentPreview" class="hidden px-4 py-2 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-between">
+          <div id="chatAttachmentPreview" class="hidden px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-between">
             <div class="flex items-center gap-2 text-xs truncate mr-2">
               <i class="fa-solid fa-paperclip text-blue-400 shrink-0"></i>
               <span id="chatAttachmentName" class="font-bold text-white truncate">dokumen.pdf</span>
@@ -589,33 +600,33 @@
             </button>
           </div>
 
-          <!-- Bottom Floating Input Dock -->
-          <div class="p-2 sm:p-4 bg-slate-950/95 border-t border-slate-800/80">
+          <!-- Bottom Floating Input Dock: Fixed, Responsive & iOS Safe Area Ready -->
+          <div class="p-2 sm:p-3.5 bg-slate-950/95 border-t border-slate-800/80 shrink-0 z-20 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl shadow-xl focus-within:border-blue-500/50 transition p-1.5 sm:p-2">
-              <div class="flex items-center gap-1.5 sm:gap-2">
+              <div class="flex items-center gap-1 sm:gap-2">
                 <!-- File Attachment Button -->
                 <button onclick="document.getElementById('chatFileInput').click()" class="w-8 h-8 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center transition shrink-0" title="Lampirkan Dokumen PDF / Naskah">
-                  <i class="fa-solid fa-paperclip text-sm"></i>
+                  <i class="fa-solid fa-paperclip text-xs sm:text-sm"></i>
                 </button>
                 <input type="file" id="chatFileInput" accept=".pdf,.docx,.txt" class="hidden" onchange="handleChatFileSelect(event)">
 
                 <!-- Main Input Textarea -->
-                <textarea id="chatMainInput" rows="1" placeholder="Tanyakan ke Google Gemini / Berikan instruksi ke tim..." onkeydown="handleChatInputKey(event)" class="flex-1 bg-transparent border-0 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed py-1.5 min-w-0"></textarea>
+                <textarea id="chatMainInput" rows="1" placeholder="Tanyakan ke Google Gemini / Berikan instruksi..." onkeydown="handleChatInputKey(event)" class="flex-1 bg-transparent border-0 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed py-1 sm:py-1.5 min-w-0"></textarea>
 
                 <!-- Action Button 1: Tanya Gemini -->
-                <button onclick="askGeminiChat()" id="btnChatSendGemini" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-2.5 sm:px-3.5 py-2 rounded-xl shadow-md transition flex items-center gap-1 sm:gap-1.5 shrink-0" title="Tanya langsung ke Google Gemini Model">
-                  <i class="fa-solid fa-sparkles text-amber-300 text-xs"></i>
-                  <span class="hidden xs:inline sm:inline">Tanya</span>
+                <button onclick="askGeminiChat()" id="btnChatSendGemini" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-md transition flex items-center gap-1 sm:gap-1.5 shrink-0" title="Tanya langsung ke Google Gemini Model">
+                  <i class="fa-solid fa-paper-plane text-xs text-amber-300"></i>
+                  <span class="hidden xs:inline">Tanya</span>
                 </button>
 
                 <!-- Action Button 2: Mandat 10 Agen -->
-                <button onclick="dispatchMandateChat()" id="btnChatSendMandate" class="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold px-2 sm:px-2.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1 shrink-0" title="Jalankan Mandat 10 Agen Otonom">
+                <button onclick="dispatchMandateChat()" id="btnChatSendMandate" class="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl border border-slate-700 transition flex items-center gap-1 shrink-0" title="Jalankan Mandat 10 Agen Otonom">
                   <i class="fa-solid fa-users text-xs"></i>
-                  <span class="hidden md:inline">Mandat</span>
+                  <span class="hidden sm:inline">Mandat</span>
                 </button>
               </div>
             </div>
-            <p class="text-[9px] sm:text-[10px] text-center text-slate-500 mt-1.5 font-sans truncate">
+            <p class="text-[9px] sm:text-[10px] text-center text-slate-500 mt-1 sm:mt-1.5 font-sans truncate">
               Google Gemini Exclusive Provider • Official Google GenAI SDK
             </p>
           </div>
@@ -657,42 +668,42 @@
       <!-- ======================================================== -->
       <!-- WORKSPACE 2: DEDICATED JUSTDONE HUMANIZER (RESPONSIVE) -->
       <!-- ======================================================== -->
-      <section id="workspaceViewHumanizer" class="hidden h-full w-full overflow-y-auto p-2 sm:p-6 bg-[#080c14]">
-        <div class="max-w-5xl mx-auto space-y-4 sm:space-y-6">
-          <div class="bg-slate-900 border border-purple-500/40 rounded-3xl max-w-5xl w-full max-h-[94vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6 text-slate-100">
+      <section id="workspaceViewHumanizer" class="hidden h-full w-full overflow-y-auto p-2 sm:p-4 lg:p-6 bg-[#080c14]">
+        <div class="max-w-5xl mx-auto space-y-3 sm:space-y-6">
+          <div class="bg-slate-900 border border-purple-500/40 rounded-2xl sm:rounded-3xl max-w-5xl w-full shadow-2xl p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 text-slate-100">
       
       <!-- Header -->
-      <div class="flex items-center justify-between border-b border-purple-500/20 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-purple-600/30 shrink-0">
+      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3 sm:pb-4 gap-2">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white text-base sm:text-xl shadow-lg shadow-purple-600/30 shrink-0">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-lg sm:text-xl font-extrabold text-white">NEXUS AI • JUSTDONE AI PRODUCT SUITE</h2>
-              <span class="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full">13 IN 1 SUITE</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <h2 class="text-sm sm:text-lg lg:text-xl font-extrabold text-white truncate">JUSTDONE AI SUITE</h2>
+              <span class="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">13 IN 1</span>
             </div>
-            <p class="text-xs text-slate-400">Writing • Learning & Research • Productivity | Forensic AI Detector & Standar Baku KBBI</p>
+            <p class="text-[10px] sm:text-xs text-slate-400 truncate">Forensic AI Detector & Rekonstruksi Standar Baku KBBI</p>
           </div>
         </div>
-        <button onclick="closeHumanizerModal()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-          <i class="fa-solid fa-xmark text-lg"></i>
+        <button onclick="closeHumanizerModal()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition shrink-0">
+          <i class="fa-solid fa-xmark text-sm sm:text-lg"></i>
         </button>
       </div>
 
       <!-- JustDone Suite Hub Navigation (Writing, Learning & Research, Productivity) -->
-      <div class="space-y-3 bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
-        <!-- Main Hub Categories -->
-        <div class="flex items-center gap-2 border-b border-slate-800/80 pb-2">
-          <button onclick="switchJustDoneHub('writing')" id="hubBtnWriting" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-900/30">
+      <div class="space-y-2.5 sm:space-y-3 bg-slate-950/70 p-2.5 sm:p-3.5 rounded-2xl border border-slate-800">
+        <!-- Main Hub Categories: Horizontal scrollable on mobile -->
+        <div class="flex items-center gap-1.5 sm:gap-2 border-b border-slate-800/80 pb-2 overflow-x-auto no-scrollbar">
+          <button onclick="switchJustDoneHub('writing')" id="hubBtnWriting" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-900/30 shrink-0">
             <i class="fa-solid fa-pen-nib"></i>
             <span>Writing</span>
           </button>
-          <button onclick="switchJustDoneHub('learning')" id="hubBtnLearning" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+          <button onclick="switchJustDoneHub('learning')" id="hubBtnLearning" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5 shrink-0">
             <i class="fa-solid fa-graduation-cap"></i>
             <span>Learning & Research</span>
           </button>
-          <button onclick="switchJustDoneHub('productivity')" id="hubBtnProductivity" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+          <button onclick="switchJustDoneHub('productivity')" id="hubBtnProductivity" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5 shrink-0">
             <i class="fa-solid fa-bolt"></i>
             <span>Productivity</span>
           </button>
@@ -2997,22 +3008,22 @@
   <div id="webPreviewModal" class="hidden fixed inset-0 z-[70] bg-slate-950/90 backdrop-blur-md flex flex-col p-3 sm:p-6 animate-in fade-in duration-200">
     <div class="bg-slate-900 border border-blue-500/30 rounded-2xl sm:rounded-3xl flex-1 flex flex-col shadow-2xl overflow-hidden max-w-6xl w-full mx-auto">
       <!-- Modal Header -->
-      <div class="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white text-sm shadow-md">
+      <div class="px-3 py-2 sm:px-6 sm:py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60 gap-2">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white text-xs sm:text-sm shadow-md shrink-0">
             <i class="fa-solid fa-laptop-code"></i>
           </div>
-          <div>
-            <h3 class="font-extrabold text-sm sm:text-base text-white flex items-center gap-2">
-              NEXUS Web Canvas
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Live Interactive</span>
+          <div class="min-w-0">
+            <h3 class="font-extrabold text-xs sm:text-base text-white flex items-center gap-1.5 sm:gap-2 truncate">
+              <span>NEXUS Web Canvas</span>
+              <span class="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">Live</span>
             </h3>
-            <p class="text-[11px] text-slate-400">Pratinjau langsung website hasil rancangan Senior Fullstack RAKA & ARKA</p>
+            <p class="text-[10px] sm:text-[11px] text-slate-400 hidden sm:block truncate">Pratinjau langsung website hasil rancangan Senior Fullstack</p>
           </div>
         </div>
 
-        <!-- Responsive Viewport Controls -->
-        <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <!-- Responsive Viewport Controls: Desktop & Tablet Only -->
+        <div class="hidden md:flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
           <button onclick="setWebPreviewViewport('desktop')" id="vpDesktopBtn" class="px-2.5 py-1 text-xs rounded-lg font-bold text-white bg-blue-600 transition flex items-center gap-1" title="Desktop">
             <i class="fa-solid fa-desktop text-[11px]"></i> <span class="hidden sm:inline">Desktop</span>
           </button>
@@ -3034,14 +3045,18 @@
         </div>
 
         <!-- Action & Close Buttons -->
-        <div class="flex items-center gap-2">
-          <button onclick="openWebPreviewInNewTab()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition flex items-center gap-1.5" title="Buka di tab baru">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onclick="openWebPreviewInNewTab()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition flex items-center gap-1.5" title="Buka di tab baru">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden md:inline">Tab Baru</span>
           </button>
-          <button onclick="downloadCurrentWebCode()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white transition flex items-center gap-1.5 shadow-md shadow-blue-600/30">
-            <i class="fa-solid fa-download"></i> <span class="hidden md:inline">Unduh .html</span>
+          <button onclick="downloadCurrentWebCode()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white transition flex items-center gap-1.5 shadow-md shadow-blue-600/30">
+            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Unduh .html</span>
           </button>
           <button onclick="closeWebPreviewModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600/80 text-slate-400 hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
