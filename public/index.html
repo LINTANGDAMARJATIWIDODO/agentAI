@@ -4709,6 +4709,17 @@
         if (!res.ok) throw new Error('File tidak ditemukan di server');
         const text = await res.text();
 
+        // Guard against HTML error pages or SPA fallback from being rendered as markdown
+        if (text.trim().startsWith('<!DOCTYPE html>') || text.trim().startsWith('<html') || text.includes('NEXUS AI ENTERPRISE — 3D Living')) {
+          area.innerHTML = `
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-slate-300 text-xs space-y-1">
+              <span class="font-bold text-white block">Dokumen Kajian SPBE Resmi</span>
+              <p class="text-slate-400">Dokumen sedang dimuat dari server. Silakan pilih judul dokumen di atas atau buka Pusat Unduhan untuk mengunduh naskah resmi.</p>
+            </div>
+          `;
+          return;
+        }
+
         if (filename.endsWith('.md')) {
           if (typeof marked !== 'undefined') {
             area.innerHTML = marked.parse(text);
@@ -6015,13 +6026,27 @@ function applyHumanizedStateToUI() {
           })
         });
 
-        const data = await res.json();
+        let data;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const raw = await res.text();
+          if (raw.trim().startsWith('<!DOCTYPE html>') || raw.trim().startsWith('<html')) {
+            throw new Error('API server mengembalikan halaman HTML. Pastikan Environment Variable GEMINI_API_KEY sudah diset di Vercel Dashboard.');
+          }
+          throw new Error('Respon server bukan JSON valid: ' + raw.slice(0, 100));
+        }
+
         const loadElem = document.getElementById(loadingId);
         if (loadElem) loadElem.remove();
 
-        if (data.status === 'success') {
+        const replyText = data.text || data.response || '';
+        if (data.status === 'success' && replyText) {
+          data.text = replyText;
+          data.response = replyText;
           geminiChatHistory.push({ role: 'user', content: finalPrompt });
-          geminiChatHistory.push({ role: 'model', content: data.text });
+          geminiChatHistory.push({ role: 'model', content: replyText });
           appendFeedAssistantMessage(data, agent, tier);
         } else {
           appendFeedErrorMessage(data.message || 'Terjadi kesalahan sistem.');
