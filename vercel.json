@@ -21,6 +21,7 @@
     { "source": "/api/ai/chat", "destination": "/api/gemini/chat" },
     { "source": "/api/ai/models", "destination": "/api/gemini/telemetry" },
     { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry" },
-    { "source": "/api/report/(.*)", "destination": "/api/report?file=$1" }
+    { "source": "/api/report/(.*)", "destination": "/public/reports/$1" },
+    { "source": "/reports/(.*)", "destination": "/public/reports/$1" }
   ]
 }

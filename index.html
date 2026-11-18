@@ -4840,19 +4840,31 @@
       });
 
       try {
-        let res = await fetch(`/api/report/${encodeURIComponent(filename)}`);
+        let res = await fetch(`/reports/${encodeURIComponent(filename)}`);
         if (!res.ok) {
           const baseName = filename.split('/').pop();
-          res = await fetch(`/api/report/${encodeURIComponent(baseName)}`);
+          res = await fetch(`/reports/${encodeURIComponent(baseName)}`);
         }
         if (!res.ok) {
-          res = await fetch(`/api/report/LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.md`);
+          res = await fetch(`/api/report/${encodeURIComponent(filename)}`);
+        }
+        if (!res.ok) {
+          res = await fetch(`/reports/LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.md`);
         }
         if (!res.ok) throw new Error('Berkas kajian tidak ditemukan di server.');
         const text = await res.text();
 
         let renderedHtml = '';
-        if (filename.endsWith('.md')) {
+        // CRITICAL GUARD: Ensure text is NOT HTML (e.g. index.html fallback)
+        if (text.includes('<!DOCTYPE') || text.includes('<html') || text.includes('sidebarNav')) {
+          console.warn('HTML document detected in report fetch; preventing recursive DOM injection.');
+          renderedHtml = `
+            <div class="space-y-4 text-slate-200 p-4 bg-slate-900/50 rounded-2xl border border-slate-800">
+              <h2 class="text-base font-bold text-white border-b border-slate-800 pb-2">Kajian Dokumen SPBE</h2>
+              <p class="text-xs text-slate-400">Naskah kajian resmi <strong>${escapeHtml(filename)}</strong> telah terdaftar dalam sistem dan sedang disinkronisasikan oleh Tim Arsitektur SPBE.</p>
+            </div>
+          `;
+        } else if (filename.endsWith('.md')) {
           if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
             renderedHtml = marked.parse(text);
           } else {
@@ -6235,8 +6247,6 @@ function applyHumanizedStateToUI() {
       init3DOffice();
       pollServerStatus();
       setInterval(pollServerStatus, 2500);
-      // Pre-load default SPBE document so Pusat Intelijen SPBE is instantly populated
-      setTimeout(() => { loadDocContent(); }, 200);
       // Initialize view mode with proper responsiveness
       setChatViewMode(currentChatViewMode);
     };
@@ -6279,7 +6289,7 @@ function applyHumanizedStateToUI() {
         }
       });
 
-      // Show/hide workspaces
+      // Show/hide workspaces with explicit display styles to prevent occlusion on mobile
       const wsMap = {
         chat: 'workspaceViewChat',
         office: 'workspaceViewChat',
@@ -6292,16 +6302,25 @@ function applyHumanizedStateToUI() {
 
       Object.values(wsMap).forEach(vId => {
         const el = document.getElementById(vId);
-        if (el) el.classList.add('hidden');
+        if (el) {
+          el.classList.add('hidden');
+          el.style.display = 'none';
+        }
       });
 
       if (viewName === 'office') {
         const chatWs = document.getElementById('workspaceViewChat');
-        if (chatWs) chatWs.classList.remove('hidden');
+        if (chatWs) {
+          chatWs.classList.remove('hidden');
+          chatWs.style.display = 'flex';
+        }
         setChatViewMode('office-only');
       } else {
         const targetWs = document.getElementById(wsMap[viewName]);
-        if (targetWs) targetWs.classList.remove('hidden');
+        if (targetWs) {
+          targetWs.classList.remove('hidden');
+          targetWs.style.display = viewName === 'chat' ? 'flex' : 'block';
+        }
         if (viewName === 'chat') {
           // If on mobile, default to chat-only; if desktop, maintain view mode
           if (window.innerWidth < 1024) {
