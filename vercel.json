@@ -1,11 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/gemini/chat", "destination": "/api/gemini/chat.js" },
-    { "source": "/api/gemini/telemetry", "destination": "/api/gemini/telemetry.js" },
-    { "source": "/api/status", "destination": "/api/status.js" },
-    { "source": "/api/report/(.*)", "destination": "/api/report.js?file=$1" },
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/((?!api/).*)", "destination": "/public/$1" }
+    { "source": "/downloads/(.*)", "destination": "/public/downloads/$1" },
+    { "source": "/buatkan_web_bengkel/(.*)", "destination": "/public/buatkan_web_bengkel/$1" }
   ]
 }

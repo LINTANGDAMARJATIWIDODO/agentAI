@@ -5818,9 +5818,9 @@ function applyHumanizedStateToUI() {
       const btnSplit = document.getElementById('btnViewSplit');
       const btnOffice = document.getElementById('btnViewOfficeOnly');
 
-      [btnChat, btnSplit, btnOffice].forEach(b => {
-        if (b) b.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium';
-      });
+      if (btnChat) btnChat.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium';
+      if (btnSplit) btnSplit.className = 'hidden lg:inline-flex items-center px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium';
+      if (btnOffice) btnOffice.className = 'px-2 sm:px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium';
 
       const isMobile = window.innerWidth < 1024;
 
