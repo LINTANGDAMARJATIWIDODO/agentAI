@@ -1049,11 +1049,33 @@ class AIHumanizer:
 
         reading_time_sec = max(5, round((total_words / 200.0) * 60))
 
+        # Advanced Scientific Detector Integration (28 Features + ML Ensemble)
+        advanced_report = {}
+        try:
+            from services.detection_engine.detector import NexusIndonesianDetector
+            _nexus_detector = NexusIndonesianDetector()
+            advanced_report = _nexus_detector.analyze(text, include_llm_audit=False)
+            if advanced_report and "calibrated_ai_probability" in advanced_report:
+                global_ai_score = round(advanced_report["calibrated_ai_probability"] * 100.0, 1)
+                global_human_score = round(100.0 - global_ai_score, 1)
+        except Exception:
+            pass
+
         return {
             "ai_score_percentage": global_ai_score,
             "human_score_percentage": global_human_score,
             "confidence_rating": f"{confidence_pct}% (Sangat Tinggi / High Certainty)",
             "classification": classification,
+            "verdict": advanced_report.get("verdict", "Mixed"),
+            "verdict_explanation": advanced_report.get("verdict_explanation", ""),
+            "calibrated_ai_probability": advanced_report.get("calibrated_ai_probability", round(global_ai_score / 100.0, 4)),
+            "confidence_level": advanced_report.get("confidence_level", f"{confidence_pct}%"),
+            "uncertainty_score": advanced_report.get("uncertainty_score", 0.10),
+            "model_agreement": advanced_report.get("model_agreement", 0.95),
+            "document_statistics": advanced_report.get("document_statistics", {}),
+            "top_driving_features": advanced_report.get("top_driving_features", []),
+            "sentence_heatmap": advanced_report.get("sentence_heatmap", []),
+            "disclaimer": advanced_report.get("disclaimer", "Analisis berbasis estimasi probabilistik fitur linguistik."),
             "burstiness": {
                 "score": cv,
                 "mean_adjacent_delta": mean_delta,

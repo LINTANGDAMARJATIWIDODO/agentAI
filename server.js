@@ -222,6 +222,35 @@ function requestHandler(req, res) {
     return;
   }
 
+  // Advanced Forensic AI Detection Engine
+  if (url.pathname === '/api/detector/analyze' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const text = (payload.text || '').trim();
+        if (!text) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'error', message: 'Teks wajib diisi.' }));
+          return;
+        }
+
+        const { analyzeText } = require('./services/detection_engine/detector_node');
+        const report = await analyzeText(text, {
+          geminiApiKey: process.env.GEMINI_API_KEY || ''
+        });
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(report));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'error', message: err.message }));
+      }
+    });
+    return;
+  }
+
   if (url.pathname === '/api/core/status') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({

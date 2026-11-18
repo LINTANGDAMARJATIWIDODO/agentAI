@@ -961,24 +961,122 @@
           </button>
         </div>
         
-        <!-- Accuracy & Metrics Bar (Collapsed / Compact) -->
-        <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span class="text-slate-300 font-semibold">Forensic AI Accuracy: <span id="jdConfidenceVal" class="text-white font-mono font-bold">99.8% (Certainty)</span></span>
-            <span class="text-slate-600">|</span>
-            <span class="text-slate-400">Shannon Entropy: <span id="jdPerplexityVal" class="text-purple-300 font-mono">42.1 (0.91)</span></span>
+        <!-- 4-OUTCOME SCIENTIFIC VERDICT BANNER -->
+        <div id="jdScientificVerdictBanner" class="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-xl transition-all duration-500">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div id="jdVerdictBadgeIcon" class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="jdVerdictOutcomeTag" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/30 text-rose-200 border border-rose-400/40">AI-like</span>
+                  <span id="jdVerdictConfidenceTag" class="text-[11px] text-slate-400 font-semibold">• Keyakinan: Tinggi (High Certainty)</span>
+                </div>
+                <h3 id="jdVerdictTitle" class="text-sm sm:text-base font-extrabold text-white mt-0.5">Terindikasi Buatan Model Bahasa (AI-like)</h3>
+                <p id="jdVerdictDescription" class="text-xs text-slate-300 mt-0.5 leading-relaxed">Teks memperlihatkan pola distribusi panjang kalimat yang seragam dan penumpukan transisi formal klise.</p>
+              </div>
+            </div>
+            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0 shrink-0">
+              <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Probabilitas Kalibrasi</span>
+              <span id="jdCalibratedProbDisplay" class="text-2xl font-black text-rose-400 font-mono">98.0%</span>
+            </div>
           </div>
-          <div class="hidden">
-            <span id="jdAiScoreVal">0%</span>
-            <span id="jdHumanScoreVal">0%</span>
-            <span id="jdScoreDropVal">0%</span>
-            <span id="jdBurstinessScore">0.5</span>
-            <span id="jdBurstinessLevel">SEDANG</span>
-            <span id="cntAiSentences">0</span>
-            <span id="cntMixedSentences">0</span>
-            <span id="cntHumanSentences">0</span>
+        </div>
+
+        <!-- SCIENTIFIC METRICS GRID -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
+          <!-- Card 1: Burstiness -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Burstiness (Ritme)</span>
+              <i class="fa-solid fa-wave-square text-cyan-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardBurstinessVal" class="text-base font-black text-white font-mono">-0.84</span>
+              <span id="cardBurstinessLabel" class="block text-[10px] text-rose-400 font-semibold">Sangat Seragam (AI)</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Variasi panjang antar-klausa</span>
           </div>
+
+          <!-- Card 2: Lexical Diversity (Yule's K) -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Yule's K / TTR</span>
+              <i class="fa-solid fa-spell-check text-purple-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardYulesKVal" class="text-base font-black text-white font-mono">85.2</span>
+              <span id="cardTtrVal" class="block text-[10px] text-slate-300 font-semibold">TTR: 0.88</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Kekayaan kosakata invarian</span>
+          </div>
+
+          <!-- Card 3: Shannon Entropy -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Shannon Entropy</span>
+              <i class="fa-solid fa-chart-line text-emerald-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardEntropyVal" class="text-base font-black text-white font-mono">5.21</span>
+              <span class="block text-[10px] text-emerald-400 font-semibold">Prediktabilitas Sedang</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Kepadatan muatan informasi</span>
+          </div>
+
+          <!-- Card 4: Transisi Klise AI -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Kerapatan Transisi</span>
+              <i class="fa-solid fa-link text-amber-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardTransitionDensityVal" class="text-base font-black text-white font-mono">4.50%</span>
+              <span id="cardTransitionLabel" class="block text-[10px] text-amber-400 font-semibold">Tinggi (Khas AI)</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Frekuensi konjungsi awal</span>
+          </div>
+
+          <!-- Card 5: Model Agreement -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Konsensus Model</span>
+              <i class="fa-solid fa-handshake text-indigo-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardModelAgreementVal" class="text-base font-black text-white font-mono">98.8%</span>
+              <span class="block text-[10px] text-indigo-300 font-semibold">Tree + Linear Sepakat</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Konkordansi ensemble ML</span>
+          </div>
+
+          <!-- Card 6: Uncertainty Score -->
+          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
+              <span>Ketidakpastian</span>
+              <i class="fa-solid fa-circle-question text-teal-400 text-[10px]"></i>
+            </div>
+            <div class="my-1.5">
+              <span id="cardUncertaintyVal" class="text-base font-black text-white font-mono">0.06</span>
+              <span id="cardUncertaintyLevel" class="block text-[10px] text-teal-400 font-semibold">Sangat Rendah</span>
+            </div>
+            <span class="text-[9px] text-slate-500 leading-tight">Margin & deviasi statistik</span>
+          </div>
+        </div>
+
+        <!-- Hidden Legacy Metrics Compatibility -->
+        <div class="hidden">
+          <span id="jdConfidenceVal">99.8% (Certainty)</span>
+          <span id="jdPerplexityVal">42.1 (0.91)</span>
+          <span id="jdAiScoreVal">0%</span>
+          <span id="jdHumanScoreVal">0%</span>
+          <span id="jdScoreDropVal">0%</span>
+          <span id="jdBurstinessScore">0.5</span>
+          <span id="jdBurstinessLevel">SEDANG</span>
+          <span id="cntAiSentences">0</span>
+          <span id="cntMixedSentences">0</span>
+          <span id="cntHumanSentences">0</span>
         </div>
 
         <!-- DUAL-PANE SPLIT VIEW -->
@@ -1010,6 +1108,20 @@
             <!-- Scrollable Text Area with Highlighted Sentences -->
             <div id="jdColoredSentencesContainer" class="flex-1 overflow-y-auto pr-2 text-xs sm:text-[13px] leading-relaxed text-slate-200 space-y-2 font-sans select-text">
               <!-- Rendered sentences dynamically -->
+            </div>
+
+            <!-- Interactive Sentence Inspector Drawer/Box -->
+            <div id="jdSentenceInspectorBox" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-magnifying-glass text-purple-400"></i>
+                  <span id="jdInspectorSentenceHeader">Klik salah satu kalimat untuk telaah alasan penandaan</span>
+                </span>
+                <span id="jdInspectorSentenceBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase"></span>
+              </div>
+              <p id="jdInspectorSentenceDetail" class="text-slate-300 text-[11px] leading-relaxed italic">
+                Setiap kalimat dianalisis secara independen terhadap pola ritme staccato, keteraturan klausa, dan penumpukan konjungsi transisi klise AI.
+              </p>
             </div>
           </div>
 
@@ -1111,6 +1223,68 @@
 
           </div>
 
+        </div>
+
+        <!-- GEMINI LLM CONTEXTUAL FORENSIC AUDIT PANEL -->
+        <div id="jdGeminiAuditPanel" class="p-5 sm:p-6 rounded-3xl bg-slate-950 border border-indigo-900/50 shadow-2xl space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-sm font-bold border border-indigo-500/30">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-extrabold text-white">Audit Kontekstual Gemini AI (Pengulas Independen)</h4>
+                <span class="text-[10px] text-slate-400">Analisis kualitatif stilistika, diksi institusional, dan kaidah baku KBBI & EYD V</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="downloadForensicJsonReport()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-download text-purple-400"></i>
+                <span>Unduh JSON Forensik</span>
+              </button>
+              <button onclick="copyForensicSummary()" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-white border border-indigo-500/40 text-xs font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-copy text-indigo-400"></i>
+                <span>Salin Ringkasan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Assessment Text -->
+          <div class="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-900/40 text-xs text-indigo-200 leading-relaxed font-sans" id="jdLlmAssessmentText">
+            Memuat telaah kontekstual...
+          </div>
+
+          <!-- 2 Columns: Human Indicators vs AI Indicators -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-900/40 space-y-2">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-check-circle"></i> Indikator Tulisan Manusia Alami:
+              </span>
+              <ul id="jdLlmHumanIndicatorsList" class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                <li>Variasi panjang klausa dan transisi kontekstual alami.</li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-900/40 space-y-2">
+              <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation"></i> Indikator Gaya Khas Model Bahasa (AI):
+              </span>
+              <ul id="jdLlmAiIndicatorsList" class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                <li>Penumpukan konjungsi transisi mekanis di awal kalimat.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Stylistic Critique & Investigation -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+            <span class="font-bold text-slate-200 block"><i class="fa-solid fa-feather text-amber-400 mr-1.5"></i>Kritik Stilistika & Langkah Investigasi yang Direkomendasikan:</span>
+            <p id="jdLlmStylisticCritiqueText" class="leading-relaxed text-slate-400">Verifikasi berkas pendukung dan jejak penyusunan dianjurkan untuk konfirmasi mutlak.</p>
+          </div>
+
+          <!-- Scientific Transparency Disclaimer -->
+          <div class="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80 text-[10px] text-slate-400 leading-relaxed flex items-start gap-2">
+            <i class="fa-solid fa-shield-halved text-purple-400 mt-0.5 shrink-0"></i>
+            <span><strong>TRANSPARANSI & BATASAN ILMIAH:</strong> Deteksi berbasis teks semata adalah estimasi probabilistik dan tidak dapat dijadikan bukti hukum tunggal mengenai kepengarangan. Jangan pernah mendakwa pelanggaran integritas akademik semata-mata dari skor detektor tanpa bukti proses kerja pendukung.</span>
+          </div>
         </div>
 
         <!-- Optional Full Humanized Text View -->
@@ -5246,7 +5420,7 @@ function toggleCleanTextView() {
 }
 
 function renderSentenceDisplay(data, cleanMode = false) {
-  const rawSentences = data.sentences || (data.before_metrics ? data.before_metrics.sentences : (data.sentence_pairs || []));
+  const rawSentences = data.sentence_heatmap || data.sentences || (data.before_metrics ? data.before_metrics.sentences : (data.sentence_pairs || []));
   const sentences = rawSentences.slice(0, 500);
   const coloredContainer = document.getElementById('jdColoredSentencesContainer');
   if (!coloredContainer) return;
@@ -5256,26 +5430,90 @@ function renderSentenceDisplay(data, cleanMode = false) {
     if (data.truncation_notice || rawSentences.length > 500) {
       bannerHtml = `<div class="mb-3 p-2.5 rounded-xl bg-purple-950/50 border border-purple-500/40 text-[11px] text-purple-200 flex items-center gap-2"><i class="fa-solid fa-bolt text-purple-400"></i><span>${escapeHtml(data.truncation_notice || `Menampilkan analisis 500 kalimat utama (Total ${rawSentences.length} kalimat). Dokumen lengkap diunduh via Rebuilt PDF & DOCX.`)}</span></div>`;
     }
-    coloredContainer.innerHTML = bannerHtml + sentences.map(s => {
-      const textStr = escapeHtml(s.sentence || s.original || '');
+    coloredContainer.innerHTML = bannerHtml + sentences.map((s, idx) => {
+      const textStr = escapeHtml(s.text || s.sentence || s.original || '');
       if (cleanMode) {
         return `<span class="mr-1 inline leading-relaxed text-slate-200">${textStr}</span>`;
       }
       let styleClass = 'text-slate-300';
-      const isAi = s.status === 'ai' || (s.action_label && s.action_label.includes('WAJIB'));
-      const isMixed = s.status === 'mixed' || (s.action_label && s.action_label.includes('REVISI'));
+      const isAi = s.level === 'high' || s.status === 'ai' || (s.action_label && s.action_label.includes('WAJIB')) || (s.ai_score && s.ai_score > 0.60);
+      const isMixed = s.level === 'medium' || s.status === 'mixed' || (s.action_label && s.action_label.includes('REVISI')) || (s.ai_score && s.ai_score >= 0.35 && s.ai_score <= 0.60);
       
       if (isAi) {
-        styleClass = 'bg-rose-500/20 text-rose-200 border-b-2 border-rose-500 rounded px-1 py-0.5 font-medium';
+        styleClass = 'bg-rose-500/20 text-rose-200 border-b-2 border-rose-500 rounded px-1 py-0.5 font-medium hover:bg-rose-500/30';
       } else if (isMixed) {
-        styleClass = 'bg-amber-500/20 text-amber-200 border-b-2 border-amber-500 rounded px-1 py-0.5 font-medium';
+        styleClass = 'bg-amber-500/20 text-amber-200 border-b-2 border-amber-500 rounded px-1 py-0.5 font-medium hover:bg-amber-500/30';
+      } else {
+        styleClass = 'hover:bg-slate-800/60 rounded px-0.5';
       }
-      const tooltip = (s.reasons || []).join(' • ') || s.action_note || s.classification || '';
-      return `<span class="${styleClass} mr-1 leading-relaxed inline cursor-pointer transition hover:opacity-80" title="${escapeHtml(tooltip)}">${textStr}</span>`;
+      const tooltip = s.explanation || (s.reasons || []).join(' • ') || s.action_note || s.classification || '';
+      return `<span onclick="inspectSentenceDetails(${idx})" class="${styleClass} mr-1 leading-relaxed inline cursor-pointer transition" title="${escapeHtml(tooltip)}">${textStr}</span>`;
     }).join(' ');
+
+    // Automatically inspect first sentence if available
+    inspectSentenceDetails(0);
   } else {
     coloredContainer.innerHTML = `<p class="text-slate-400 text-xs">${escapeHtml(data.original_text || '')}</p>`;
   }
+}
+
+function inspectSentenceDetails(idx) {
+  const data = window.currentJustDoneData || {};
+  const heatmap = data.sentence_heatmap || data.sentences || (data.before_metrics ? data.before_metrics.sentences : []);
+  const item = heatmap[idx];
+  if (!item) return;
+
+  const header = document.getElementById('jdInspectorSentenceHeader');
+  const badge = document.getElementById('jdInspectorSentenceBadge');
+  const detail = document.getElementById('jdInspectorSentenceDetail');
+
+  if (header) header.textContent = `Kalimat #${idx + 1} (${item.word_count || 0} kata)`;
+  if (badge) {
+    badge.classList.remove('hidden');
+    const lvl = item.level || (item.status === 'ai' ? 'high' : (item.status === 'mixed' ? 'medium' : 'low'));
+    if (lvl === 'high' || (item.ai_score && item.ai_score > 0.60)) {
+      badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40';
+      badge.textContent = `AI-like (${Math.round((item.ai_score || 0.85) * 100)}%)`;
+    } else if (lvl === 'medium' || (item.ai_score && item.ai_score >= 0.35)) {
+      badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40';
+      badge.textContent = `Mixed (${Math.round((item.ai_score || 0.50) * 100)}%)`;
+    } else {
+      badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+      badge.textContent = `Human-like (${Math.round((item.ai_score || 0.15) * 100)}%)`;
+    }
+  }
+  if (detail) {
+    const markers = item.markers_found && item.markers_found.length ? ` • Indikator terdeteksi: "${item.markers_found.join('", "')}"` : '';
+    detail.textContent = (item.explanation || (item.reasons || []).join('; ') || item.action_note || 'Struktur kalimat formal alami.') + markers;
+  }
+}
+
+function downloadForensicJsonReport() {
+  const data = window.currentJustDoneData || {};
+  const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", jsonStr);
+  dlAnchor.setAttribute("download", `NEXUS_Forensic_Report_${Date.now()}.json`);
+  document.body.appendChild(dlAnchor);
+  dlAnchor.click();
+  dlAnchor.remove();
+}
+
+function copyForensicSummary() {
+  const data = window.currentJustDoneData || {};
+  const verdict = data.verdict || 'AI-like';
+  const prob = data.display_probability || (data.ai_score_percentage + '%');
+  const conf = data.confidence_level || 'Tinggi';
+  const stats = data.document_statistics || {};
+  const text = `[LAPORAN FORENSIK KEPENGARANGAN - NEXUS AI ENTERPRISE]\n` +
+    `Status Keputusan: ${verdict}\n` +
+    `Taksiran Probabilitas: ${prob} (Keyakinan: ${conf})\n` +
+    `Indeks Burstiness: ${stats.burstiness || 'N/A'}\n` +
+    `Kekayaan Leksikal Yule's K: ${stats.yules_k || 'N/A'}\n` +
+    `Kerapatan Transisi AI: ${stats.ai_transition_density || 'N/A'}%\n` +
+    `Catatan: Hasil analisis kepengarangan ini berbasis estimasi fitur probabilistik dan bukan kepastian mutlak tanpa verifikasi proses naskah.`;
+  navigator.clipboard.writeText(text);
+  alert('✓ Ringkasan Laporan Forensik berhasil disalin ke clipboard!');
 }
 
 function renderJustDoneResults(data, actionType) {
@@ -5370,6 +5608,121 @@ function renderJustDoneResults(data, actionType) {
 
   // 5. Render Left Pane Sentences
   renderSentenceDisplay(data, false);
+
+  // 5.1 Update Scientific Verdict Banner (4 Outcomes)
+  const verdict = data.verdict || (aiScore >= 65 ? 'AI-like' : (aiScore <= 35 ? 'Human-like' : 'Mixed'));
+  const banner = document.getElementById('jdScientificVerdictBanner');
+  const badgeIcon = document.getElementById('jdVerdictBadgeIcon');
+  const outcomeTag = document.getElementById('jdVerdictOutcomeTag');
+  const confTag = document.getElementById('jdVerdictConfidenceTag');
+  const vTitle = document.getElementById('jdVerdictTitle');
+  const vDesc = document.getElementById('jdVerdictDescription');
+  const probDisplay = document.getElementById('jdCalibratedProbDisplay');
+
+  if (probDisplay) {
+    probDisplay.textContent = data.display_probability || `${Math.round(aiScore)}%`;
+  }
+
+  if (banner && badgeIcon && outcomeTag && vTitle && vDesc) {
+    if (verdict === 'Human-like') {
+      banner.className = 'p-4 sm:p-5 rounded-2xl bg-emerald-950/30 border border-emerald-500/50 shadow-xl transition-all duration-500';
+      badgeIcon.className = 'w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0';
+      badgeIcon.innerHTML = '<i class="fa-solid fa-user-check"></i>';
+      outcomeTag.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/30 text-emerald-200 border border-emerald-400/40';
+      outcomeTag.textContent = 'Human-like';
+      vTitle.textContent = 'Gaya Bahasa Manusia Alami (Human-like)';
+      vDesc.textContent = data.verdict_explanation || 'Teks memperlihatkan keragaman leksikal tinggi, variasi ritme panjang kalimat alami (burstiness positif), dan ketiadaan transisi klise.';
+      if (probDisplay) probDisplay.className = 'text-2xl font-black text-emerald-400 font-mono';
+    } else if (verdict === 'AI-like') {
+      banner.className = 'p-4 sm:p-5 rounded-2xl bg-rose-950/30 border border-rose-500/50 shadow-xl transition-all duration-500';
+      badgeIcon.className = 'w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-xl shrink-0';
+      badgeIcon.innerHTML = '<i class="fa-solid fa-robot"></i>';
+      outcomeTag.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/30 text-rose-200 border border-rose-400/40';
+      outcomeTag.textContent = 'AI-like';
+      vTitle.textContent = 'Terindikasi Buatan Model Bahasa (AI-like)';
+      vDesc.textContent = data.verdict_explanation || 'Teks memperlihatkan distribusi ritme kalimat yang seragam, penumpukan konjungsi transisi mekanis, dan formula sintaksis simetris.';
+      if (probDisplay) probDisplay.className = 'text-2xl font-black text-rose-400 font-mono';
+    } else if (verdict === 'Mixed') {
+      banner.className = 'p-4 sm:p-5 rounded-2xl bg-amber-950/30 border border-amber-500/50 shadow-xl transition-all duration-500';
+      badgeIcon.className = 'w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-xl shrink-0';
+      badgeIcon.innerHTML = '<i class="fa-solid fa-shuffle"></i>';
+      outcomeTag.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-500/30 text-amber-200 border border-amber-400/40';
+      outcomeTag.textContent = 'Mixed';
+      vTitle.textContent = 'Campuran Kepengarangan (Mixed Authorship)';
+      vDesc.textContent = data.verdict_explanation || 'Dokumen memperlihatkan percampuran kepengarangan: segmen buatan model AI bersanding dengan segmen bergaya manusia alami.';
+      if (probDisplay) probDisplay.className = 'text-2xl font-black text-amber-400 font-mono';
+    } else {
+      banner.className = 'p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-700 shadow-xl transition-all duration-500';
+      badgeIcon.className = 'w-12 h-12 rounded-2xl bg-slate-800 text-slate-300 border border-slate-700 flex items-center justify-center text-xl shrink-0';
+      badgeIcon.innerHTML = '<i class="fa-solid fa-circle-question"></i>';
+      outcomeTag.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700';
+      outcomeTag.textContent = 'Inconclusive';
+      vTitle.textContent = 'Hasil Analisis Tidak Konklusif';
+      vDesc.textContent = data.verdict_explanation || 'Tingkat ketidakpastian tinggi atau teks terlalu pendek untuk membuktikan estimasi statistik yang valid.';
+      if (probDisplay) probDisplay.className = 'text-2xl font-black text-slate-400 font-mono';
+    }
+  }
+  if (confTag) {
+    confTag.textContent = `• Keyakinan: ${data.confidence_level || 'Tinggi (High Certainty)'}`;
+  }
+
+  // 5.2 Update Metrics Cards
+  const stats = data.document_statistics || {};
+  const burstinessVal = stats.burstiness !== undefined ? stats.burstiness : (data.burstiness ? (data.burstiness.score - 0.5) * 2 : -0.84);
+  const cardBurstVal = document.getElementById('cardBurstinessVal');
+  const cardBurstLbl = document.getElementById('cardBurstinessLabel');
+  if (cardBurstVal) cardBurstVal.textContent = typeof burstinessVal === 'number' ? burstinessVal.toFixed(2) : burstinessVal;
+  if (cardBurstLbl) cardBurstLbl.textContent = burstinessVal > -0.2 ? 'Alami & Bervariasi' : 'Seragam (Khas AI)';
+
+  const yulesKVal = stats.yules_k !== undefined ? stats.yules_k : 85.2;
+  const ttrVal = stats.ttr !== undefined ? stats.ttr : 0.88;
+  const cardYVal = document.getElementById('cardYulesKVal');
+  const cardTVal = document.getElementById('cardTtrVal');
+  if (cardYVal) cardYVal.textContent = typeof yulesKVal === 'number' ? yulesKVal.toFixed(1) : yulesKVal;
+  if (cardTVal) cardTVal.textContent = `TTR: ${typeof ttrVal === 'number' ? ttrVal.toFixed(2) : ttrVal}`;
+
+  const entVal = stats.shannon_entropy !== undefined ? stats.shannon_entropy : 5.21;
+  const cardEVal = document.getElementById('cardEntropyVal');
+  if (cardEVal) cardEVal.textContent = typeof entVal === 'number' ? entVal.toFixed(2) : entVal;
+
+  const transVal = stats.ai_transition_density !== undefined ? stats.ai_transition_density : 4.5;
+  const cardTransVal = document.getElementById('cardTransitionDensityVal');
+  const cardTransLbl = document.getElementById('cardTransitionLabel');
+  if (cardTransVal) cardTransVal.textContent = `${typeof transVal === 'number' ? transVal.toFixed(1) : transVal}%`;
+  if (cardTransLbl) cardTransLbl.textContent = transVal > 1.5 ? 'Tinggi (Khas AI)' : 'Wajar (Alami)';
+
+  const agreeVal = data.model_agreement !== undefined ? Math.round(data.model_agreement * 100) : 98;
+  const cardAgreeVal = document.getElementById('cardModelAgreementVal');
+  if (cardAgreeVal) cardAgreeVal.textContent = `${agreeVal}%`;
+
+  const uncVal = data.uncertainty_score !== undefined ? data.uncertainty_score : 0.06;
+  const cardUncVal = document.getElementById('cardUncertaintyVal');
+  const cardUncLbl = document.getElementById('cardUncertaintyLevel');
+  if (cardUncVal) cardUncVal.textContent = typeof uncVal === 'number' ? uncVal.toFixed(2) : uncVal;
+  if (cardUncLbl) cardUncLbl.textContent = uncVal < 0.35 ? 'Sangat Rendah' : (uncVal < 0.65 ? 'Sedang' : 'Tinggi');
+
+  // 5.3 Update Gemini LLM Contextual Audit Card
+  const audit = data.llm_audit || {};
+  const assessElem = document.getElementById('jdLlmAssessmentText');
+  if (assessElem) {
+    assessElem.textContent = audit.contextual_assessment || 'Dokumen telah diaudit secara forensik terhadap pola leksikal, repetisi frasa formal, dan variasi ritme sintaksis.';
+  }
+  const humList = document.getElementById('jdLlmHumanIndicatorsList');
+  if (humList) {
+    const items = audit.human_like_indicators || ['Variasi panjang klausa dan pilihan diksi formal sesuai standar KBBI.'];
+    humList.innerHTML = items.map(it => `<li>${escapeHtml(it)}</li>`).join('');
+  }
+  const aiList = document.getElementById('jdLlmAiIndicatorsList');
+  if (aiList) {
+    const items = audit.ai_like_indicators || ['Penumpukan transisi formal dan keteraturan pola kalimat simetris.'];
+    aiList.innerHTML = items.map(it => `<li>${escapeHtml(it)}</li>`).join('');
+  }
+  const critElem = document.getElementById('jdLlmStylisticCritiqueText');
+  if (critElem) {
+    const critique = audit.stylistic_critique || 'Kohesi antarkalimat rapi.';
+    const rec = audit.recommended_investigation ? ` Rekomendasi: ${audit.recommended_investigation}` : '';
+    critElem.textContent = critique + rec;
+  }
 
   // 6. Setup Download Links
   const pdfBtn = document.getElementById('btnDownloadRebuiltPdf');

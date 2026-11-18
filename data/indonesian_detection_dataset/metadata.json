@@ -1,0 +1,30 @@
+{
+  "dataset_name": "NEXUS-IndoDetect-v1",
+  "description": "Benchmark dataset for Indonesian AI-generated text detection & authorship analysis",
+  "language": "id",
+  "total_documents": 40,
+  "splits": {
+    "train": 24,
+    "val": 9,
+    "test": 7
+  },
+  "categories": {
+    "human_authentic": 16,
+    "ai_raw": 10,
+    "human_edited_ai": 4,
+    "ai_edited_human": 4,
+    "paraphrased": 3,
+    "mixed_authorship": 3
+  },
+  "provenance_types": [
+    "Perpres & SPBE DKI Jakarta (Official Government)",
+    "Jurnal Ilmiah Sinta/Scopus (UI, UGM, ITB, Unpad)",
+    "LKBN Antara & Kompas & Tempo (Journalism)",
+    "Majalah Horison & Esai Sastra (Literary)",
+    "Gemini 2.5/2.0 Flash (Google GenAI)",
+    "GPT-4o (OpenAI)",
+    "Claude 3.5 Sonnet (Anthropic)",
+    "DeepSeek-V3",
+    "Llama-3-70b-Indonesian (Open Weights)"
+  ]
+}

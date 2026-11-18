@@ -4,8 +4,10 @@ node_modules
 .vercel
 __pycache__
 *.pyc
-uploads/Arsitektur_SPBE_DKI_Jakarta_2027.pdf
-uploads/gabungan_semua_3_.pdf
+uploads/*.pdf
+public/downloads/HUMANIZED_*.pdf
+public/downloads/HUMANIZED_*.docx
+reports/HUMANIZED_*
 .vscode/
 logs/*.log
 logs/*.json
