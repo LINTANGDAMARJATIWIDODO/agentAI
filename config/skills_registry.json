@@ -1,11 +1,29 @@
 {
-  "total_skills": 50,
+  "total_skills": 57,
   "skills": [
+    {
+      "id": "academic-writing-intelligence",
+      "name": "academic-writing-intelligence",
+      "description": "Evaluation, preservation, and auditing of Indonesian formal academic register, scholarly argumentation, and legitimate transitional conventions.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
     {
       "id": "agile-scrum-operations",
       "name": "agile-scrum-operations",
       "description": "Govern enterprise Agile Scrum execution, sprint backlogs, user story estimation (Story Points), daily standup tracking, and retrospectives. Use when managing sprints, backlogs, or agile ceremonies.",
       "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "ai-authorship-forensics",
+      "name": "ai-authorship-forensics",
+      "description": "Advanced AI-generated text detection, authorship analysis, linguistic forensics, and evidence-based classification for Indonesian and multilingual documents.",
+      "category": "Engineering & Development",
       "assigned_agents": [
         "ARKA"
       ]
@@ -182,6 +200,15 @@
       ]
     },
     {
+      "id": "evidence-verification",
+      "name": "evidence-verification",
+      "description": "Independent verification, model evaluation, uncertainty estimation, and false-positive prevention for AI text detection.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
       "id": "financial-analysis",
       "name": "financial-analysis",
       "description": "Build comprehensive financial models, CAPEX/OPEX breakdowns, ROI/NPV/IRR valuations, and budget feasibility reports. Use when calculating costs, cash flow projections, or evaluating business profitability.",
@@ -258,6 +285,24 @@
       "id": "humanizer-zh",
       "name": "humanizer-zh",
       "description": "编辑中文文章、评论和文档中的空话、重复及模板化表达，让文字更自然，同时保留事实、确定程度和作者声音。适用于润色已有文本，不用于判断作者身份或保证通过 AI 检测器。",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "indonesian-linguistic-intelligence",
+      "name": "indonesian-linguistic-intelligence",
+      "description": "Indonesian language auditing specialist for KBBI, EYD V, academic grammar, punctuation, and effective sentence construction.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "intelligent-revision-engine",
+      "name": "intelligent-revision-engine",
+      "description": "Multi-skill harmonization engine that synthesizes linguistic, stylometric, statistical, and forensic findings to execute precise, minimal, and justified text revisions.",
       "category": "Engineering & Development",
       "assigned_agents": [
         "ARKA"
@@ -365,7 +410,7 @@
     {
       "id": "senior-fullstack",
       "name": "senior-fullstack",
-      "description": "Start a fullstack project or audit a codebase: pick a stack (Next.js, FastAPI, MERN, Django), scaffold it and score code quality. Use whenever the user asks which stack to use, wants a new web app set up, or asks how good or messy their codebase is.",
+      "description": "Start a fullstack project or audit a codebase. Pick a stack (Next.js, FastAPI, MERN, Django), scaffold it and score code quality. Use whenever the user asks which stack to use, wants a new web app set up, or asks how good or messy their codebase is.",
       "category": "Engineering & Development",
       "assigned_agents": [
         "RAKA",
@@ -391,6 +436,15 @@
       ]
     },
     {
+      "id": "statistical-text-detection",
+      "name": "statistical-text-detection",
+      "description": "Mathematical and statistical modeling of text predictability, perplexity, burstiness, Shannon entropy, and calibrated probability estimation for Indonesian text.",
+      "category": "Engineering & Development",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
       "id": "strategic-marketing-seo",
       "name": "strategic-marketing-seo",
       "description": "Formulate high-conversion B2B strategic marketing funnels, technical search engine optimization (SEO), programmatic content strategy, and demand generation. Use when developing acquisition funnels or organic search visibility.",
@@ -404,6 +458,15 @@
       "name": "strategic-planning",
       "description": "Formulate enterprise-level strategic plans, goal alignment, corporate vision decomposition, and organizational prioritization. Use when setting corporate direction or scoping complex multi-division initiatives.",
       "category": "Executive & Strategy",
+      "assigned_agents": [
+        "ARKA"
+      ]
+    },
+    {
+      "id": "stylometric-analysis",
+      "name": "stylometric-analysis",
+      "description": "Quantitative stylometrics, syntactic complexity, lexical diversity, authorial rhythm, and writing consistency analysis for Indonesian texts.",
+      "category": "Engineering & Development",
       "assigned_agents": [
         "ARKA"
       ]
