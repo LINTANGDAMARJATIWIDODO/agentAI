@@ -11,33 +11,43 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
+    res.statusCode = 204;
+    return res.end();
   }
 
   if (req.method !== 'POST') {
-    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
-    return;
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ status: 'error', message: 'Method Not Allowed. Use POST.' }));
   }
 
   try {
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
+    } else if (!body) {
+      body = await new Promise((resolve) => {
+        let raw = '';
+        req.on('data', chunk => { raw += chunk; });
+        req.on('end', () => {
+          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
+        });
+        req.on('error', () => resolve({}));
+      });
     }
     body = body || {};
 
     const text = (body.text || '').trim();
     if (!text) {
-      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
-      return;
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ status: 'error', message: 'Parameter "text" wajib diisi.' }));
     }
 
     const sentences = segmentSentences(text);
     const words = text.split(/\s+/).filter(Boolean);
     const nWords = words.length;
 
-    // Extract core sentences (first sentence and any sentence mentioning Perpres/SPBE/tata kelola/regulasi)
     const keySentences = sentences.filter((s, idx) => {
       if (idx === 0) return true;
       return /SPBE|Perpres|regulasi|tata kelola|arsitektur|kinerja|layanan|integrasi/i.test(s);
@@ -47,7 +57,9 @@ module.exports = async function handler(req, res) {
     const summaryWords = summary.split(/\s+/).filter(Boolean);
     const reduction = Math.max(20, Math.round((1 - (summaryWords.length / Math.max(1, nWords))) * 100));
 
-    res.status(200).json({
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
       status: 'success',
       tool: 'summarizer',
       word_count_original: nWords,
@@ -59,12 +71,14 @@ module.exports = async function handler(req, res) {
         'Implementasi regulasi SPBE dan arsitektur 6 domain menjadi acuan bersama seluruh perangkat daerah.',
         'Optimalisasi belanja TIK dan standardisasi Satu Data untuk meningkatkan efisiensi dan transparansi layanan publik.'
       ]
-    });
+    }));
   } catch (error) {
     console.error('[API /api/document/summarize Error]:', error);
-    res.status(500).json({
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
       status: 'error',
       message: 'Gagal membuat ringkasan: ' + error.message
-    });
+    }));
   }
 };
