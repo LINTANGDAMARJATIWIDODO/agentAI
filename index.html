@@ -4520,8 +4520,10 @@
 
     function onWindowResize() {
       const container = document.getElementById('canvas-container');
+      if (!container || !camera || !renderer) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (w === 0 || h === 0) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -6231,6 +6233,8 @@ function applyHumanizedStateToUI() {
       setInterval(pollServerStatus, 2500);
       // Pre-load default SPBE document so Pusat Intelijen SPBE is instantly populated
       setTimeout(() => { loadDocContent(); }, 200);
+      // Initialize view mode with proper responsiveness
+      setChatViewMode(currentChatViewMode);
     };
   
 
@@ -6410,30 +6414,44 @@ function applyHumanizedStateToUI() {
       const container = document.getElementById('chatMessagesContainer');
       if (container) {
         container.innerHTML = `
-          <div id="chatHeroWelcome" class="my-3 sm:my-6 max-w-xl mx-auto text-center space-y-3 sm:space-y-4 px-2">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 mx-auto flex items-center justify-center text-white text-xl sm:text-2xl shadow-xl shadow-blue-600/30">
+          <div id="chatHeroWelcome" class="my-auto py-2 sm:py-6 max-w-xl mx-auto text-center space-y-2 sm:space-y-4 px-2">
+            <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 mx-auto flex items-center justify-center text-white text-lg sm:text-2xl shadow-xl shadow-blue-600/30 shrink-0">
               <i class="fa-solid fa-sparkles"></i>
             </div>
             <div>
-              <h2 class="text-base sm:text-xl font-extrabold text-white">NEXUS AI ENTERPRISE</h2>
-              <p class="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+              <h2 class="text-sm sm:text-xl font-extrabold text-white">NEXUS AI ENTERPRISE</h2>
+              <p class="text-[10px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 max-w-md mx-auto leading-relaxed line-clamp-2 sm:line-clamp-none">
                 Percakapan baru telah dimulai. Sistem terhubung ke Google Gemini API dengan Google Search Grounding dan orkestrasi 10 Agen Otonom.
               </p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left pt-1 sm:pt-2">
-              <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-blue-500/40 transition">
-                <div class="flex items-center gap-2 font-bold text-blue-400 mb-0.5 sm:mb-1">
-                  <i class="fa-solid fa-shield-halved"></i>
-                  <span>Audit Dokumen SPBE</span>
+            <div class="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left pt-1 sm:pt-2">
+              <button onclick="setAndSendChatPrompt('Buatkan website landing page modern, futuristik, dan responsif dengan TailwindCSS dan animasi interaktif untuk startup teknologi NEXUS AI.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-cyan-500/40 transition group flex flex-col justify-between">
+                <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-cyan-400 mb-0.5">
+                  <i class="fa-solid fa-laptop-code text-xs"></i>
+                  <span class="text-[11px] sm:text-xs truncate">Buat Website</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Telaah naskah regulasi dan dokumen arsitektur SPBE.</p>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Website modern interaktif + live preview.</p>
               </button>
-              <button onclick="switchWorkspaceView('humanizer')" class="p-3 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-purple-500/40 transition">
-                <div class="flex items-center gap-2 font-bold text-purple-400 mb-0.5 sm:mb-1">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                  <span>JustDone Humanizer</span>
+              <button onclick="setAndSendChatPrompt('Susun dokumen SOP dan naskah dinas resmi integrasi Satu Data SPBE berstandar baku KBBI & EYD V.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-emerald-500/40 transition group flex flex-col justify-between">
+                <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-emerald-400 mb-0.5">
+                  <i class="fa-solid fa-file-signature text-xs"></i>
+                  <span class="text-[11px] sm:text-xs truncate">Susun Dokumen</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Deteksi probabilitas AI per kalimat & rekonstruksi baku KBBI.</p>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Draf naskah dinas baku KBBI & EYD V.</p>
+              </button>
+              <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-blue-500/40 transition group flex flex-col justify-between">
+                <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-blue-400 mb-0.5">
+                  <i class="fa-solid fa-shield-halved text-xs"></i>
+                  <span class="text-[11px] sm:text-xs truncate">Audit SPBE</span>
+                </div>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Telaah regulasi & kepatuhan arsitektur.</p>
+              </button>
+              <button onclick="switchWorkspaceView('humanizer')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-purple-500/40 transition group flex flex-col justify-between">
+                <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-purple-400 mb-0.5">
+                  <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                  <span class="text-[11px] sm:text-xs truncate">Humanizer AI</span>
+                </div>
+                <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Deteksi skor AI & parafrase 13-in-1.</p>
               </button>
             </div>
           </div>
