@@ -4,29 +4,17 @@
  */
 
 const { analyzeText, segmentSentences } = require('../../services/detection_engine/detector_node');
+const { sendJson, handleCors, parseBody } = require('../_util');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
-    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
-    return;
+    return sendJson(res, 405, { status: 'error', message: 'Method Not Allowed. Use POST.' });
   }
 
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch (e) { body = {}; }
-    }
-    body = body || {};
-
+    const body = await parseBody(req);
     const filename = body.filename || 'dokumen.pdf';
     const base64Data = body.base64_data || '';
     const mode = body.mode || 'formal_spbe';
@@ -80,7 +68,7 @@ module.exports = async function handler(req, res) {
       level: s.level || 'low'
     }));
 
-    return res.status(200).json({
+    return sendJson(res, 200, {
       status: 'success',
       tool: 'humanizer',
       filename: filename,
@@ -106,7 +94,7 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('[API /api/document/upload-pdf Error]:', error);
-    return res.status(500).json({
+    return sendJson(res, 500, {
       status: 'error',
       message: 'Gagal memproses dokumen PDF: ' + error.message
     });

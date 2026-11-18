@@ -4,33 +4,20 @@
  */
 
 const { analyzeText } = require('../../services/detection_engine/detector_node');
+const { sendJson, handleCors, parseBody } = require('../_util');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
-    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
-    return;
+    return sendJson(res, 405, { status: 'error', message: 'Method Not Allowed. Use POST.' });
   }
 
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch (e) { body = {}; }
-    }
-    body = body || {};
-
+    const body = await parseBody(req);
     const text = (body.text || '').trim();
     if (!text) {
-      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
-      return;
+      return sendJson(res, 400, { status: 'error', message: 'Parameter "text" wajib diisi.' });
     }
 
     const report = await analyzeText(text, {
@@ -67,10 +54,10 @@ module.exports = async function handler(req, res) {
       execution_time_ms: report.execution_time_ms
     };
 
-    res.status(200).json(responsePayload);
+    return sendJson(res, 200, responsePayload);
   } catch (error) {
     console.error('[API /api/document/detect Error]:', error);
-    res.status(500).json({
+    return sendJson(res, 500, {
       status: 'error',
       message: 'Gagal melakukan deteksi teks: ' + error.message
     });

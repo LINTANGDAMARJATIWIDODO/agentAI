@@ -1,82 +1,67 @@
 /**
  * VERCEL SERVERLESS ENDPOINT — POST /api/document/grammar
- * NEXUS AI KBBI & EYD V Indonesian Linguistic Auditor
+ * NEXUS AI Indonesian Grammar & Spelling Checker (KBBI & EYD V)
  */
 
-const KBBI_RULES = [
-  { wrong: /\bpraktek\b/gi, right: 'praktik', rule: 'Kata baku KBBI: praktik (bukan praktek)' },
-  { wrong: /\baktifitas\b/gi, right: 'aktivitas', rule: 'Kata baku KBBI: aktivitas (bukan aktifitas)' },
-  { wrong: /\bhakekat\b/gi, right: 'hakikat', rule: 'Kata baku KBBI: hakikat (bukan hakekat)' },
-  { wrong: /\bkhromosom\b/gi, right: 'kromosom', rule: 'Kata baku KBBI: kromosom (bukan khromosom)' },
-  { wrong: /\bhirarki\b/gi, right: 'hierarki', rule: 'Kata baku KBBI: hierarki (bukan hirarki)' },
-  { wrong: /\bmerubah\b/gi, right: 'mengubah', rule: 'Kaidah afiksasi: meng- + ubah menjadi mengubah (bukan merubah)' },
-  { wrong: /\befisiensi anggaran yang mana\b/gi, right: 'efisiensi anggaran yang', rule: 'EYD V: "yang mana" tidak berfungsi sebagai pronomina relatif' },
-  { wrong: /\bkualitas daripada\b/gi, right: 'kualitas', rule: 'EYD V: "daripada" hanya digunakan untuk perbandingan tingkat' },
-  { wrong: /\bmemerlukan akan\b/gi, right: 'memerlukan', rule: 'Tata Bahasa Baku: Verba transitif aktif tidak memerlukan preposisi' }
+const { sendJson, handleCors, parseBody } = require('../_util');
+
+const TYPO_RULES = [
+  { wrong: /\bpraktek\b/gi, right: 'praktik', note: 'KBBI: Ragam baku adalah praktik' },
+  { wrong: /\baktifitas\b/gi, right: 'aktivitas', note: 'KBBI: Ragam baku menggunakan v' },
+  { wrong: /\befisiensi anggaran yang mana\b/gi, right: 'efisiensi anggaran yang', note: 'EYD V: Bentuk mubazir (yang mana)' },
+  { wrong: /\bmerubah\b/gi, right: 'mengubah', note: 'KBBI: Imbuhan meng- bertemu bentuk dasar ubah' },
+  { wrong: /\bkualitas daripada\b/gi, right: 'kualitas', note: 'EYD V: Kata daripada hanya untuk perbandingan' },
+  { wrong: /\bdimana\b/gi, right: 'tempat', note: 'EYD V: Dimana adalah kata tanya tempat, bukan relatif' },
+  { wrong: /\bhakekat\b/gi, right: 'hakikat', note: 'KBBI: Bentuk baku adalah hakikat' },
+  { wrong: /\bkhromosom\b/gi, right: 'kromosom', note: 'KBBI: Bentuk serapan baku tanpa h' },
+  { wrong: /\bkomplit\b/gi, right: 'lengkap', note: 'KBBI: Penggunaan ragam formal adalah lengkap' }
 ];
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
-    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
-    return;
+    return sendJson(res, 405, { status: 'error', message: 'Method Not Allowed. Use POST.' });
   }
 
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch (e) { body = {}; }
-    }
-    body = body || {};
-
+    const body = await parseBody(req);
     const text = (body.text || '').trim();
     if (!text) {
-      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
-      return;
+      return sendJson(res, 400, { status: 'error', message: 'Parameter "text" wajib diisi.' });
     }
 
     let correctedText = text;
     const issues = [];
 
-    for (const r of KBBI_RULES) {
-      if (r.wrong.test(correctedText)) {
-        const matches = correctedText.match(r.wrong) || [];
-        matches.forEach(m => {
-          issues.push({
-            original: m,
-            replacement: r.right,
-            rule: r.rule
-          });
+    TYPO_RULES.forEach(r => {
+      let m;
+      const re = new RegExp(r.wrong.source, 'gi');
+      while ((m = re.exec(text)) !== null) {
+        issues.push({
+          wrong: m[0],
+          suggestion: r.right,
+          rule: r.note,
+          index: m.index
         });
-        correctedText = correctedText.replace(r.wrong, r.right);
       }
-    }
-
-    // Comma in two-element coordination fix: "A, dan B" -> "A dan B"
-    correctedText = correctedText.replace(/\b([a-zA-Z0-9_\-]+),\s+dan\s+([a-zA-Z0-9_\-]+)\b/g, '$1 dan $2');
+      correctedText = correctedText.replace(r.wrong, r.right);
+    });
 
     const score = issues.length === 0 ? '100% (Sempurna Baku)' : `${Math.max(70, 100 - issues.length * 6)}%`;
 
-    res.status(200).json({
+    return sendJson(res, 200, {
       status: 'success',
-      tool: 'grammar',
-      accuracy_score: score,
-      total_issues: issues.length,
+      tool: 'grammar_checker',
       original_text: text,
       corrected_text: correctedText,
-      issues: issues
+      issues_count: issues.length,
+      issues: issues,
+      grammar_score: score
     });
   } catch (error) {
     console.error('[API /api/document/grammar Error]:', error);
-    res.status(500).json({
+    return sendJson(res, 500, {
       status: 'error',
       message: 'Gagal melakukan audit tata bahasa: ' + error.message
     });

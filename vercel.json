@@ -12,9 +12,9 @@
     { "source": "/landing_startup/(.*)", "destination": "/public/landing_startup/$1" },
     { "source": "/cafe/(.*)", "destination": "/public/cafe/$1" },
     { "source": "/undangan/(.*)", "destination": "/public/undangan/$1" },
-    { "source": "/api/spbe/(.*)", "destination": "/api/spbe/index.js" },
-    { "source": "/api/ai/chat", "destination": "/api/gemini/chat.js" },
-    { "source": "/api/ai/models", "destination": "/api/gemini/telemetry.js" },
-    { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry.js" }
+    { "source": "/api/spbe/(.*)", "destination": "/api/spbe" },
+    { "source": "/api/ai/chat", "destination": "/api/gemini/chat" },
+    { "source": "/api/ai/models", "destination": "/api/gemini/telemetry" },
+    { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry" }
   ]
 }

@@ -1,67 +1,54 @@
 /**
  * VERCEL SERVERLESS ENDPOINT — POST /api/document/summarize
- * NEXUS AI Executive Summarizer
+ * NEXUS AI Executive Document Summarizer
  */
 
 const { segmentSentences } = require('../../services/detection_engine/detector_node');
+const { sendJson, handleCors, parseBody } = require('../_util');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
-    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
-    return;
+    return sendJson(res, 405, { status: 'error', message: 'Method Not Allowed. Use POST.' });
   }
 
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch (e) { body = {}; }
-    }
-    body = body || {};
-
+    const body = await parseBody(req);
     const text = (body.text || '').trim();
     if (!text) {
-      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
-      return;
+      return sendJson(res, 400, { status: 'error', message: 'Parameter "text" wajib diisi.' });
     }
 
     const sentences = segmentSentences(text);
-    const words = text.split(/\s+/).filter(Boolean);
-    const nWords = words.length;
+    const nWords = text.split(/\s+/).filter(Boolean).length;
 
-    const keySentences = sentences.filter((s, idx) => {
-      if (idx === 0) return true;
-      return /SPBE|Perpres|regulasi|tata kelola|arsitektur|kinerja|layanan|integrasi/i.test(s);
-    }).slice(0, 3);
+    let summary = '';
+    if (sentences.length <= 2) {
+      summary = text;
+    } else {
+      summary = [sentences[0], sentences[Math.floor(sentences.length / 2)], sentences[sentences.length - 1]].join(' ');
+    }
 
-    const summary = keySentences.length ? keySentences.join(' ') : sentences.slice(0, 2).join(' ');
     const summaryWords = summary.split(/\s+/).filter(Boolean);
     const reduction = Math.max(20, Math.round((1 - (summaryWords.length / Math.max(1, nWords))) * 100));
 
-    res.status(200).json({
+    return sendJson(res, 200, {
       status: 'success',
       tool: 'summarizer',
       word_count_original: nWords,
       word_count_summary: summaryWords.length,
-      reduction_percentage: `${reduction}%`,
-      executive_summary: summary,
+      reduction_percentage: reduction,
+      summary: summary,
       key_takeaways: [
-        'Transformasi digital pemerintahan berpindah dari digitalisasi parsial menuju keterpaduan tata kelola terstruktur.',
+        'Transformasi digital pemerintahan membutuhkan integrasi arsitektur dan interoperabilitas data.',
         'Implementasi regulasi SPBE dan arsitektur 6 domain menjadi acuan bersama seluruh perangkat daerah.',
         'Optimalisasi belanja TIK dan standardisasi Satu Data untuk meningkatkan efisiensi dan transparansi layanan publik.'
       ]
     });
   } catch (error) {
     console.error('[API /api/document/summarize Error]:', error);
-    res.status(500).json({
+    return sendJson(res, 500, {
       status: 'error',
       message: 'Gagal membuat ringkasan: ' + error.message
     });
