@@ -44,6 +44,10 @@ class AIHumanizer:
         ("secara komprehensif dan berkelanjutan", "secara menyeluruh dan berkelanjutan", 26),
         ("merupakan bukti nyata bahwa", "membuktikan bahwa", 24),
         ("memainkan peran yang sangat penting dalam", "berperan penting dalam", 26),
+        ("memainkan peranan krusial dalam", "berperan strategis dalam", 28),
+        ("memainkan peranan krusial", "berperan strategis", 28),
+        ("memegang peranan krusial", "berperan strategis", 28),
+        ("memainkan peranan penting", "berperan penting", 22),
         ("memainkan peran penting dalam", "berperan penting dalam", 22),
         ("menjadi tonggak sejarah baru dalam", "menjadi capaian penting dalam", 25),
         ("memberikan kontribusi yang signifikan terhadap", "berkontribusi nyata terhadap", 24),
@@ -734,6 +738,8 @@ class AIHumanizer:
         orig = s
 
         lexical_mappings = [
+            (r"\bmemainkan peranan? krusial(?:\s+dalam)?\b", "berperan strategis dalam"),
+            (r"\bmemegang peranan? krusial(?:\s+dalam)?\b", "berperan strategis dalam"),
             (r"\bmenurunkannya menjadi arsitektur pada enam domain\b", "menjabarkan arsitektur ke dalam enam domain utama"),
             (r"\bmenurunkannya menjadi arsitektur pada\b", "menjabarkan arsitektur ke dalam"),
             (r"\bmenurunkannya menjadi arsitektur\b", "menguraikan arsitektur"),

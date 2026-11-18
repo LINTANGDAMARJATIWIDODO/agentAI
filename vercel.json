@@ -1,18 +1,13 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/downloads/(.*)", "destination": "/public/downloads/$1" },
-    { "source": "/buatkan_web_bengkel/(.*)", "destination": "/public/buatkan_web_bengkel/$1" },
-    { "source": "/buatkan_web_portofol/(.*)", "destination": "/public/buatkan_web_portofol/$1" },
-    { "source": "/landing_startup/(.*)", "destination": "/public/landing_startup/$1" },
-    { "source": "/cafe/(.*)", "destination": "/public/cafe/$1" },
-    { "source": "/undangan/(.*)", "destination": "/public/undangan/$1" },
     { "source": "/api/upload-pdf", "destination": "/api/status?action=upload-pdf" },
     { "source": "/api/detect", "destination": "/api/status?action=detect" },
     { "source": "/api/humanize", "destination": "/api/status?action=humanize" },
     { "source": "/api/grammar", "destination": "/api/status?action=grammar" },
     { "source": "/api/paraphrase", "destination": "/api/status?action=paraphrase" },
     { "source": "/api/summarize", "destination": "/api/status?action=summarize" },
+    { "source": "/api/run", "destination": "/api/status?action=run" },
     { "source": "/api/document/action", "destination": "/api/status" },
     { "source": "/api/document/citations", "destination": "/api/status?action=citations" },
     { "source": "/api/document/explain", "destination": "/api/status?action=explain" },
@@ -21,7 +16,7 @@
     { "source": "/api/ai/chat", "destination": "/api/gemini/chat" },
     { "source": "/api/ai/models", "destination": "/api/gemini/telemetry" },
     { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry" },
-    { "source": "/api/report/(.*)", "destination": "/public/reports/$1" },
-    { "source": "/reports/(.*)", "destination": "/public/reports/$1" }
+    { "source": "/api/spbe/(.*)", "destination": "/api/spbe?action=$1" },
+    { "source": "/api/report/(.*)", "destination": "/api/report?file=$1" }
   ]
 }

@@ -103,6 +103,67 @@ def sanitize_prose_input(text: str) -> str:
     return res
 
 
+def calculate_mattr(words: List[str], window_size: int = 100) -> float:
+    """
+    Computes Moving-Average Type-Token Ratio (MATTR) with fixed window size (default=100 words).
+    Solves vocabulary saturation in long corpora (>1,000 words) where standard TTR drops artificially.
+    """
+    n = len(words)
+    if n == 0:
+        return 0.0
+    if n <= window_size:
+        return len(set(words)) / n
+    total_ttr = 0.0
+    num_windows = n - window_size + 1
+    for i in range(num_windows):
+        window_words = words[i:i + window_size]
+        total_ttr += len(set(window_words)) / window_size
+    return total_ttr / num_windows
+
+
+def get_stylometric_narrative(stats: Dict[str, Any]) -> str:
+    """
+    Dynamically synchronizes forensic descriptive narrative with quantitative thresholds:
+    - Burstiness < 0.35: Reports monotonous, rigid sentence cadence typical of AI.
+    - Burstiness >= 0.45: Reports organic, varied cadence typical of authentic human prose.
+    - MATTR & Yule's K: Reports vocabulary richness or repetition truthfully.
+    """
+    b = float(stats.get("burstiness", stats.get("sentence_length_cv", 0.0)))
+    mattr_val = float(stats.get("mattr", stats.get("ttr", 0.0)))
+    entropy_val = float(stats.get("shannon_entropy", 0.0))
+
+    parts = []
+    # 1. Burstiness narrative
+    if b < 0.35:
+        parts.append(
+            f"Irama panjang kalimat tergolong kaku dan monoton (Burstiness σ/μ = {b:.3f} < 0.35). "
+            f"Pola panjang klausa seragam ini merupakan penanda utama gaya prediktif LLM."
+        )
+    elif b >= 0.45:
+        parts.append(
+            f"Variasi ritme dan dinamika kalimat sangat organik (Burstiness σ/μ = {b:.3f} ≥ 0.45), "
+            f"mencerminkan variasi klausa stakato pendek dan majemuk khas gaya penulisan manusia."
+        )
+    else:
+        parts.append(
+            f"Variasi irama kalimat berada pada zona moderat (Burstiness σ/μ = {b:.3f}), "
+            f"menunjukkan karakteristik campuran antara pola terstruktur dan penulisan terarah."
+        )
+
+    # 2. Lexical diversity narrative
+    if mattr_val < 0.65:
+        parts.append(
+            f"Tingkat kekayaan kosakata berulang (MATTR-100 = {mattr_val:.3f}), "
+            f"mengindikasikan pengulangan diksi secara sistematis."
+        )
+    else:
+        parts.append(
+            f"Kekayaan leksikal terjaga dengan baik (MATTR-100 = {mattr_val:.3f}, Entropi = {entropy_val:.2f} bits)."
+        )
+
+    return " ".join(parts)
+
+
 def clean_text(text: str) -> str:
     """Normalize whitespace, sanitize non-prose TOC dots, and strip control characters."""
     sanitized = sanitize_prose_input(text)
@@ -173,6 +234,7 @@ class IndonesianFeatureExtractor:
         "sentence_length_std",
         "sentence_length_cv",
         "burstiness",
+        "mattr",
         "sentence_length_min",
         "sentence_length_max",
         "ttr",
@@ -226,20 +288,20 @@ class IndonesianFeatureExtractor:
         sent_std = math.sqrt(sent_var)
         sent_cv = sent_std / (sent_mean + 1e-9)
         
-        # Standard Burstiness metric: (std - mean) / (std + mean)
-        # B in [-1, 1]. Positive B implies high burstiness (human-like).
-        burstiness = (sent_std - sent_mean) / (sent_std + sent_mean + 1e-9)
+        # Burstiness: Coefficient of variation (sigma / mu) of sentence lengths in word count
+        burstiness = sent_cv
         sent_min = float(min(sent_lengths))
         sent_max = float(max(sent_lengths))
 
         # -------------------------------------------------------------------
-        # 2. LEXICAL DIVERSITY (TTR, YULE'S K, HAPAX LEGOMENA)
+        # 2. LEXICAL DIVERSITY (TTR, MATTR, YULE'S K, HAPAX LEGOMENA)
         # -------------------------------------------------------------------
         word_counts = Counter(words)
         v_types = len(word_counts)
         
-        # Type-Token Ratio
+        # Type-Token Ratio & MATTR (window = 100 words)
         ttr = v_types / n_words
+        mattr = calculate_mattr(words, window_size=100)
         root_ttr = v_types / math.sqrt(n_words)
         log_ttr = math.log(v_types + 1e-9) / math.log(n_words + 1e-9) if n_words > 1 else 1.0
 
@@ -358,6 +420,7 @@ class IndonesianFeatureExtractor:
             "sentence_length_std": float(sent_std),
             "sentence_length_cv": float(sent_cv),
             "burstiness": float(burstiness),
+            "mattr": float(mattr),
             "sentence_length_min": float(sent_min),
             "sentence_length_max": float(sent_max),
             "ttr": float(ttr),
