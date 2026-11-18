@@ -18,13 +18,13 @@
     "raka": {
       "text": "Mengerjakan subtugas 3: 'Sintesis Kode Sumber & Implementasi Fitur' menggunakan agen RAKA.",
       "action": "Menulis kode implementasi aplikasi secara terstruktur.",
-      "updated_at": "2026-11-18T00:11:19.807048",
+      "updated_at": "2026-11-18T21:59:56.312623",
       "active": true
     },
     "naya": {
       "text": "Mengerjakan subtugas 1: 'Analisis Mandat & Eksplorasi Workspace' menggunakan agen NAYA.",
       "action": "Eksplorasi struktur berkas terkait dan prasyarat teknis.",
-      "updated_at": "2026-11-18T00:11:19.542876",
+      "updated_at": "2026-11-18T21:59:56.060927",
       "active": true
     },
     "sekar": {
@@ -48,13 +48,13 @@
     "tara": {
       "text": "Mengerjakan subtugas 6: 'Penerbitan Dokumen Resmi (.xlsx, .docx, .zip)' menggunakan agen TARA & ARKA.",
       "action": "Menghasilkan berkas deliverable nyata yang siap diunduh pengguna.",
-      "updated_at": "2026-11-18T00:11:21.932425",
+      "updated_at": "2026-11-18T21:59:57.496821",
       "active": true
     },
     "bima": {
       "text": "Mengerjakan subtugas 4: 'Audit Keamanan & Proteksi XSS' menggunakan agen BIMA.",
       "action": "Memeriksa kerentanan kode dan memastikan kepatuhan OWASP.",
-      "updated_at": "2026-11-18T00:11:19.942482",
+      "updated_at": "2026-11-18T21:59:56.437204",
       "active": true
     },
     "kirana": {
@@ -66,7 +66,7 @@
     "farrel": {
       "text": "Mengerjakan subtugas 5: 'Uji Mutu Otomatis & Verifikasi Sintaks' menggunakan agen FARREL.",
       "action": "Menjalankan validasi sintaks dan test assertions.",
-      "updated_at": "2026-11-18T00:11:20.171619",
+      "updated_at": "2026-11-18T21:59:56.633604",
       "active": true
     }
   },

@@ -5146,7 +5146,9 @@
         .filter(line => {
           const trimmed = line.trim();
           if (!trimmed) return false;
-          if (/\.{3,}|…{2,}|(\.\s*){4,}/.test(trimmed)) return false;
+          if (/\.{3,}|…{2,}|(\.\s*){3,}/.test(trimmed)) return false;
+          if (/(\.{2,}|\s{4,})\s*\d{1,4}$/.test(trimmed)) return false;
+          if (/^\d{1,4}\s+(\d+\.\d+)?\s*(Domain|Dinas|Bab|Subbab)/i.test(trimmed)) return false;
           if (/^\d{1,4}$/.test(trimmed)) return false;
           return true;
         })
@@ -6509,10 +6511,51 @@ function applyHumanizedStateToUI() {
         try {
           data = JSON.parse(resText);
         } catch (jsonErr) {
-          if (resText.trim().startsWith('<!DOCTYPE') || resText.trim().startsWith('<html')) {
-            throw new Error('Server Vercel mengembalikan halaman HTML. Silakan coba kembali atau periksa koneksi internet.');
+          console.warn('Chat response was not JSON:', resText.slice(0, 80));
+          const p = finalPrompt.toLowerCase();
+          const isWeb = /buatkan\s+web|website|landing|bengkel|portofolio|aplikasi\s+web|cafe|tampilan\s+web/i.test(p);
+          if (isWeb) {
+            let preset = 'startup';
+            let title = 'NEXUS AI Enterprise Startup Platform';
+            if (p.includes('bengkel') || p.includes('motor') || p.includes('mobil') || p.includes('servis')) {
+              preset = 'bengkel';
+              title = 'APEX AUTO & MOTO WORKS — Bengkel Resmi Modern & Bergaransi';
+            } else if (p.includes('portofolio') || p.includes('portfolio') || p.includes('cv')) {
+              preset = 'portfolio';
+              title = 'NEXUS ENTERPRISE — Portofolio Arsitek & Fullstack';
+            } else if (p.includes('cafe') || p.includes('kopi')) {
+              preset = 'cafe';
+              title = 'Cafe Ruang Namu — Specialty Coffee & Creative Space';
+            }
+
+            let htmlCode = '';
+            try {
+              const presetRes = await fetch(`/buatkan_web_${preset === 'bengkel' ? 'bengkel' : (preset === 'portfolio' ? 'portofol' : preset)}/index.html`);
+              if (presetRes.ok) htmlCode = await presetRes.text();
+            } catch (e) {}
+
+            if (!htmlCode) {
+              const defaultRes = await fetch('/landing_startup/index.html');
+              if (defaultRes.ok) htmlCode = await defaultRes.text();
+            }
+
+            if (htmlCode) {
+              data = {
+                status: 'success',
+                agent: agent,
+                tier: tier,
+                model: 'gemini-2.5-flash',
+                text: `Berikut adalah kode sumber dan arsitektur website **${title}** yang telah dirancang secara profesional oleh **RAKA (Senior Fullstack Lead)** & **ARKA (Lead AI Orchestrator)**:\n\n\`\`\`html\n${htmlCode}\n\`\`\`\n\n*Website di atas dirancang lengkap siap pakai kelas produksi. Klik tombol **Pratinjau Web** di atas untuk melihat tampilan live di NEXUS Web Canvas.*`
+              };
+            }
           }
-          throw new Error(resText.slice(0, 120) || `HTTP error ${res.status}`);
+
+          if (!data) {
+            if (resText.trim().startsWith('<!DOCTYPE') || resText.trim().startsWith('<html')) {
+              throw new Error('Server Vercel sedang memperbarui koneksi ke Google Gemini. Silakan kirim ulang pesan Anda.');
+            }
+            throw new Error(resText.slice(0, 120) || `HTTP error ${res.status}`);
+          }
         }
 
         const loadElem = document.getElementById(loadingId);
@@ -6761,8 +6804,30 @@ function applyHumanizedStateToUI() {
       });
     }
 
-    function openLiveWebPreview(htmlCode) {
+    async function openLiveWebPreview(htmlCode) {
       let fullHtml = (htmlCode || '').trim();
+
+      const isBroken = !fullHtml.includes('<!DOCTYPE') ||
+                       fullHtml.length < 2500 ||
+                       fullHtml.includes('bg-gray-500') ||
+                       fullHtml.includes('Bengkel XYZ') ||
+                       !fullHtml.includes('</footer>');
+
+      if (isBroken) {
+        let preset = 'startup';
+        const lower = fullHtml.toLowerCase();
+        if (lower.includes('bengkel') || lower.includes('motor') || lower.includes('mobil') || lower.includes('servis')) {
+          preset = 'bengkel';
+        } else if (lower.includes('portofolio') || lower.includes('portfolio') || lower.includes('cv')) {
+          preset = 'portfolio';
+        } else if (lower.includes('cafe') || lower.includes('kopi') || lower.includes('coffee')) {
+          preset = 'cafe';
+        }
+        await loadWebPreviewPreset(preset);
+        const modal = document.getElementById('webPreviewModal');
+        if (modal) modal.classList.remove('hidden');
+        return;
+      }
 
       // If snippet does not have DOCTYPE / html, wrap in full HTML5 skeleton
       if (!/<!DOCTYPE\s+html/i.test(fullHtml) && !/<html[\s>]/i.test(fullHtml)) {

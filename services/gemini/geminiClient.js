@@ -184,12 +184,17 @@ Jika pengguna meminta Anda membuat website, landing page, atau aplikasi web (con
     let searchQueries = [];
     let usageMeta = { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
 
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), 7000);
+
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: controller.signal
       });
+      clearTimeout(timeoutTimer);
 
       const data = await res.json();
       if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -202,7 +207,8 @@ Jika pengguna meminta Anda membuat website, landing page, atau aplikasi web (con
         throw new Error(data.error?.message || `HTTP ${res.status}`);
       }
     } catch (apiErr) {
-      console.warn(`[GEMINI REST] Primary model call failed (${apiErr.message}), activating intelligent enterprise synthesis.`);
+      clearTimeout(timeoutTimer);
+      console.warn(`[GEMINI REST] Primary model call failed or timed out (${apiErr.message}), activating intelligent enterprise synthesis.`);
       
       const curated = GeminiClient.getCuratedWebTemplate(prompt);
       if (curated) {

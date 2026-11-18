@@ -28,15 +28,24 @@ module.exports = async (req, res) => {
     if (typeof payload === 'string') {
       try { payload = JSON.parse(payload); } catch (e) { payload = {}; }
     } else if (!payload) {
-      // Buffer stream if body was not auto-parsed by Vercel
-      payload = await new Promise((resolve) => {
-        let raw = '';
-        req.on('data', chunk => { raw += chunk; });
-        req.on('end', () => {
-          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
+      if (req.readableEnded || typeof req.on !== 'function') {
+        payload = {};
+      } else {
+        // Buffer stream if body was not auto-parsed by Vercel
+        payload = await new Promise((resolve) => {
+          let raw = '';
+          const timer = setTimeout(() => resolve({}), 800);
+          req.on('data', chunk => { raw += chunk; });
+          req.on('end', () => {
+            clearTimeout(timer);
+            try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
+          });
+          req.on('error', () => {
+            clearTimeout(timer);
+            resolve({});
+          });
         });
-        req.on('error', () => resolve({}));
-      });
+      }
     }
 
     const prompt = payload.prompt || '';
