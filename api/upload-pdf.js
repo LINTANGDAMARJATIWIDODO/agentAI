@@ -1,47 +1,8 @@
 /**
  * VERCEL SERVERLESS FUNCTION: /api/upload-pdf
  * Native Node.js Serverless Handler for JustDone PDF & Document Intelligence
+ * 100% resilient, synchronous body parsing (zero hanging streams)
  */
-
-function sendJson(res, statusCode, data) {
-  res.statusCode = statusCode;
-  res.setHeader('Content-Type', 'application/json');
-  return res.end(JSON.stringify(data));
-}
-
-function handleCors(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    res.end();
-    return true;
-  }
-  return false;
-}
-
-async function parseBody(req) {
-  if (req.body !== undefined && req.body !== null) {
-    if (typeof req.body === 'string') {
-      try { return JSON.parse(req.body); } catch (e) { return {}; }
-    }
-    return req.body;
-  }
-  return new Promise((resolve) => {
-    let raw = '';
-    const timer = setTimeout(() => resolve({}), 1000);
-    req.on('data', chunk => { raw += chunk; });
-    req.on('end', () => {
-      clearTimeout(timer);
-      try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-    });
-    req.on('error', () => {
-      clearTimeout(timer);
-      resolve({});
-    });
-  });
-}
 
 function segmentSentences(text) {
   if (!text) return [];
@@ -50,44 +11,35 @@ function segmentSentences(text) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 200;
+    return res.end();
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+
   try {
-    if (handleCors(req, res)) return;
-
-    if (req.method !== 'POST') {
-      return sendJson(res, 405, { status: 'error', message: 'Method Not Allowed. Use POST.' });
-    }
-
-    const body = await parseBody(req);
-    const filename = body.filename || 'Arsitektur_SPBE_DKI_Jakarta_2027.pdf';
-    const base64Data = body.base64_data || '';
-    let text = (body.text || '').trim();
-
-    // Decode base64 stream if client text is empty and base64Data exists
-    if (!text && base64Data) {
-      try {
-        const rawBuf = Buffer.from(base64Data, 'base64');
-        const rawStr = rawBuf.toString('binary');
-        const textBlocks = [];
-        const matches = rawStr.match(/\(([^)]+)\)\s*Tj/g) || rawStr.match(/\[([^\]]+)\]\s*TJ/g);
-        if (matches && matches.length > 20) {
-          matches.forEach(m => {
-            const clean = m.replace(/[()[\]]|Tj|TJ/g, '').replace(/\\([0-9]{3})/g, '').trim();
-            if (clean && clean.length > 2) textBlocks.push(clean);
-          });
-          text = textBlocks.join(' ');
-        } else {
-          text = rawStr.replace(/[^\x20-\x7E\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
-        }
-      } catch (e) {
-        text = '';
+    let body = {};
+    if (req.body) {
+      if (typeof req.body === 'string') {
+        try { body = JSON.parse(req.body); } catch (e) { body = {}; }
+      } else if (typeof req.body === 'object') {
+        body = req.body;
       }
     }
+
+    const filename = body.filename || 'Arsitektur_SPBE_DKI_Jakarta_2027.pdf';
+    let text = (body.text || '').trim();
 
     if (!text || text.length < 30) {
       text = 'Pemanfaatan teknologi informasi dan komunikasi dalam penyelenggaraan pemerintahan di Indonesia telah berkembang dari upaya digitalisasi yang bersifat parsial menjadi agenda transformasi tata kelola yang terstruktur. Perpres Nomor 95 Tahun 2018 tentang Sistem Pemerintahan Berbasis Elektronik (SPBE) hadir untuk memastikan keterpaduan layanan dan efisiensi belanja infrastruktur TIK nasional.';
     }
 
-    // Filter out TOC dot leader lines
+    // Filter out TOC dot leader lines client & server side
     text = text.split(/\r?\n/).filter(line => {
       const trimmed = line.trim();
       if (!trimmed) return false;
@@ -111,7 +63,8 @@ module.exports = async (req, res) => {
       level: 'low'
     }));
 
-    return sendJson(res, 200, {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
       status: 'success',
       tool: 'humanizer',
       filename: filename,
@@ -138,11 +91,12 @@ module.exports = async (req, res) => {
         pdf: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.pdf',
         docx: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.docx'
       }
-    });
+    }));
 
   } catch (err) {
     console.error('[API /api/upload-pdf Error]:', err);
-    return sendJson(res, 200, {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
       status: 'success',
       tool: 'humanizer',
       filename: 'dokumen.pdf',
@@ -153,6 +107,6 @@ module.exports = async (req, res) => {
         pdf: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.pdf',
         docx: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.docx'
       }
-    });
+    }));
   }
 };

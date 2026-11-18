@@ -28,25 +28,13 @@ function handleCors(req, res) {
 }
 
 async function parseBody(req) {
-  if (req.body !== undefined && req.body !== null) {
+  if (req.body) {
     if (typeof req.body === 'string') {
       try { return JSON.parse(req.body); } catch (e) { return {}; }
     }
-    return req.body;
+    if (typeof req.body === 'object') return req.body;
   }
-  return new Promise((resolve) => {
-    let raw = '';
-    const timer = setTimeout(() => resolve({}), 1000);
-    req.on('data', chunk => { raw += chunk; });
-    req.on('end', () => {
-      clearTimeout(timer);
-      try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-    });
-    req.on('error', () => {
-      clearTimeout(timer);
-      resolve({});
-    });
-  });
+  return {};
 }
 
 function segmentSentences(text) {
