@@ -75,6 +75,7 @@ class PDFExtractor:
             pages_content = []
             full_text_list = []
 
+            clean_prose_list = []
             for idx in range(pages_to_extract):
                 page = reader.pages[idx]
                 page_text = page.extract_text() or ""
@@ -87,8 +88,27 @@ class PDFExtractor:
                 })
                 if clean_text:
                     full_text_list.append(clean_text)
+                    # Filter lines for clean prose text
+                    page_lines = clean_text.splitlines()
+                    clean_page_lines = []
+                    for pl in page_lines:
+                        s = pl.strip()
+                        if not s:
+                            continue
+                        if re.search(r'\.{3,}|…{2,}|(?:\.\s*){3,}', s):
+                            continue
+                        if re.match(r'^\d+$', s):
+                            continue
+                        if re.match(r'^\d+\s+\d+(?:\.\d+)+\s+[A-Za-z]', s) and not s.endswith(('.', '!', '?')):
+                            continue
+                        if re.match(r'^(?:Daftar\s+Isi|Table\s+of\s+Contents)\b', s, re.IGNORECASE):
+                            continue
+                        clean_page_lines.append(s)
+                    if clean_page_lines:
+                        clean_prose_list.append("\n".join(clean_page_lines))
 
             full_text = "\n\n".join(full_text_list)
+            clean_prose_text = "\n\n".join(clean_prose_list) if clean_prose_list else full_text
             metadata = reader.metadata or {}
 
             is_truncated = num_pages > pages_to_extract
@@ -111,7 +131,9 @@ class PDFExtractor:
                     "creator": str(metadata.get("/Creator", "")),
                     "producer": str(metadata.get("/Producer", ""))
                 },
-                "text": full_text,
+                "text": clean_prose_text,
+                "raw_unfiltered_text": full_text,
+                "clean_prose_text": clean_prose_text,
                 "pages": pages_content
             }
 

@@ -71,9 +71,42 @@ INDONESIAN_STOPWORDS = {
 }
 
 
+def sanitize_prose_input(text: str) -> str:
+    """
+    Cleans non-prose document metadata before forensic statistical analysis:
+    - Strips Table of Contents dot leaders (e.g. '.......... 21')
+    - Strips isolated page numbers and stray 'Daftar Isi' lines
+    Prevents false-positive AI detection spikes caused by repetitive dot leaders.
+    """
+    if not text:
+        return ""
+    lines = text.splitlines()
+    clean_lines = []
+    for l in lines:
+        s = l.strip()
+        if not s:
+            continue
+        # Strip TOC dot leaders
+        if re.search(r'\.{3,}|…{2,}|(\.\s*){4,}', s):
+            continue
+        # Strip pure digits
+        if re.match(r'^\d+$', s):
+            continue
+        # Strip isolated TOC title
+        if re.match(r'^(?:Daftar\s+Isi|Table\s+of\s+Contents|Daftar\s+Tabel|Daftar\s+Gambar)\b', s, re.IGNORECASE):
+            continue
+        clean_lines.append(s)
+    
+    res = "\n".join(clean_lines) if clean_lines else text
+    # Also strip inline dot sequences if wrapped
+    res = re.sub(r'\.{3,}|…{2,}|(\.\s*){4,}\s*\d+', ' ', res)
+    return res
+
+
 def clean_text(text: str) -> str:
-    """Normalize whitespace and strip control characters."""
-    return re.sub(r'\s+', ' ', text).strip()
+    """Normalize whitespace, sanitize non-prose TOC dots, and strip control characters."""
+    sanitized = sanitize_prose_input(text)
+    return re.sub(r'\s+', ' ', sanitized).strip()
 
 
 def segment_sentences(text: str) -> List[str]:

@@ -328,6 +328,14 @@ class AIHumanizer:
         - 'bullet': List item (with multiline wrapped continuation handling)
         - 'prose': Flowing justified narrative paragraph
         """
+        # If text contains "Daftar Isi" before "Bab I" / "BAB I":
+        # Remove everything from "Daftar Isi" up to "Bab I" to prevent duplicate garbled TOC in body
+        bab1_match = re.search(r'\b(?:Bab|BAB)\s+I[\.\:\s\-]+', text)
+        if bab1_match:
+            pre_bab = text[:bab1_match.start()]
+            if re.search(r'\b(?:Daftar\s+Isi|Table\s+of\s+Contents)\b', pre_bab, re.IGNORECASE):
+                text = text[bab1_match.start():]
+
         raw_lines = text.splitlines()
         cleaned_lines = []
         
@@ -337,14 +345,17 @@ class AIHumanizer:
             if not l:
                 cleaned_lines.append("")
                 continue
-            # Skip raw dot leaders from TOC
-            if re.search(r'\.{4,}|…{2,}', l):
+            # Skip dot leaders with or without spaces (e.g. .... or . . . . .)
+            if re.search(r'\.{3,}|…{2,}|(?:\.\s*){3,}', l):
                 continue
             # Skip isolated page numbers
             if re.match(r'^\d+$', l):
                 continue
+            # Skip TOC index lines (e.g. "314 35.2 Domain Data...")
+            if re.match(r'^\d+\s+\d+(?:\.\d+)+\s+[A-Za-z]', l) and not l.endswith(('.', '!', '?')):
+                continue
             # Skip stray "Daftar Isi" title line before Bab I
-            if l.lower() in ("daftar isi", "daftar isi daftar isi"):
+            if l.lower() in ("daftar isi", "daftar isi daftar isi", "table of contents"):
                 continue
             cleaned_lines.append(l)
 

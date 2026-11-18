@@ -52,8 +52,28 @@ const INDONESIAN_STOPWORDS = new Set([
   "sampai", "kembali", "bahkan", "atau", "hanya", "sangat", "secara", "sebagai", "tentang"
 ]);
 
+function sanitizeProseInput(text) {
+  if (!text) return '';
+  const lines = text.split(/\r?\n/);
+  const cleanLines = [];
+  for (const l of lines) {
+    const s = l.trim();
+    if (!s) continue;
+    // Omit Table of Contents dot leaders and page references
+    if (/\.{3,}|…{2,}|(\.\s*){4,}/.test(s)) continue;
+    if (/^\d+$/.test(s)) continue;
+    if (/^(?:Daftar\s+Isi|Table\s+of\s+Contents|Daftar\s+Tabel|Daftar\s+Gambar)\b/i.test(s)) continue;
+    cleanLines.push(s);
+  }
+  let res = cleanLines.length ? cleanLines.join('\n') : text;
+  // Strip inline dot leader artifacts if wrapped in paragraph
+  res = res.replace(/\.{3,}|…{2,}|(\.\s*){4,}\s*\d+/g, ' ');
+  return res;
+}
+
 function cleanText(text) {
-  return (text || '').replace(/\s+/g, ' ').trim();
+  const sanitized = sanitizeProseInput(text);
+  return (sanitized || '').replace(/\s+/g, ' ').trim();
 }
 
 function tokenizeWords(text) {

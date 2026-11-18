@@ -3018,6 +3018,15 @@
           </button>
         </div>
 
+        <!-- Curated Full Templates Quick Switcher -->
+        <div class="hidden xl:flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
+          <span class="text-slate-500 px-1 font-mono text-[10px]">Template:</span>
+          <button onclick="loadWebPreviewPreset('bengkel')" class="px-2 py-0.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium">🚗 Bengkel</button>
+          <button onclick="loadWebPreviewPreset('startup')" class="px-2 py-0.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium">🚀 Startup AI</button>
+          <button onclick="loadWebPreviewPreset('portfolio')" class="px-2 py-0.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium">💼 Portofolio</button>
+          <button onclick="loadWebPreviewPreset('cafe')" class="px-2 py-0.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition font-medium">☕ Cafe</button>
+        </div>
+
         <!-- Action & Close Buttons -->
         <div class="flex items-center gap-2">
           <button onclick="openWebPreviewInNewTab()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition flex items-center gap-1.5" title="Buka di tab baru">
@@ -6733,6 +6742,27 @@ ${fullHtml}
       a.download = `nexus_website_${Date.now()}.html`;
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    async function loadWebPreviewPreset(preset) {
+      let url = '/buatkan_web_bengkel/index.html';
+      if (preset === 'bengkel') url = '/buatkan_web_bengkel/index.html';
+      else if (preset === 'startup') url = '/landing_startup/index.html';
+      else if (preset === 'portfolio') url = '/buatkan_web_portofol/index.html';
+      else if (preset === 'cafe') url = '/cafe/index.html';
+      else if (preset === 'undangan') url = '/undangan/index.html';
+
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const html = await res.text();
+          currentWebCode = html;
+          const iframe = document.getElementById('webPreviewIframe');
+          if (iframe) iframe.srcdoc = html;
+        }
+      } catch (e) {
+        console.warn('Preset load failed:', e);
+      }
     }
 
     function appendFeedErrorMessage(msg) {

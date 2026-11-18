@@ -1,7 +1,26 @@
 {
   "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     { "source": "/downloads/(.*)", "destination": "/public/downloads/$1" },
-    { "source": "/buatkan_web_bengkel/(.*)", "destination": "/public/buatkan_web_bengkel/$1" }
+    { "source": "/buatkan_web_bengkel/(.*)", "destination": "/public/buatkan_web_bengkel/$1" },
+    { "source": "/buatkan_web_portofol/(.*)", "destination": "/public/buatkan_web_portofol/$1" },
+    { "source": "/landing_startup/(.*)", "destination": "/public/landing_startup/$1" },
+    { "source": "/cafe/(.*)", "destination": "/public/cafe/$1" },
+    { "source": "/undangan/(.*)", "destination": "/public/undangan/$1" },
+    { "source": "/api/document/detect", "destination": "/api/document/detect.js" },
+    { "source": "/api/document/humanize", "destination": "/api/document/humanize.js" },
+    { "source": "/api/document/upload-pdf", "destination": "/api/document/upload-pdf.js" },
+    { "source": "/api/document/grammar", "destination": "/api/document/grammar.js" },
+    { "source": "/api/document/paraphrase", "destination": "/api/document/paraphrase.js" },
+    { "source": "/api/document/summarize", "destination": "/api/document/summarize.js" },
+    { "source": "/api/spbe/(.*)", "destination": "/api/spbe/index.js" },
+    { "source": "/api/ai/chat", "destination": "/api/gemini/chat.js" },
+    { "source": "/api/ai/models", "destination": "/api/gemini/telemetry.js" },
+    { "source": "/api/ai/usage", "destination": "/api/gemini/telemetry.js" }
   ]
 }

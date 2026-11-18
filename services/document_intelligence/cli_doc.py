@@ -80,7 +80,7 @@ def main():
                 print(json.dumps(ext_res, ensure_ascii=False))
                 sys.exit(0)
 
-            extracted_text = ext_res.get("text", "")
+            extracted_text = ext_res.get("clean_prose_text") or ext_res.get("text", "")
             base_name = os.path.splitext(os.path.basename(pdf_path))[0]
             title = f"HUMANIZED_{base_name}"
             
