@@ -1,7 +1,12 @@
 /**
- * VERCEL SERVERLESS ENDPOINT — /api/document/*
- * Universal Document Intelligence, Detection & Humanizer Router
- * Pure Node.js standard library implementation (0 dependencies)
+ * VERCEL SERVERLESS DYNAMIC ROUTER — /api/document/[action]
+ * Automatically handles:
+ * /api/document/upload-pdf
+ * /api/document/detect
+ * /api/document/humanize
+ * /api/document/grammar
+ * /api/document/paraphrase
+ * /api/document/summarize
  */
 
 function sendJson(res, statusCode, data) {
@@ -76,7 +81,8 @@ module.exports = async function handler(req, res) {
     if (handleCors(req, res)) return;
 
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    let action = url.searchParams.get('action') || url.pathname.split('/').filter(Boolean).pop() || 'upload-pdf';
+    const queryAction = req.query && req.query.action;
+    let action = queryAction || url.searchParams.get('action') || url.pathname.split('/').filter(Boolean).pop() || 'upload-pdf';
 
     const body = await parseBody(req);
     if (body.action) action = body.action;
