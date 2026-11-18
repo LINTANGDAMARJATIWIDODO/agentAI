@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.js": {
-      "maxDuration": 60,
-      "includeFiles": "services/**"
-    },
-    "api/*.js": {
-      "maxDuration": 60,
-      "includeFiles": "services/**"
-    }
-  },
   "rewrites": [
     { "source": "/downloads/(.*)", "destination": "/public/downloads/$1" },
     { "source": "/buatkan_web_bengkel/(.*)", "destination": "/public/buatkan_web_bengkel/$1" },
@@ -17,6 +7,7 @@
     { "source": "/landing_startup/(.*)", "destination": "/public/landing_startup/$1" },
     { "source": "/cafe/(.*)", "destination": "/public/cafe/$1" },
     { "source": "/undangan/(.*)", "destination": "/public/undangan/$1" },
+    { "source": "/api/document/(.*)", "destination": "/api/document?action=$1" },
     { "source": "/api/spbe/(.*)", "destination": "/api/spbe?subAction=$1" },
     { "source": "/api/ai/chat", "destination": "/api/gemini/chat" },
     { "source": "/api/ai/models", "destination": "/api/gemini/telemetry" },
