@@ -410,8 +410,12 @@ function requestHandler(req, res) {
             title = filename.replace(/\.pdf$/i, '');
             mode = parsed.mode || 'formal_spbe';
             intensity = parsed.intensity || 'balanced';
-            const pdfBytes = Buffer.from(parsed.base64_data, 'base64');
-            fs.writeFileSync(targetPath, pdfBytes);
+            if (parsed.base64_data) {
+              const pdfBytes = Buffer.from(parsed.base64_data, 'base64');
+              fs.writeFileSync(targetPath, pdfBytes);
+            } else if (parsed.text) {
+              fs.writeFileSync(targetPath.replace(/\.pdf$/i, '.txt'), parsed.text, 'utf-8');
+            }
           } else {
             // Raw binary PDF
             const filename = `pdf_${Date.now()}.pdf`;

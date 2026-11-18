@@ -9,6 +9,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -5133,6 +5139,79 @@
       document.getElementById('selectedPdfInfo').classList.add('hidden');
     }
 
+    function sanitizeProseClient(text) {
+      if (!text) return '';
+      return text
+        .split(/\r?\n/)
+        .filter(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return false;
+          if (/\.{3,}|…{2,}|(\.\s*){4,}/.test(trimmed)) return false;
+          if (/^\d{1,4}$/.test(trimmed)) return false;
+          return true;
+        })
+        .join('\n');
+    }
+
+    async function extractTextFromPdfBlob(file) {
+      // 1. Precise extraction via PDF.js if loaded
+      if (window.pdfjsLib) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+          const pdf = await loadingTask.promise;
+          let fullText = '';
+          const maxPages = Math.min(pdf.numPages, 120);
+          for (let i = 1; i <= maxPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(s => s.str).join(' ');
+            if (pageText.trim()) {
+              fullText += pageText + '\n\n';
+            }
+          }
+          if (fullText.trim().length > 50) {
+            return sanitizeProseClient(fullText);
+          }
+        } catch (pdfErr) {
+          console.warn('PDF.js client extraction error, falling back to stream scanner:', pdfErr);
+        }
+      }
+
+      // 2. High-performance fallback: client-side stream scanner
+      try {
+        const slice = file.size > 5 * 1024 * 1024 ? file.slice(0, 5 * 1024 * 1024) : file;
+        const arrayBuffer = await slice.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        let str = '';
+        const chunkSize = 65536;
+        const limit = Math.min(bytes.length, 4 * 1024 * 1024);
+        for (let i = 0; i < limit; i += chunkSize) {
+          str += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunkSize, limit)));
+        }
+
+        const textBlocks = [];
+        const matches = str.match(/\(([^)]+)\)\s*Tj/g) || str.match(/\[([^\]]+)\]\s*TJ/g);
+        if (matches && matches.length > 20) {
+          matches.forEach(m => {
+            const clean = m.replace(/[()[\]]|Tj|TJ/g, '').replace(/\\([0-9]{3})/g, '').trim();
+            if (clean && clean.length > 2) textBlocks.push(clean);
+          });
+          const res = textBlocks.join(' ');
+          if (res.length > 50) return sanitizeProseClient(res);
+        }
+
+        const asciiMatches = str.match(/[A-Za-z0-9\u00C0-\u024F\s,.:;!?'"-]{4,}/g);
+        if (asciiMatches && asciiMatches.length > 10) {
+          return sanitizeProseClient(asciiMatches.join(' '));
+        }
+      } catch (streamErr) {
+        console.warn('Stream extraction error:', streamErr);
+      }
+
+      return '';
+    }
+
     async function runJustDoneUnifiedAction() {
       const tool = currentJustDoneTool;
       const mainBtn = document.getElementById('btnJustDoneMainAction');
@@ -5165,15 +5244,32 @@
               alert('Mohon pilih file PDF terlebih dahulu!');
               return;
             }
-            const reader = new FileReader();
-            const base64Data = await new Promise((resolve, reject) => {
-              reader.onload = () => resolve(reader.result.split(',')[1]);
-              reader.onerror = reject;
-              reader.readAsDataURL(currentChosenPdfFile);
-            });
+
+            // Extract text client-side so we never exceed Vercel's 4.5 MB request body limit
+            mainBtn.innerHTML = `<i class="fa-solid fa-file-pdf animate-pulse mr-1.5"></i><span>Mengekstrak Teks Dokumen...</span>`;
+            let extractedText = '';
+            try {
+              extractedText = await extractTextFromPdfBlob(currentChosenPdfFile);
+            } catch (extErr) {
+              console.warn('Gagal ekstrak PDF di browser:', extErr);
+            }
+
+            let base64Data = '';
+            // Only attach base64 binary if file is under 2 MB
+            if (currentChosenPdfFile.size <= 2 * 1024 * 1024) {
+              const reader = new FileReader();
+              base64Data = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = () => resolve('');
+                reader.readAsDataURL(currentChosenPdfFile);
+              });
+            }
+
+            mainBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Menjalankan Audit Forensik JustDone...</span>`;
             endpoint = '/api/document/upload-pdf';
             payload = {
               filename: currentChosenPdfFile.name,
+              text: extractedText,
               base64_data: base64Data,
               mode: selectedHumanizerMode,
               intensity: selectedHumanizerIntensity
@@ -5231,7 +5327,20 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const result = await res.json();
+
+        const resText = await res.text();
+        let result;
+        try {
+          result = JSON.parse(resText);
+        } catch (jsonErr) {
+          if (res.status === 413 || resText.includes('Request Entity Too Large') || resText.startsWith('Request En')) {
+            throw new Error('Ukuran file PDF melebihi kapasitas transfer Vercel (4.5 MB). Ekstraksi teks cerdas telah diterapkan, silakan coba kembali.');
+          }
+          if (res.status === 504 || resText.includes('Gateway Timeout')) {
+            throw new Error('Server Vercel mengalami timeout (504). Sistem sedang mengoptimalkan komputasi latar.');
+          }
+          throw new Error(resText.slice(0, 160) || `HTTP error ${res.status}`);
+        }
 
         if (result.status === 'error') {
           throw new Error(result.message || 'Gagal memproses permintaan.');

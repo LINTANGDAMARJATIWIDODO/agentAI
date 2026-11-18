@@ -65,9 +65,11 @@ module.exports = async function handler(req, res) {
     const mode = body.mode || 'formal_spbe';
     const intensity = body.intensity || 'balanced';
 
-    // Decode base64 stream and extract printable text
-    let extractedText = '';
-    if (base64Data) {
+    // 1. Prioritize pre-extracted text from client
+    let extractedText = (body.text || '').trim();
+
+    // 2. Decode base64 stream if client text is empty and base64Data exists
+    if (!extractedText && base64Data) {
       try {
         const rawBuf = Buffer.from(base64Data, 'base64');
         const rawStr = rawBuf.toString('binary');
@@ -100,7 +102,10 @@ module.exports = async function handler(req, res) {
     const aiProb = report.calibrated_ai_probability !== undefined ? report.calibrated_ai_probability : 0.08;
     const aiPct = Math.round(aiProb * 100);
 
-    const sPairs = report.sentence_heatmap.map((s, idx) => ({
+    const maxSentences = 150;
+    const displayedHeatmap = (report.sentence_heatmap || []).slice(0, maxSentences);
+
+    const sPairs = displayedHeatmap.map((s, idx) => ({
       index: idx + 1,
       original: s.text,
       original_text: s.text,
@@ -128,7 +133,7 @@ module.exports = async function handler(req, res) {
       confidence_rating: '99.8% (Sangat Tinggi / High Certainty)',
       sentence_pairs: sPairs,
       sentences: sPairs,
-      sentence_heatmap: report.sentence_heatmap,
+      sentence_heatmap: displayedHeatmap,
       document_statistics: report.document_statistics,
       llm_audit: report.llm_audit,
       downloads: {
