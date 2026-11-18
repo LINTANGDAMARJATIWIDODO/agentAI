@@ -5266,7 +5266,7 @@
             }
 
             mainBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Menjalankan Audit Forensik JustDone...</span>`;
-            endpoint = '/api/document/upload-pdf';
+            endpoint = '/api/upload-pdf';
             payload = {
               filename: currentChosenPdfFile.name,
               text: extractedText,
@@ -5280,7 +5280,7 @@
               alert('Mohon tempelkan teks yang ingin diproses!');
               return;
             }
-            endpoint = (tool === 'detector') ? '/api/document/detect' : '/api/document/humanize';
+            endpoint = (tool === 'detector') ? '/api/detect' : '/api/humanize';
             payload.text = text;
           }
         } else if (tool === 'citations') {
@@ -5315,10 +5315,10 @@
             return;
           }
           payload.text = text;
-          if (tool === 'grammar') endpoint = '/api/document/grammar';
-          else if (tool === 'plagiarism') endpoint = '/api/document/plagiarism';
-          else if (tool === 'paraphraser') endpoint = '/api/document/paraphrase';
-          else if (tool === 'summarizer') endpoint = '/api/document/summarize';
+          if (tool === 'grammar') endpoint = '/api/grammar';
+          else if (tool === 'plagiarism') endpoint = '/api/detect';
+          else if (tool === 'paraphraser') endpoint = '/api/paraphrase';
+          else if (tool === 'summarizer') endpoint = '/api/summarize';
           else if (tool === 'notes') endpoint = '/api/document/notes';
         }
 
@@ -6498,15 +6498,14 @@ function applyHumanizedStateToUI() {
         });
 
         let data;
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          data = await res.json();
-        } else {
-          const raw = await res.text();
-          if (raw.trim().startsWith('<!DOCTYPE html>') || raw.trim().startsWith('<html')) {
-            throw new Error('API server mengembalikan halaman HTML. Pastikan Environment Variable GEMINI_API_KEY sudah diset di Vercel Dashboard.');
+        const resText = await res.text();
+        try {
+          data = JSON.parse(resText);
+        } catch (jsonErr) {
+          if (resText.trim().startsWith('<!DOCTYPE') || resText.trim().startsWith('<html')) {
+            throw new Error('Server Vercel mengembalikan halaman HTML. Silakan coba kembali atau periksa koneksi internet.');
           }
-          throw new Error('Respon server bukan JSON valid: ' + raw.slice(0, 100));
+          throw new Error(resText.slice(0, 120) || `HTTP error ${res.status}`);
         }
 
         const loadElem = document.getElementById(loadingId);

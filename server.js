@@ -383,8 +383,8 @@ function requestHandler(req, res) {
   }
 
   // DOCUMENT INTELLIGENCE & PDF AI HUMANIZER REST API
-  if (url.pathname.startsWith('/api/document/')) {
-    const subRoute = url.pathname.replace('/api/document/', '');
+  if (url.pathname.startsWith('/api/document/') || ['/api/upload-pdf', '/api/detect', '/api/humanize', '/api/grammar', '/api/paraphrase', '/api/summarize'].includes(url.pathname)) {
+    const subRoute = url.pathname.replace('/api/document/', '').replace('/api/', '');
     const UPLOADS_DIR = path.join(BASE_DIR, 'uploads');
     if (!fs.existsSync(UPLOADS_DIR)) {
       fs.mkdirSync(UPLOADS_DIR, { recursive: true });

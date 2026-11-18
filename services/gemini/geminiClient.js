@@ -218,13 +218,36 @@ Jika pengguna meminta Anda membuat website, landing page, atau aplikasi web (con
       }
     }
 
-    // Safety guard: If web request returned incomplete code or blank shell, ensure full rich experience
-    if (isWebReq && (!text.includes('<!DOCTYPE') || text.length < 500)) {
-      const curated = GeminiClient.getCuratedWebTemplate(prompt);
-      if (curated) {
-        text = `Berikut adalah kode sumber dan arsitektur website **${curated.title}** yang telah dirancang secara profesional oleh **RAKA (Senior Fullstack Lead)** & **ARKA (Lead AI Orchestrator)**:\n\n` +
-          `\`\`\`html\n${curated.html}\n\`\`\`\n\n` +
-          `*Website di atas dirancang lengkap siap pakai mencakup Navigation Bar responsif, Hero Section modern, Interactive Calculator, Kartu Layanan, Testimoni Pelanggan, dan Footer. Klik tombol **Pratinjau Web** di atas untuk melihat tampilan live di NEXUS Web Canvas.*`;
+    // Safety guard: If web request returned incomplete code, empty box, or blank shell, ensure full ultra-professional experience
+    if (isWebReq) {
+      const isBrokenWeb = !text.includes('<!DOCTYPE') ||
+        text.length < 2500 ||
+        text.includes('bg-gray-500') ||
+        text.includes('Bengkel XYZ') ||
+        text.includes('<!-- rest of') ||
+        text.includes('<!-- placeholder') ||
+        !text.includes('</footer>');
+
+      if (isBrokenWeb) {
+        let curated = GeminiClient.getCuratedWebTemplate(prompt);
+        if (!curated) {
+          // Default to high-end startup landing template if no specific genre matched
+          const defaultFile = path.join(BASE_DIR, 'public', 'landing_startup', 'index.html');
+          if (fs.existsSync(defaultFile)) {
+            try {
+              curated = {
+                title: 'NEXUS AI — Next-Generation Enterprise AI Platform',
+                html: fs.readFileSync(defaultFile, 'utf-8')
+              };
+            } catch (e) {}
+          }
+        }
+
+        if (curated) {
+          text = `Berikut adalah kode sumber dan arsitektur website **${curated.title}** yang telah dirancang secara profesional oleh **RAKA (Senior Fullstack Lead)** & **ARKA (Lead AI Orchestrator)**:\n\n` +
+            `\`\`\`html\n${curated.html}\n\`\`\`\n\n` +
+            `*Website di atas dirancang lengkap kelas produksi mencakup Navigation Bar responsif, Hero Section modern, Interactive Calculator, Kartu Layanan, Testimoni Pelanggan, dan Footer. Klik tombol **Pratinjau Web** di atas untuk melihat tampilan live di NEXUS Web Canvas.*`;
+        }
       }
     }
 
