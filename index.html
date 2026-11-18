@@ -376,7 +376,7 @@
 
     <!-- New Chat Button -->
     <div class="p-3">
-      <button onclick="resetChatSession(); if(window.innerWidth < 1024) toggleSidebarCollapse();" class="w-full py-2.5 px-3.5 rounded-xl border border-blue-500/30 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 hover:text-white text-xs font-bold transition flex items-center justify-between group shadow-sm">
+      <button onclick="resetChatSession()" class="w-full py-2.5 px-3.5 rounded-xl border border-blue-500/30 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 hover:text-white text-xs font-bold transition flex items-center justify-between group shadow-sm">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-plus text-xs group-hover:rotate-90 transition-transform"></i>
           <span>Percakapan Baru</span>
@@ -387,40 +387,40 @@
 
     <!-- Nav Items -->
     <nav class="flex-1 overflow-y-auto px-3 py-1 space-y-1 text-xs">
-      <button onclick="switchWorkspaceView('chat'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkChat" class="sidebar-link-active w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('chat')" id="navLinkChat" class="sidebar-link-active w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-message text-blue-400 w-4 text-center"></i>
         <span class="flex-1 font-medium">NEXUS Chat</span>
         <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
       </button>
 
-      <button onclick="switchWorkspaceView('office'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkOffice" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('office')" id="navLinkOffice" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-building text-indigo-400 w-4 text-center"></i>
         <span class="flex-1">Kantor Virtual 3D</span>
         <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-mono">10 AGT</span>
       </button>
 
-      <button onclick="switchWorkspaceView('humanizer'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkHumanizer" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('humanizer')" id="navLinkHumanizer" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-wand-magic-sparkles text-purple-400 w-4 text-center"></i>
         <span class="flex-1">JustDone Humanizer</span>
         <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded font-mono">13-in-1</span>
       </button>
 
-      <button onclick="switchWorkspaceView('spbe'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkSPBE" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('spbe')" id="navLinkSPBE" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-landmark text-amber-400 w-4 text-center"></i>
         <span class="flex-1">Pusat Intelijen SPBE</span>
       </button>
 
-      <button onclick="switchWorkspaceView('workforce'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkWorkforce" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('workforce')" id="navLinkWorkforce" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-users text-teal-400 w-4 text-center"></i>
         <span class="flex-1">Roster Karyawan AI</span>
       </button>
 
-      <button onclick="switchWorkspaceView('telemetry'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkTelemetry" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('telemetry')" id="navLinkTelemetry" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-chart-line text-emerald-400 w-4 text-center"></i>
         <span class="flex-1">Gemini Telemetri</span>
       </button>
 
-      <button onclick="switchWorkspaceView('downloads'); if(window.innerWidth < 1024) toggleSidebarCollapse();" id="navLinkDownloads" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
+      <button onclick="switchWorkspaceView('downloads')" id="navLinkDownloads" class="sidebar-link-inactive w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 transition">
         <i class="fa-solid fa-folder-open text-sky-400 w-4 text-center"></i>
         <span class="flex-1">Pusat Unduhan</span>
       </button>
@@ -2958,7 +2958,7 @@
     </div>
   </div>
 
-  <div id="geminiChatModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+  <div id="geminiChatModal" style="display: none;" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-blue-500/40 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl text-slate-100 overflow-hidden">
       <!-- Modal Header -->
       <div class="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/80">
@@ -3005,7 +3005,7 @@
   </div>
 
   <!-- NEXUS WEB CANVAS & LIVE PREVIEW MODAL -->
-  <div id="webPreviewModal" class="hidden fixed inset-0 z-[70] bg-slate-950/90 backdrop-blur-md flex flex-col p-3 sm:p-6 animate-in fade-in duration-200">
+  <div id="webPreviewModal" style="display: none;" class="hidden fixed inset-0 z-[70] bg-slate-950/90 backdrop-blur-md flex flex-col p-3 sm:p-6 animate-in fade-in duration-200">
     <div class="bg-slate-900 border border-blue-500/30 rounded-2xl sm:rounded-3xl flex-1 flex flex-col shadow-2xl overflow-hidden max-w-6xl w-full mx-auto">
       <!-- Modal Header -->
       <div class="px-3 py-2 sm:px-6 sm:py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60 gap-2">
@@ -3057,10 +3057,6 @@
           </button>
         </div>
       </div>
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
-      </div>
 
       <!-- Iframe Workspace -->
       <div class="flex-1 bg-slate-950 p-2 sm:p-4 flex items-center justify-center overflow-auto">
@@ -3071,7 +3067,7 @@
     </div>
   </div>
 
-  <div id="jdHumanizingOrbModal" class="hidden fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+  <div id="jdHumanizingOrbModal" style="display: none;" class="hidden fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white/95 text-slate-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center space-y-5 animate-in fade-in zoom-in duration-300">
       <div class="glowing-orb my-2"></div>
       <div>
@@ -5908,6 +5904,7 @@ async function triggerRemoveAiWorkflow() {
   document.getElementById('orbModalDocTitle').textContent = `"${shortTitle}"`;
 
   // Show orb modal
+  orbModal.style.display = 'flex';
   orbModal.classList.remove('hidden');
 
   const stepElem = document.getElementById('orbModalProgressStep');
@@ -5951,6 +5948,7 @@ async function triggerRemoveAiWorkflow() {
   }
 
   await new Promise(r => setTimeout(r, 350));
+  orbModal.style.display = 'none';
   orbModal.classList.add('hidden');
 
   // Transition UI to Clean/Humanized state
@@ -6159,7 +6157,10 @@ function applyHumanizedStateToUI() {
 
     function openGeminiModal(agent, tier) {
       const modal = document.getElementById('geminiChatModal');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+      }
       const nameElem = document.getElementById('geminiModalAgentName');
       if (nameElem) nameElem.textContent = agent;
       const tierElem = document.getElementById('geminiModalTierBadge');
@@ -6168,7 +6169,10 @@ function applyHumanizedStateToUI() {
 
     function closeGeminiModal() {
       const modal = document.getElementById('geminiChatModal');
-      if (modal) modal.classList.add('hidden');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+      }
     }
 
     function appendGeminiUserMessage(msg) {
@@ -6250,6 +6254,17 @@ function applyHumanizedStateToUI() {
 
     function switchWorkspaceView(viewName) {
       currentActiveWorkspace = viewName;
+
+      // Close mobile sidebar drawer if open
+      if (window.innerWidth < 1024) {
+        const sb = document.getElementById('sidebarNav');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sb) {
+          sb.classList.add('-translate-x-full');
+          sb.classList.remove('translate-x-0');
+        }
+        if (backdrop) backdrop.classList.add('hidden');
+      }
 
       // Update Nav active classes
       const navIds = ['chat', 'office', 'humanizer', 'spbe', 'workforce', 'telemetry', 'downloads'];
@@ -6410,6 +6425,15 @@ function applyHumanizedStateToUI() {
     });
 
     function resetChatSession() {
+      if (window.innerWidth < 1024) {
+        const sb = document.getElementById('sidebarNav');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sb) {
+          sb.classList.add('-translate-x-full');
+          sb.classList.remove('translate-x-0');
+        }
+        if (backdrop) backdrop.classList.add('hidden');
+      }
       geminiChatHistory = [];
       const container = document.getElementById('chatMessagesContainer');
       if (container) {
@@ -6898,6 +6922,7 @@ ${fullHtml}
         iframe.srcdoc = fullHtml;
       }
       if (modal) {
+        modal.style.display = 'flex';
         modal.classList.remove('hidden');
       }
     }
@@ -6905,6 +6930,7 @@ ${fullHtml}
     function closeWebPreviewModal() {
       const modal = document.getElementById('webPreviewModal');
       if (modal) {
+        modal.style.display = 'none';
         modal.classList.add('hidden');
       }
       const iframe = document.getElementById('webPreviewIframe');
