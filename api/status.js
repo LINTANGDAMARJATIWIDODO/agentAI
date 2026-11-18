@@ -28,6 +28,21 @@ function segmentSentences(text) {
   return raw.split("|SPLIT|").map(s => s.trim()).filter(s => s.length > 0);
 }
 
+async function readBody(req) {
+  if (req.body && typeof req.body === 'object') return req.body;
+  if (typeof req.body === 'string') {
+    try { return JSON.parse(req.body); } catch(e) { return {}; }
+  }
+  return new Promise((resolve) => {
+    let buf = '';
+    req.on('data', chunk => { buf += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(buf || '{}')); } catch(e) { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -40,16 +55,10 @@ module.exports = async (req, res) => {
 
   res.setHeader('Content-Type', 'application/json');
 
-  let body = {};
-  if (req.body) {
-    if (typeof req.body === 'string') {
-      try { body = JSON.parse(req.body); } catch (e) { body = {}; }
-    } else if (typeof req.body === 'object') {
-      body = req.body;
-    }
-  }
-
-  const action = (body.action || '').toLowerCase();
+  const urlObj = new URL(req.url, 'http://localhost');
+  const queryAction = urlObj.searchParams.get('action') || '';
+  const body = await readBody(req);
+  const action = (queryAction || body.action || '').toLowerCase();
 
   // 1. ACTION: UPLOAD PDF / FORENSIC AUDIT
   if (action === 'upload-pdf' || action === 'upload_pdf' || action === 'process_pdf_and_humanize') {

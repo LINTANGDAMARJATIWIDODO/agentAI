@@ -5325,6 +5325,10 @@
           else if (tool === 'notes') payload.action = 'notes';
         }
 
+        if (payload.action) {
+          endpoint = `/api/status?action=${encodeURIComponent(payload.action)}`;
+        }
+
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5912,7 +5916,7 @@ async function triggerRemoveAiWorkflow() {
       stepElem.textContent = 'Menyelesaikan kompilasi dokumen...';
       const textToHumanize = document.getElementById('humanizerTextInput').value.trim() || data.original_text || '';
       if (textToHumanize) {
-        const res = await fetch('/api/status', {
+        const res = await fetch('/api/status?action=humanize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'humanize', text: textToHumanize, mode: selectedHumanizerMode, intensity: selectedHumanizerIntensity })
