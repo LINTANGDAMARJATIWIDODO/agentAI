@@ -5266,8 +5266,9 @@
             }
 
             mainBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Menjalankan Audit Forensik JustDone...</span>`;
-            endpoint = '/api/upload-pdf';
+            endpoint = '/api/status';
             payload = {
+              action: 'upload-pdf',
               filename: currentChosenPdfFile.name,
               text: extractedText,
               base64_data: base64Data,
@@ -5280,7 +5281,8 @@
               alert('Mohon tempelkan teks yang ingin diproses!');
               return;
             }
-            endpoint = (tool === 'detector') ? '/api/detect' : '/api/humanize';
+            endpoint = '/api/status';
+            payload.action = (tool === 'detector') ? 'detect' : 'humanize';
             payload.text = text;
           }
         } else if (tool === 'citations') {
@@ -5315,11 +5317,12 @@
             return;
           }
           payload.text = text;
-          if (tool === 'grammar') endpoint = '/api/grammar';
-          else if (tool === 'plagiarism') endpoint = '/api/detect';
-          else if (tool === 'paraphraser') endpoint = '/api/paraphrase';
-          else if (tool === 'summarizer') endpoint = '/api/summarize';
-          else if (tool === 'notes') endpoint = '/api/document/notes';
+          endpoint = '/api/status';
+          if (tool === 'grammar') payload.action = 'grammar';
+          else if (tool === 'plagiarism') payload.action = 'detect';
+          else if (tool === 'paraphraser') payload.action = 'paraphrase';
+          else if (tool === 'summarizer') payload.action = 'summarize';
+          else if (tool === 'notes') payload.action = 'notes';
         }
 
         const res = await fetch(endpoint, {
@@ -5909,10 +5912,10 @@ async function triggerRemoveAiWorkflow() {
       stepElem.textContent = 'Menyelesaikan kompilasi dokumen...';
       const textToHumanize = document.getElementById('humanizerTextInput').value.trim() || data.original_text || '';
       if (textToHumanize) {
-        const res = await fetch('/api/humanize', {
+        const res = await fetch('/api/status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: textToHumanize, mode: selectedHumanizerMode, intensity: selectedHumanizerIntensity })
+          body: JSON.stringify({ action: 'humanize', text: textToHumanize, mode: selectedHumanizerMode, intensity: selectedHumanizerIntensity })
         });
         const resData = await res.json();
         if (resData.status === 'success') {
