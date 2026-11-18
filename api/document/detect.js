@@ -11,37 +11,26 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    return res.end();
+    res.status(204).end();
+    return;
   }
 
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ status: 'error', message: 'Method Not Allowed. Use POST.' }));
+    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
+    return;
   }
 
   try {
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
-    } else if (!body) {
-      body = await new Promise((resolve) => {
-        let raw = '';
-        req.on('data', chunk => { raw += chunk; });
-        req.on('end', () => {
-          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-        });
-        req.on('error', () => resolve({}));
-      });
     }
     body = body || {};
 
     const text = (body.text || '').trim();
     if (!text) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ status: 'error', message: 'Parameter "text" wajib diisi.' }));
+      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
+      return;
     }
 
     const report = await analyzeText(text, {
@@ -78,16 +67,12 @@ module.exports = async function handler(req, res) {
       execution_time_ms: report.execution_time_ms
     };
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify(responsePayload));
+    res.status(200).json(responsePayload);
   } catch (error) {
     console.error('[API /api/document/detect Error]:', error);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    res.status(500).json({
       status: 'error',
       message: 'Gagal melakukan deteksi teks: ' + error.message
-    }));
+    });
   }
 };

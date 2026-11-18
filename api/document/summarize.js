@@ -11,37 +11,26 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    return res.end();
+    res.status(204).end();
+    return;
   }
 
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ status: 'error', message: 'Method Not Allowed. Use POST.' }));
+    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
+    return;
   }
 
   try {
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
-    } else if (!body) {
-      body = await new Promise((resolve) => {
-        let raw = '';
-        req.on('data', chunk => { raw += chunk; });
-        req.on('end', () => {
-          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-        });
-        req.on('error', () => resolve({}));
-      });
     }
     body = body || {};
 
     const text = (body.text || '').trim();
     if (!text) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ status: 'error', message: 'Parameter "text" wajib diisi.' }));
+      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
+      return;
     }
 
     const sentences = segmentSentences(text);
@@ -57,9 +46,7 @@ module.exports = async function handler(req, res) {
     const summaryWords = summary.split(/\s+/).filter(Boolean);
     const reduction = Math.max(20, Math.round((1 - (summaryWords.length / Math.max(1, nWords))) * 100));
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    res.status(200).json({
       status: 'success',
       tool: 'summarizer',
       word_count_original: nWords,
@@ -71,14 +58,12 @@ module.exports = async function handler(req, res) {
         'Implementasi regulasi SPBE dan arsitektur 6 domain menjadi acuan bersama seluruh perangkat daerah.',
         'Optimalisasi belanja TIK dan standardisasi Satu Data untuk meningkatkan efisiensi dan transparansi layanan publik.'
       ]
-    }));
+    });
   } catch (error) {
     console.error('[API /api/document/summarize Error]:', error);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    res.status(500).json({
       status: 'error',
       message: 'Gagal membuat ringkasan: ' + error.message
-    }));
+    });
   }
 };

@@ -11,29 +11,19 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    return res.end();
+    res.status(204).end();
+    return;
   }
 
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ status: 'error', message: 'Method Not Allowed. Use POST.' }));
+    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
+    return;
   }
 
   try {
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
-    } else if (!body) {
-      body = await new Promise((resolve) => {
-        let raw = '';
-        req.on('data', chunk => { raw += chunk; });
-        req.on('end', () => {
-          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-        });
-        req.on('error', () => resolve({}));
-      });
     }
     body = body || {};
 
@@ -90,9 +80,7 @@ module.exports = async function handler(req, res) {
       level: s.level || 'low'
     }));
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    return res.status(200).json({
       status: 'success',
       tool: 'humanizer',
       filename: filename,
@@ -114,15 +102,13 @@ module.exports = async function handler(req, res) {
         pdf: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.pdf',
         docx: '/downloads/HUMANIZED_Arsitektur_SPBE_DKI_Jakarta_2027.docx'
       }
-    }));
+    });
 
   } catch (error) {
     console.error('[API /api/document/upload-pdf Error]:', error);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    return res.status(500).json({
       status: 'error',
       message: 'Gagal memproses dokumen PDF: ' + error.message
-    }));
+    });
   }
 };

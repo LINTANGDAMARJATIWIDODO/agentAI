@@ -21,37 +21,26 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    return res.end();
+    res.status(204).end();
+    return;
   }
 
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({ status: 'error', message: 'Method Not Allowed. Use POST.' }));
+    res.status(405).json({ status: 'error', message: 'Method Not Allowed. Use POST.' });
+    return;
   }
 
   try {
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
-    } else if (!body) {
-      body = await new Promise((resolve) => {
-        let raw = '';
-        req.on('data', chunk => { raw += chunk; });
-        req.on('end', () => {
-          try { resolve(JSON.parse(raw || '{}')); } catch (e) { resolve({}); }
-        });
-        req.on('error', () => resolve({}));
-      });
     }
     body = body || {};
 
     const text = (body.text || '').trim();
     if (!text) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ status: 'error', message: 'Parameter "text" wajib diisi.' }));
+      res.status(400).json({ status: 'error', message: 'Parameter "text" wajib diisi.' });
+      return;
     }
 
     let correctedText = text;
@@ -76,9 +65,7 @@ module.exports = async function handler(req, res) {
 
     const score = issues.length === 0 ? '100% (Sempurna Baku)' : `${Math.max(70, 100 - issues.length * 6)}%`;
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    res.status(200).json({
       status: 'success',
       tool: 'grammar',
       accuracy_score: score,
@@ -86,14 +73,12 @@ module.exports = async function handler(req, res) {
       original_text: text,
       corrected_text: correctedText,
       issues: issues
-    }));
+    });
   } catch (error) {
     console.error('[API /api/document/grammar Error]:', error);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    return res.end(JSON.stringify({
+    res.status(500).json({
       status: 'error',
       message: 'Gagal melakukan audit tata bahasa: ' + error.message
-    }));
+    });
   }
 };
