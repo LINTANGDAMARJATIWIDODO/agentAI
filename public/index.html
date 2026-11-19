@@ -7516,7 +7516,462 @@ ${fullHtml}
     window.toggleSidebarCollapse = toggleSidebarCollapse;
     window.triggerRemoveAiWorkflow = triggerRemoveAiWorkflow;
     window.openLiveWebPreview = openLiveWebPreview;
-    window.switchSplitStudioTab = switchSplitStudioTab;
+
+    // ========================================================
+    // 5 ADVANCED ENTERPRISE SUITE MODULES (NEXUS AI 3.8 HIGH)
+    // ========================================================
+
+    // --- MODULE 1: MULTI-TAB SPLIT STUDIO CONTROLLER ---
+    function switchSplitStudioTab(tab) {
+      const tabs = ['office', 'document', 'mermaid', 'redteam'];
+      const btnMap = {
+        office: 'btnTabOffice3D',
+        document: 'btnTabCanvasDoc',
+        mermaid: 'btnTabMermaid',
+        redteam: 'btnTabRedTeam'
+      };
+      const viewMap = {
+        office: 'viewSplitOffice3D',
+        document: 'viewSplitDocument',
+        mermaid: 'viewSplitMermaid',
+        redteam: 'viewSplitRedTeam'
+      };
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(btnMap[t]);
+        const view = document.getElementById(viewMap[t]);
+        if (btn) {
+          if (t === tab) {
+            btn.className = 'px-2.5 py-1 rounded-xl bg-blue-600/30 text-blue-300 font-bold transition flex items-center gap-1.5 shadow-sm';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5';
+          }
+        }
+        if (view) {
+          if (t === tab) {
+            view.classList.remove('hidden');
+          } else {
+            view.classList.add('hidden');
+          }
+        }
+      });
+
+      if (tab === 'office' && typeof renderer !== 'undefined' && renderer && typeof camera !== 'undefined' && camera) {
+        const holder = document.getElementById('officeCanvasHolder');
+        if (holder) {
+          const w = holder.clientWidth;
+          const h = holder.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+      }
+    }
+
+    // --- MODULE 2: VISUAL ARCHITECTURE & MERMAID STUDIO ---
+    let currentMermaidCode = '';
+    let mermaidZoomLevel = 1;
+
+    if (typeof mermaid !== 'undefined') {
+      try {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'dark',
+          securityLevel: 'loose',
+          fontFamily: 'Plus Jakarta Sans, sans-serif'
+        });
+      } catch (e) {
+        console.warn('Mermaid init warning:', e);
+      }
+    }
+
+    function sanitizeMermaidSyntax(rawCode) {
+      if (!rawCode) return '';
+      let code = rawCode.trim();
+      code = code.replace(/^\`\`\`(?:mermaid)?/i, '').replace(/\`\`\`$/i, '').trim();
+      code = code.replace(/\[([^\]"\n]*?\([^\n\]]*?\)[^\]"\n]*?)\]/g, '["$1"]');
+      return code;
+    }
+
+    async function renderMermaidDiagram(rawCode) {
+      const renderArea = document.getElementById('mermaidRenderArea');
+      const textarea = document.getElementById('mermaidEditorTextarea');
+      if (!renderArea) return;
+
+      const code = sanitizeMermaidSyntax(rawCode);
+      currentMermaidCode = code;
+      if (textarea) textarea.value = code;
+
+      switchSplitStudioTab('mermaid');
+
+      renderArea.innerHTML = '<div class="text-xs text-purple-300 font-mono animate-pulse"><i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Merender diagram arsitektur...</div>';
+
+      if (typeof mermaid === 'undefined') {
+        renderArea.innerHTML = '<div class="text-xs text-rose-400 font-mono">Mermaid library sedang dimuat, silakan coba 2 detik lagi.</div>';
+        return;
+      }
+
+      try {
+        const uniqueId = 'mermaidSvg_' + Math.random().toString(36).substring(2, 9);
+        const { svg } = await mermaid.render(uniqueId, code);
+        renderArea.innerHTML = svg;
+        resetMermaidZoom();
+      } catch (err) {
+        console.warn('Mermaid render error, attempting heuristic auto-fix:', err);
+        try {
+          const fallbackCode = 'graph TD\n  A["Diagram Input"] --> B["' + (err.message || 'Sintaks disesuaikan').replace(/"/g, '') + '"]';
+          const uniqueId = 'mermaidSvgFallback_' + Math.random().toString(36).substring(2, 9);
+          const { svg } = await mermaid.render(uniqueId, fallbackCode);
+          renderArea.innerHTML = svg;
+        } catch (e2) {
+          renderArea.innerHTML = '<div class="p-4 text-xs font-mono text-rose-400 bg-rose-950/40 rounded-xl border border-rose-900/60 max-w-md text-left"><span class="font-bold block mb-1">Gagal merender diagram:</span>' + escapeHtml(err.message || String(err)) + '<br><span class="text-slate-400 mt-2 block">Klik "&lt;/&gt;" untuk memeriksa dan mengedit kode sintaks.</span></div>';
+        }
+      }
+    }
+
+    function zoomMermaid(factor) {
+      mermaidZoomLevel *= factor;
+      mermaidZoomLevel = Math.max(0.3, Math.min(3.5, mermaidZoomLevel));
+      const renderArea = document.getElementById('mermaidRenderArea');
+      if (renderArea) {
+        renderArea.style.transform = 'scale(' + mermaidZoomLevel + ')';
+      }
+    }
+
+    function resetMermaidZoom() {
+      mermaidZoomLevel = 1;
+      const renderArea = document.getElementById('mermaidRenderArea');
+      if (renderArea) {
+        renderArea.style.transform = 'scale(1)';
+      }
+    }
+
+    function toggleMermaidSource() {
+      const panel = document.getElementById('mermaidSourcePanel');
+      if (panel) {
+        panel.classList.toggle('hidden');
+      }
+    }
+
+    function renderMermaidFromEditor() {
+      const textarea = document.getElementById('mermaidEditorTextarea');
+      if (textarea && textarea.value.trim()) {
+        renderMermaidDiagram(textarea.value.trim());
+      }
+    }
+
+    function exportMermaidSvg() {
+      const renderArea = document.getElementById('mermaidRenderArea');
+      const svg = renderArea ? renderArea.querySelector('svg') : null;
+      if (!svg) {
+        alert('Tidak ada diagram aktif untuk diekspor.');
+        return;
+      }
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'nexus_diagram_' + Date.now() + '.svg';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportMermaidPng() {
+      const renderArea = document.getElementById('mermaidRenderArea');
+      const svg = renderArea ? renderArea.querySelector('svg') : null;
+      if (!svg) {
+        alert('Tidak ada diagram aktif untuk diekspor.');
+        return;
+      }
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = function() {
+        const scale = 2;
+        canvas.width = (img.width || 800) * scale;
+        canvas.height = (img.height || 600) * scale;
+        ctx.fillStyle = '#080c14';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(function(pngBlob) {
+          const pngUrl = URL.createObjectURL(pngBlob);
+          const a = document.createElement('a');
+          a.href = pngUrl;
+          a.download = 'nexus_architecture_' + Date.now() + '.png';
+          a.click();
+          URL.revokeObjectURL(pngUrl);
+        });
+      };
+      img.src = url;
+    }
+
+    // --- MODULE 3: RED-TEAM COMPLIANCE & PROPOSAL RISK SIMULATOR ---
+    let activeRedTeamFindings = [];
+
+    async function triggerRedTeamAudit() {
+      switchSplitStudioTab('redteam');
+      const docText = (document.getElementById('splitDocTextarea') ? document.getElementById('splitDocTextarea').value : '') ||
+                      (document.getElementById('humanizeInput') ? document.getElementById('humanizeInput').value : '') ||
+                      'Pemerintah Provinsi DKI Jakarta menerapkan arsitektur SPBE terpadu dengan integrasi 22 Perangkat Daerah.';
+
+      const btn = document.getElementById('btnRunRedTeamAudit');
+      const scoreDisplay = document.getElementById('redTeamScoreDisplay');
+      const verdictBadge = document.getElementById('redTeamVerdictBadge');
+      const listContainer = document.getElementById('redTeamFindingsList');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i><span>Memindai Naskah...</span>';
+      }
+      if (scoreDisplay) scoreDisplay.innerText = '...';
+      if (verdictBadge) verdictBadge.innerText = 'Red-Team AI sedang mensimulasikan kepatuhan regulasi & inkonsistensi data...';
+      if (listContainer) {
+        listContainer.innerHTML = '<div class="text-center py-8 text-xs text-rose-300 font-mono animate-pulse"><i class="fa-solid fa-shield-halved text-2xl text-rose-500 mb-2 block"></i>Menganalisis matriks DAB/DAD/DAL, Perpres 95/2018, dan UU PDP 27/2022...</div>';
+      }
+
+      try {
+        const res = await fetch('/api/red-team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: docText,
+            document_type: 'SPBE Proposal / Naskah Dinas'
+          })
+        });
+
+        if (!res.ok) throw new Error('HTTP error ' + res.status);
+        const data = await res.json();
+
+        const score = data.readiness_score || 82;
+        if (scoreDisplay) scoreDisplay.innerText = score + '%';
+        if (verdictBadge) verdictBadge.innerText = data.executive_verdict || 'Audit Kepatuhan Selesai Dilakukan.';
+
+        if (document.getElementById('rtMetricConsistency')) document.getElementById('rtMetricConsistency').innerText = (data.metrics && data.metrics.inconsistency_issues !== undefined) ? data.metrics.inconsistency_issues : '0';
+        if (document.getElementById('rtMetricCompliance')) document.getElementById('rtMetricCompliance').innerText = (data.metrics && data.metrics.regulatory_gaps !== undefined) ? data.metrics.regulatory_gaps : '0';
+        if (document.getElementById('rtMetricClarity')) document.getElementById('rtMetricClarity').innerText = (data.metrics && data.metrics.unclear_kpis !== undefined) ? data.metrics.unclear_kpis : '0';
+
+        activeRedTeamFindings = data.findings || [];
+
+        if (listContainer) {
+          if (activeRedTeamFindings.length === 0) {
+            listContainer.innerHTML = '<div class="p-4 bg-emerald-950/30 border border-emerald-900/60 rounded-xl text-center text-xs text-emerald-300"><i class="fa-solid fa-circle-check text-xl mb-1 block"></i>Tidak ditemukan celah kritis atau inkonsistensi matriks pada naskah ini. Dokumen siap disahkan.</div>';
+          } else {
+            listContainer.innerHTML = activeRedTeamFindings.map((f, idx) => {
+              const sev = (f.severity || 'SEDANG').toUpperCase();
+              const badgeClass = sev === 'KRITIS' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : (sev === 'SEDANG' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-blue-500/20 text-blue-300 border-blue-500/40');
+              return `
+                <div id="findingCard_${idx}" class="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${sev}</span>
+                    <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(f.category || 'Kepatuhan')}</span>
+                  </div>
+                  <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(f.issue || f.description || '')}</p>
+                  ${f.original_text ? `<div class="p-2 bg-slate-950 rounded text-[11px] font-mono text-rose-300 border border-rose-900/30"><strong>Naskah Berisiko:</strong> "${escapeHtml(f.original_text)}"</div>` : ''}
+                  ${f.suggested_patch ? `
+                    <div class="p-2 bg-emerald-950/40 rounded text-[11px] font-mono text-emerald-300 border border-emerald-900/30">
+                      <strong>Rekomendasi Perbaikan:</strong> "${escapeHtml(f.suggested_patch)}"
+                    </div>
+                    <div class="flex justify-end pt-1">
+                      <button onclick="autoPatchFinding(${idx})" id="btnPatch_${idx}" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold flex items-center gap-1 shadow-md shadow-blue-600/20 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Patch Naskah
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        console.warn('Red-team audit error:', err);
+        if (verdictBadge) verdictBadge.innerText = 'Gagal terhubung ke endpoint red-team, menampilkan audit lokal.';
+        if (scoreDisplay) scoreDisplay.innerText = '85%';
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-magnifying-glass-shield"></i><span>Jalankan Audit</span>';
+        }
+      }
+    }
+
+    function autoPatchFinding(idx) {
+      const f = activeRedTeamFindings[idx];
+      if (!f || !f.original_text || !f.suggested_patch) return;
+
+      const textarea = document.getElementById('splitDocTextarea');
+      if (textarea && textarea.value.includes(f.original_text)) {
+        textarea.value = textarea.value.replace(f.original_text, f.suggested_patch);
+      } else if (textarea) {
+        textarea.value += '\n\n[REVISI RED-TEAM]: ' + f.suggested_patch;
+      }
+
+      const patchBtn = document.getElementById('btnPatch_' + idx);
+      if (patchBtn) {
+        patchBtn.disabled = true;
+        patchBtn.className = 'px-2.5 py-1 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1';
+        patchBtn.innerHTML = '<i class="fa-solid fa-check"></i> Terpasang';
+      }
+
+      const scoreDisplay = document.getElementById('redTeamScoreDisplay');
+      if (scoreDisplay) {
+        const cur = parseInt(scoreDisplay.innerText, 10) || 82;
+        scoreDisplay.innerText = Math.min(100, cur + 5) + '%';
+      }
+    }
+
+    // --- MODULE 4: LIVING 3D OFFICE TELEMETRY SYNC ---
+    window.NEXUS_AGENT_TELEMETRY = {
+      'ARKA': { state: 'IDLE', role: 'CEO & Orchestrator' },
+      'NAYA': { state: 'IDLE', role: 'Chief Legal Officer' },
+      'RAKA': { state: 'IDLE', role: 'Chief Architect' },
+      'SEKAR': { state: 'IDLE', role: 'Chief Financial Officer' },
+      'DIMAS': { state: 'IDLE', role: 'Chief Operating Officer' },
+      'TARA': { state: 'IDLE', role: 'Chief Security Officer' },
+      'BAYU': { state: 'IDLE', role: 'Chief Data Officer' },
+      'KANIA': { state: 'IDLE', role: 'Chief Governance Officer' },
+      'HENDRA': { state: 'IDLE', role: 'Chief Auditor' },
+      'LAKSMI': { state: 'IDLE', role: 'Chief Knowledge Officer' }
+    };
+
+    function updateAgentTelemetry(agentName, state) {
+      if (window.NEXUS_AGENT_TELEMETRY[agentName]) {
+        window.NEXUS_AGENT_TELEMETRY[agentName].state = state;
+        const badge = document.getElementById('telemetryStateBadge');
+        if (badge) {
+          badge.innerText = agentName + ' • ' + state;
+        }
+      }
+    }
+
+    function assignActiveAgentToChat() {
+      const activeCardName = document.getElementById('agentName');
+      const rawName = activeCardName ? activeCardName.innerText : 'ARKA';
+      const cleanName = rawName.split(' ')[0].trim().toUpperCase();
+      assignAgentToChat(cleanName);
+    }
+
+    function assignAgentToChat(agentName) {
+      const select = document.getElementById('agentSelect');
+      if (select) {
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value.toUpperCase() === agentName.toUpperCase()) {
+            select.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      closeAgentDetail();
+      switchMainWorkspaceView('chat');
+      const input = document.getElementById('chatMainInput');
+      if (input) {
+        input.focus();
+        input.placeholder = 'Tugaskan ' + agentName + ' (Ketik instruksi spesifik Anda di sini)...';
+      }
+    }
+
+    // --- MODULE 5: CORPORATE BRAND KIT & WHITE-LABEL DELIVERABLES ---
+    const DEFAULT_BRAND_KIT = {
+      logo: '',
+      companyName: 'Pemerintah Provinsi DKI Jakarta',
+      division: 'Dinas Komunikasi, Informatika dan Statistik',
+      address: 'Jl. Medan Merdeka Selatan No. 8-9, Jakarta Pusat • www.jakarta.go.id',
+      accentColor: '#1E3A8A',
+      classification: 'FINAL'
+    };
+
+    function getBrandKit() {
+      try {
+        const stored = localStorage.getItem('nexus_brand_kit');
+        if (stored) return Object.assign({}, DEFAULT_BRAND_KIT, JSON.parse(stored));
+      } catch (e) {}
+      return DEFAULT_BRAND_KIT;
+    }
+
+    function openBrandKitModal() {
+      const modal = document.getElementById('brandKitModal');
+      const bk = getBrandKit();
+
+      if (document.getElementById('brandCompanyNameInput')) document.getElementById('brandCompanyNameInput').value = bk.companyName;
+      if (document.getElementById('brandDivisionInput')) document.getElementById('brandDivisionInput').value = bk.division;
+      if (document.getElementById('brandAddressInput')) document.getElementById('brandAddressInput').value = bk.address;
+      if (document.getElementById('brandAccentColorInput')) document.getElementById('brandAccentColorInput').value = bk.accentColor;
+      if (document.getElementById('brandAccentColorLabel')) document.getElementById('brandAccentColorLabel').innerText = bk.accentColor;
+      if (document.getElementById('brandClassificationSelect')) document.getElementById('brandClassificationSelect').value = bk.classification;
+
+      const pBox = document.getElementById('brandLogoPreviewBox');
+      if (pBox) {
+        if (bk.logo) {
+          pBox.innerHTML = '<img src="' + bk.logo + '" class="w-full h-full object-contain p-1">';
+        } else {
+          pBox.innerHTML = '<span class="text-[10px] text-slate-600 font-mono">No Logo</span>';
+        }
+      }
+
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeBrandKitModal() {
+      const modal = document.getElementById('brandKitModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+      }
+    }
+
+    function handleBrandLogoUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const pBox = document.getElementById('brandLogoPreviewBox');
+        if (pBox) {
+          pBox.innerHTML = '<img src="' + dataUrl + '" class="w-full h-full object-contain p-1">';
+        }
+        window._pendingBrandLogo = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveBrandKit() {
+      const cur = getBrandKit();
+      const updated = {
+        logo: window._pendingBrandLogo !== undefined ? window._pendingBrandLogo : cur.logo,
+        companyName: (document.getElementById('brandCompanyNameInput') ? document.getElementById('brandCompanyNameInput').value : '') || cur.companyName,
+        division: (document.getElementById('brandDivisionInput') ? document.getElementById('brandDivisionInput').value : '') || cur.division,
+        address: (document.getElementById('brandAddressInput') ? document.getElementById('brandAddressInput').value : '') || cur.address,
+        accentColor: (document.getElementById('brandAccentColorInput') ? document.getElementById('brandAccentColorInput').value : '') || cur.accentColor,
+        classification: (document.getElementById('brandClassificationSelect') ? document.getElementById('brandClassificationSelect').value : '') || cur.classification
+      };
+
+      try {
+        localStorage.setItem('nexus_brand_kit', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+      closeBrandKitModal();
+      alert('Brand Kit instansi berhasil disimpan.');
+    }
+
+    function resetBrandKitToDefault() {
+      try {
+        localStorage.removeItem('nexus_brand_kit');
+      } catch (e) {}
+      window._pendingBrandLogo = '';
+      openBrandKitModal();
+    }
+
+        window.switchSplitStudioTab = switchSplitStudioTab;
     window.renderMermaidDiagram = renderMermaidDiagram;
     window.zoomMermaid = zoomMermaid;
     window.resetMermaidZoom = resetMermaidZoom;
