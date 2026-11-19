@@ -1,6 +1,6 @@
 /**
  * Vercel Serverless Function: POST /api/gemini/chat
- * Native Node.js Serverless Handler for Google Gemini Chat & Code Generation
+ * Native Node.js Serverless Handler for Google Gemini Chat, Extended Thinking, & General-Purpose Intelligence
  */
 const GeminiClient = require('../../services/gemini/geminiClient');
 
@@ -31,10 +31,9 @@ module.exports = async (req, res) => {
       if (req.readableEnded || typeof req.on !== 'function') {
         payload = {};
       } else {
-        // Buffer stream if body was not auto-parsed by Vercel
         payload = await new Promise((resolve) => {
           let raw = '';
-          const timer = setTimeout(() => resolve({}), 800);
+          const timer = setTimeout(() => resolve({}), 1000);
           req.on('data', chunk => { raw += chunk; });
           req.on('end', () => {
             clearTimeout(timer);
@@ -50,15 +49,17 @@ module.exports = async (req, res) => {
 
     const prompt = payload.prompt || '';
     const agent = payload.agent || 'ARKA';
-    const tier = payload.tier || 'flash';
+    const tier = payload.tier || payload.cognitive_brain || 'flash';
+    const cognitive_brain = payload.cognitive_brain || payload.tier || 'flash';
     const history = payload.history || [];
     const enable_grounding = payload.enable_grounding || false;
 
-    // Direct REST invocation to Google Gemini API
-    const result = await GeminiClient.chatDirectRest({
+    // Dispatches to GeminiClient with general-purpose routing & optional web grounding
+    const result = await GeminiClient.chat({
       prompt,
       agent,
       tier,
+      cognitive_brain,
       history,
       enable_grounding
     });
@@ -67,10 +68,14 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify(result));
   } catch (err) {
     console.error('[API /api/gemini/chat error]:', err);
-    res.statusCode = 200; // Return 200 with error JSON so frontend handles gracefully
+    res.statusCode = 200;
     return res.end(JSON.stringify({
       status: 'error',
-      message: err.message || 'Terjadi kesalahan saat menghubungi Google Gemini API.'
+      message: err.message || 'Terjadi kendala pada layanan kognitif Google Gemini.'
     }));
   }
+};
+
+module.exports.config = {
+  maxDuration: 60
 };

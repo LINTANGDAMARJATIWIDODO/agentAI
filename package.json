@@ -17,5 +17,8 @@
     "autonomous-agents"
   ],
   "author": "NEXUS Corporate Systems",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^3.6.1"
+  }
 }
