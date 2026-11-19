@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
     const documentText = (payload.text || payload.document || payload.content || '').trim();
     const documentTitle = payload.title || 'Dokumen Proposal & Arsitektur SPBE';
-    const cognitive_brain = payload.cognitive_brain || 'gemini-3.8-high';
+    const cognitive_brain = payload.cognitive_brain || 'gemini-2.5-pro';
 
     if (!documentText || documentText.length < 20) {
       res.statusCode = 400;

@@ -77,7 +77,7 @@ module.exports = async (req, res) => {
     }
 
     const topic = (payload.topic || payload.prompt || payload.query || '').trim();
-    const cognitive_brain = payload.cognitive_brain || 'gemini-3.8-high';
+    const cognitive_brain = payload.cognitive_brain || 'gemini-2.5-pro';
 
     if (!topic) {
       res.statusCode = 400;

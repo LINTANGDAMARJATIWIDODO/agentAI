@@ -44,27 +44,18 @@ class GeminiClient {
   /**
    * Resolve appropriate model identifier based on cognitive mode / tier
    */
-  static resolveModel(cognitiveMode = 'gemini-3.8-high') {
-    const mode = (cognitiveMode || 'gemini-3.8-high').toLowerCase();
-    if (mode === 'gemini-3.8-high' || mode.includes('3.8') || mode.includes('high')) {
-      return process.env.GEMINI_MODEL_3_8 || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
-    }
-    if (mode === 'gemini-3-pro' || mode.includes('3-pro') || mode.includes('3.0-pro')) {
-      return process.env.GEMINI_MODEL_3_PRO || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
-    }
-    if (mode === 'gemini-3-flash' || mode.includes('3-flash') || mode.includes('3.0-flash')) {
-      return process.env.GEMINI_MODEL_3_FLASH || process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
-    }
-    if (mode === 'pro' || mode === 'gemini-pro' || mode.includes('architect')) {
+  static resolveModel(cognitiveMode = 'gemini-2.5-flash') {
+    const mode = (cognitiveMode || 'gemini-2.5-flash').toLowerCase();
+    if (mode === 'gemini-2.5-pro' || mode.includes('2.5-pro') || mode.includes('pro') || mode.includes('architect') || mode.includes('deep')) {
       return process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
     }
-    if (mode === 'claude-style' || mode.includes('claude') || mode.includes('humanizer')) {
-      return process.env.GEMINI_MODEL_CLAUDE || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-flash';
+    if (mode === 'claude-style' || mode.includes('claude') || mode.includes('editorial') || mode.includes('humanizer')) {
+      return process.env.GEMINI_MODEL_CLAUDE || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
     }
     if (mode === 'gpt-style' || mode.includes('gpt') || mode.includes('analyst')) {
-      return process.env.GEMINI_MODEL_GPT || 'gemini-2.5-flash';
+      return process.env.GEMINI_MODEL_GPT || process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
     }
-    return process.env.GEMINI_MODEL || process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    return process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
   }
 
   /**
@@ -146,24 +137,24 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
   /**
    * Main Chat Dispatcher: Uses @google/genai SDK when available, with resilient REST failover
    */
-  static async chat({ prompt, agent = 'ARKA', tier = 'flash', cognitive_brain = 'flash', history = [], enable_grounding = false }) {
+    /**
+   * Main Chat Dispatcher: Uses official @google/genai SDK (v1beta) with resilient Direct REST failover
+   */
+  static async chat({ prompt, agent = 'ARKA', tier = 'gemini-2.5-flash', cognitive_brain = 'gemini-2.5-flash', history = [], enable_grounding = false }) {
     const apiKey = process.env.GEMINI_API_KEY || '';
-    const selectedMode = cognitive_brain || tier || 'flash';
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY tidak ditemukan di environment server. Pastikan API Key telah diatur di Vercel Environment Variables atau .env.');
+    }
+
+    const selectedMode = cognitive_brain || tier || 'gemini-2.5-flash';
     const modelName = GeminiClient.resolveModel(selectedMode);
     const systemPrompt = GeminiClient.buildSystemPrompt(agent, selectedMode);
+    const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(prompt);
 
-    // Intent detection for dynamic reasoning & artifacts
-    const pLower = (prompt || '').toLowerCase();
-    const isCoding = /\b(kode|koding|coding|script|python|javascript|react|html|css|php|laravel|sql|function|class|bug|error)\b/i.test(pLower);
-    const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(pLower);
-    const isSpbe = /\b(spbe|perpres|tata kelola digital|arsitektur spbe|diskominfo|domain spbe)\b/i.test(pLower);
-    const isDocument = /\b(dokumen|pdf|naskah|laporan|makalah|proposal|skripsi)\b/i.test(pLower);
-
-    // Attempt Official @google/genai SDK first if no custom base URL override is forced
-    const rawBaseUrl = process.env.GEMINI_BASE_URL || process.env.LLM_BASE_URL;
-    if (GoogleGenAI && apiKey && !rawBaseUrl) {
+    // 1. Official @google/genai SDK invocation (using apiVersion v1beta)
+    if (GoogleGenAI && apiKey && !process.env.GEMINI_BASE_URL) {
       try {
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
         const contents = [];
 
         if (Array.isArray(history)) {
@@ -179,7 +170,7 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
 
         const config = {
           systemInstruction: { parts: [{ text: systemPrompt }] },
-          temperature: selectedMode.includes('pro') ? 0.3 : 0.7,
+          temperature: (selectedMode.includes('pro') || selectedMode.includes('claude')) ? 0.3 : 0.7,
           maxOutputTokens: 8192
         };
 
@@ -193,8 +184,10 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
           config: config
         });
 
-        const replyText = response.text || '';
+        const replyText = response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
         if (replyText) {
+          const usage = response.usageMetadata || {};
+          const totalToks = usage.totalTokenCount || 0;
           return GeminiClient.formatSuccessResponse({
             text: replyText,
             agent,
@@ -202,15 +195,25 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
             model: modelName,
             prompt,
             isWebReq,
-            grounding: response.candidates?.[0]?.groundingMetadata
+            groundingChunks: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [],
+            searchQueries: response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [],
+            usageMeta: {
+              total_tokens: totalToks,
+              totalTokenCount: totalToks,
+              prompt_tokens: usage.promptTokenCount || 0,
+              promptTokenCount: usage.promptTokenCount || 0,
+              candidates_tokens: usage.candidatesTokenCount || 0,
+              candidatesTokenCount: usage.candidatesTokenCount || 0
+            }
           });
         }
       } catch (sdkErr) {
-        console.warn(`[@google/genai SDK error, falling back to REST]:`, sdkErr.message);
+        console.warn('[@google/genai SDK notice, falling back to REST]:', sdkErr.message);
+        // Note: We proceed to REST failover below
       }
     }
 
-    // Direct REST invocation with 55s timeout (Safe for Vercel 60s maxDuration)
+    // 2. Direct REST invocation
     return await GeminiClient.chatDirectRest({
       prompt,
       agent,
@@ -221,10 +224,14 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
   }
 
   /**
-   * Resilient Direct REST Invocation (Supports custom endpoints, proxies, & Google official)
+   * Resilient Direct REST Invocation
    */
-  static async chatDirectRest({ prompt, agent = 'ARKA', tier = 'flash', history = [], enable_grounding = false }) {
+  static async chatDirectRest({ prompt, agent = 'ARKA', tier = 'gemini-2.5-flash', history = [], enable_grounding = false }) {
     const apiKey = process.env.GEMINI_API_KEY || '';
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY belum dikonfigurasikan di environment server.');
+    }
+
     const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(prompt);
     const modelName = GeminiClient.resolveModel(tier);
     const sysPrompt = GeminiClient.buildSystemPrompt(agent, tier);
@@ -256,7 +263,7 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
         parts: [{ text: sysPrompt }]
       },
       generationConfig: {
-        temperature: tier.includes('pro') ? 0.3 : 0.7,
+        temperature: (tier.includes('pro') || tier.includes('claude')) ? 0.3 : 0.7,
         maxOutputTokens: 8192
       }
     };
@@ -265,48 +272,45 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
       body.tools = [{ googleSearch: {} }];
     }
 
-    let text = '';
-    let groundingChunks = [];
-    let searchQueries = [];
-    let usageMeta = { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
-
-    // Increased timeout to 50 seconds for full deep reasoning on Vercel Pro/Hobby
     const controller = new AbortController();
     const timeoutTimer = setTimeout(() => controller.abort(), 50000);
 
+    let res;
+    let data;
     try {
-      const res = await fetch(url, {
+      res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
         signal: controller.signal
       });
       clearTimeout(timeoutTimer);
-
-      const data = await res.json();
-      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        const candidate = data.candidates[0];
-        text = candidate.content.parts.map(p => p.text).join('');
-        groundingChunks = candidate.groundingMetadata?.groundingChunks || [];
-        searchQueries = candidate.groundingMetadata?.webSearchQueries || [];
-        usageMeta = data.usageMetadata || usageMeta;
-      } else {
-        throw new Error(data.error?.message || `HTTP ${res.status}`);
-      }
-    } catch (apiErr) {
+      data = await res.json();
+    } catch (fetchErr) {
       clearTimeout(timeoutTimer);
-      console.warn(`[GEMINI REST API Notice]: ${apiErr.message}`);
-
-      // Intelligent synthesis fallback
-      const curated = GeminiClient.getCuratedWebTemplate(prompt);
-      if (curated) {
-        text = `Berikut adalah kode sumber dan arsitektur website **${curated.title}** yang telah dirancang secara profesional oleh **RAKA (Senior Fullstack Lead)** & **ARKA (Lead AI Orchestrator)**:\n\n` +
-          `\`\`\`html\n${curated.html}\n\`\`\`\n\n` +
-          `*Website di atas dirancang lengkap siap pakai kelas produksi. Klik tombol **Pratinjau Web** di atas untuk melihat tampilan live di NEXUS Web Canvas.*`;
-      } else {
-        text = GeminiClient.generateGeneralFallback(prompt, agent);
-      }
+      throw new Error(`Koneksi ke Google Gemini API gagal: ${fetchErr.message}`);
     }
+
+    if (!res.ok || !data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      const errMsg = data?.error?.message || `HTTP ${res.status}: Gagal memproses balasan dari model ${modelName}`;
+      throw new Error(`Google Gemini Error (${modelName}): ${errMsg}`);
+    }
+
+    const candidate = data.candidates[0];
+    const text = candidate.content.parts.map(p => p.text).join('');
+    const groundingChunks = candidate.groundingMetadata?.groundingChunks || [];
+    const searchQueries = candidate.groundingMetadata?.webSearchQueries || [];
+    const u = data.usageMetadata || {};
+    const totalToks = u.totalTokenCount || 0;
+
+    const usageMeta = {
+      total_tokens: totalToks,
+      totalTokenCount: totalToks,
+      prompt_tokens: u.promptTokenCount || 0,
+      promptTokenCount: u.promptTokenCount || 0,
+      candidates_tokens: u.candidatesTokenCount || 0,
+      candidatesTokenCount: u.candidatesTokenCount || 0
+    };
 
     return GeminiClient.formatSuccessResponse({
       text,
@@ -325,7 +329,6 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
    * Universal response formatter with cognitive thinking metadata & artifact detection
    */
   static formatSuccessResponse({ text, agent, tier, model, prompt, isWebReq, groundingChunks = [], searchQueries = [], usageMeta = {} }) {
-    // Generate thinking process simulation if not provided by stream
     const pLower = (prompt || '').toLowerCase();
     const intent = isWebReq ? 'Website & Fullstack Engineering'
       : (/\b(python|javascript|koding|code|error|sql)\b/i.test(pLower) ? 'Programming & Code Synthesis'
@@ -333,14 +336,15 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
       : (/\b(analisis|riset|data|hitung)\b/i.test(pLower) ? 'Analytical Reasoning & Data Intelligence'
       : 'General Knowledge & Adaptive Intelligence')));
 
+    const totalTok = usageMeta.totalTokenCount || usageMeta.total_tokens || 0;
+
     const thinkingSteps = [
       `1. Deteksi Niat & Domain: ${intent}`,
       `2. Pemilihan Model Kognitif: ${model} (${tier.toUpperCase()})`,
-      `3. Pengambilan Konteks & Regulasi Terkait`,
-      `4. Sintesis Jawaban Terstruktur Kelas Produksi`
+      `3. Eksekusi Penalaran Multimodal Realtime`,
+      `4. Total Token Digunakan: ${totalTok.toLocaleString()} tok`
     ];
 
-    // Detect if response contains code or markdown article suitable for Split Canvas
     const hasHtmlCode = /```html\s*<!DOCTYPE html[\s\S]*?<\/html>\s*```/i.test(text);
     const hasAnyCode = /```[a-z0-9_-]+\n[\s\S]*?```/i.test(text);
     const isLongDocument = text.length > 1200;
@@ -353,52 +357,15 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
       response: text,
       text: text,
       thinking: thinkingSteps.join('\n'),
-      intent: intent,
+      intent,
       canvas_compatible: hasHtmlCode || (hasAnyCode && isLongDocument),
       grounding: {
         search_queries: searchQueries,
         sources: groundingChunks.map(g => ({ title: g.web?.title, uri: g.web?.uri }))
       },
+      grounding_sources: groundingChunks.map(g => ({ title: g.web?.title, uri: g.web?.uri })),
       tokens: usageMeta
     };
-  }
-
-  static generateGeneralFallback(prompt, agent) {
-    const pLower = (prompt || '').toLowerCase();
-    if (/\b(apa itu|jelaskan|bagaimana|mengapa|kenapa)\b/i.test(pLower)) {
-      return `### Penjelasan Konseptual (${agent})\n\nMengenai pertanyaan Anda tentang **"${prompt}"**:\n\n1. **Prinsip Dasar**: Topik ini berkaitan dengan struktur logis, fungsionalitas sistem, dan implementasi praktis di bidangnya.\n2. **Karakteristik Utama**: Memiliki keteraturan arsitektural, kepatuhan standar baku, dan interoperabilitas tinggi.\n3. **Rekomendasi Praktis**: Sesuaikan penerapannya dengan kebutuhan skala proyek atau tujuan spesifik Anda.`;
-    }
-    return `### Tanggapan NEXUS AI Enterprise (${agent})\n\nInstruksi Anda mengenai **"${prompt}"** telah dianalisis. Seluruh sistem beroperasi dalam performa tinggi siap membantu kebutuhan pemrograman, analisis dokumen, riset, maupun standardisasi naskah.`;
-  }
-
-  static getCuratedWebTemplate(prompt) {
-    const p = (prompt || '').toLowerCase();
-    let templateFile = null;
-    let templateTitle = '';
-
-    if (p.includes('bengkel') || p.includes('mobil') || p.includes('motor') || p.includes('otomotif') || p.includes('servis')) {
-      templateFile = path.join(BASE_DIR, 'public', 'buatkan_web_bengkel', 'index.html');
-      templateTitle = 'APEX AUTO & MOTO WORKS — Bengkel Resmi Modern & Bergaransi';
-    } else if (p.includes('startup') || p.includes('landing page') || p.includes('landing') || p.includes('nexus') || p.includes('futuristik') || p.includes('teknologi')) {
-      templateFile = path.join(BASE_DIR, 'public', 'landing_startup', 'index.html');
-      templateTitle = 'NEXUS AI — Next-Generation Enterprise AI Platform';
-    } else if (p.includes('portofolio') || p.includes('portfolio') || p.includes('developer') || p.includes('arsitek') || p.includes('cv')) {
-      templateFile = path.join(BASE_DIR, 'public', 'buatkan_web_portofol', 'index.html');
-      templateTitle = 'NEXUS ENTERPRISE — Portofolio Arsitek & Fullstack';
-    } else if (p.includes('cafe') || p.includes('kopi') || p.includes('coffee') || p.includes('restoran') || p.includes('makan')) {
-      templateFile = path.join(BASE_DIR, 'public', 'cafe', 'index.html');
-      templateTitle = 'Cafe Ruang Namu — Specialty Coffee & Creative Space';
-    }
-
-    if (templateFile && fs.existsSync(templateFile)) {
-      try {
-        return {
-          title: templateTitle,
-          html: fs.readFileSync(templateFile, 'utf-8')
-        };
-      } catch (e) {}
-    }
-    return null;
   }
 }
 

@@ -487,32 +487,23 @@
           <i class="fa-solid fa-microchip text-purple-400 text-xs animate-pulse"></i>
           <span class="text-[10px] text-purple-300 font-bold hidden sm:inline">Brain:</span>
           <select id="geminiTierSelect" class="bg-transparent text-purple-200 text-xs font-bold focus:outline-none cursor-pointer">
-            <option value="gemini-3.8-high" selected class="bg-slate-900 text-purple-300 font-bold">Gemini 3.8 High (Deep Reasoning)</option>
-            <option value="gemini-3-pro" class="bg-slate-900 text-blue-300 font-semibold">Gemini 3.0 Pro (Enterprise Architect)</option>
-            <option value="gemini-3-flash" class="bg-slate-900 text-emerald-300 font-semibold">Gemini 3.0 Flash (Ultra-Fast)</option>
-            <option value="claude" class="bg-slate-900 text-amber-300">Claude-Style (Editorial Humanizer)</option>
-            <option value="gpt" class="bg-slate-900 text-cyan-300">GPT-Style (Structured Analyst)</option>
+            <option value="gemini-2.5-flash" selected class="bg-slate-900 text-emerald-300 font-semibold">Gemini 2.5 Flash</option>
+            <option value="gemini-2.5-pro" class="bg-slate-900 text-purple-300 font-bold">Gemini 2.5 Pro</option>
+            <option value="claude-style" class="bg-slate-900 text-amber-300">Claude-Style</option>
+            <option value="gpt-style" class="bg-slate-900 text-cyan-300">GPT-Style</option>
           </select>
         </div>
 
-        <!-- Grounding & Autonomous Deep Research Pipeline -->
-        <div class="hidden sm:flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 transition" title="Mode Grounding & Riset Web Terverifikasi">
-          <i class="fa-brands fa-google text-blue-400 text-xs"></i>
-          <select id="geminiGroundingMode" class="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer">
-            <option value="fast" selected class="bg-slate-900 text-slate-200">Grounded Search</option>
-            <option value="deep" class="bg-slate-900 text-purple-300 font-bold">Deep Research (Multi-Step)</option>
-            <option value="off" class="bg-slate-900 text-slate-400">Grounding Off</option>
-          </select>
-        </div>
+        
 
         <!-- Corporate Brand Kit Modal Launcher -->
         <button onclick="openBrandKitModal()" class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition font-medium" title="Kop Surat, Logo & Identitas Perusahaan">
           <i class="fa-solid fa-palette text-amber-400"></i><span class="hidden md:inline">Brand Kit</span>
         </button><!-- Google Search Grounding Toggle (Desktop only) -->
-        <label class="hidden xl:flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2 py-1.5 cursor-pointer hover:border-slate-700 transition" title="Aktifkan penelusuran fakta terkini dengan Google Search Grounding">
-          <input type="checkbox" id="geminiGroundingCheck" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer">
-          <span class="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
-            <i class="fa-brands fa-google text-blue-400"></i> Grounding
+        <label class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 cursor-pointer hover:border-slate-700 transition select-none" title="Aktifkan penelusuran fakta terkini dengan Google Search Grounding">
+          <input type="checkbox" id="geminiGroundingCheck" checked class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer">
+          <span class="text-xs font-semibold text-slate-300 flex items-center gap-1">
+            <i class="fa-brands fa-google text-blue-400"></i> <span class="hidden sm:inline">Grounding</span>
           </span>
         </label>
       </div>
@@ -6294,14 +6285,13 @@ function applyHumanizedStateToUI() {
       if (!prompt) return;
 
       const agent = document.getElementById('geminiAgentSelect') ? document.getElementById('geminiAgentSelect').value : 'ARKA';
-      const tier = document.getElementById('geminiTierSelect') ? document.getElementById('geminiTierSelect').value : 'gemini-3.8-high';
-      const groundingMode = document.getElementById('geminiGroundingMode') ? document.getElementById('geminiGroundingMode').value : 'fast';
-      const enableGrounding = (groundingMode === 'fast' || groundingMode === 'deep');
+      const tier = document.getElementById('geminiTierSelect') ? document.getElementById('geminiTierSelect').value : 'gemini-2.5-flash';
+      const enableGrounding = document.getElementById('geminiGroundingCheck') ? document.getElementById('geminiGroundingCheck').checked : true;
 
       if (groundingMode === 'deep') {
         appendFeedUserMessage(finalPrompt, currentChatAttachment);
         const loadingId = 'feedLoading_' + Date.now();
-        appendFeedLoading(loadingId, agent, 'Gemini 3.8 High Deep Research');
+        appendFeedLoading(loadingId, agent, 'Gemini 2.5 Pro Deep Research');
         try {
           const res = await fetch('/api/research', {
             method: 'POST',
@@ -6326,8 +6316,8 @@ function applyHumanizedStateToUI() {
               text: dossier,
               grounding_sources: sources,
               tokens: data.tokens || { total_tokens: 1250 },
-              model: 'Gemini 3.8 High (Autonomous Deep Research)'
-            }, agent, 'Gemini 3.8 High');
+              model: 'Gemini 2.5 Pro (Autonomous Deep Research)'
+            }, agent, 'Gemini 2.5 Pro');
 
             const splitArea = document.getElementById('splitDocTextarea');
             if (splitArea) {
@@ -6873,72 +6863,12 @@ function applyHumanizedStateToUI() {
           })
         });
 
-        let data;
+                let data;
         const resText = await res.text();
         try {
           data = JSON.parse(resText);
         } catch (jsonErr) {
-          console.warn('Chat response was not JSON:', resText.slice(0, 80));
-          const p = finalPrompt.toLowerCase();
-          const isWeb = /buatkan\s+web|website|landing|bengkel|portofolio|aplikasi\s+web|cafe|tampilan\s+web/i.test(p);
-          if (isWeb) {
-            let preset = 'startup';
-            let title = 'NEXUS AI Enterprise Startup Platform';
-            if (p.includes('bengkel') || p.includes('motor') || p.includes('mobil') || p.includes('servis')) {
-              preset = 'bengkel';
-              title = 'APEX AUTO & MOTO WORKS — Bengkel Resmi Modern & Bergaransi';
-            } else if (p.includes('portofolio') || p.includes('portfolio') || p.includes('cv')) {
-              preset = 'portfolio';
-              title = 'NEXUS ENTERPRISE — Portofolio Arsitek & Fullstack';
-            } else if (p.includes('cafe') || p.includes('kopi')) {
-              preset = 'cafe';
-              title = 'Cafe Ruang Namu — Specialty Coffee & Creative Space';
-            }
-
-            let htmlCode = '';
-            try {
-              const presetRes = await fetch(`/buatkan_web_${preset === 'bengkel' ? 'bengkel' : (preset === 'portfolio' ? 'portofol' : preset)}/index.html`);
-              if (presetRes.ok) {
-                const textCandidate = await presetRes.text();
-                if (!textCandidate.includes('sidebarNav') && !textCandidate.includes('SPBE Intelligence Core')) {
-                  htmlCode = textCandidate;
-                }
-              }
-            } catch (e) {}
-
-            if (!htmlCode) {
-              try {
-                const defaultRes = await fetch('/landing_startup/index.html');
-                if (defaultRes.ok) {
-                  const textCandidate = await defaultRes.text();
-                  if (!textCandidate.includes('sidebarNav') && !textCandidate.includes('SPBE Intelligence Core')) {
-                    htmlCode = textCandidate;
-                  }
-                }
-              } catch (e) {}
-            }
-
-            if (!htmlCode) {
-              htmlCode = '<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + title + '</title>\n  ' + '<' + 'script src="https://cdn.tailwindcss.com"><' + '/script>' + '\n  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n</head>\n<body class="bg-slate-950 text-slate-100 font-sans antialiased">\n  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">\n    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">\n      <div class="flex items-center gap-3">\n        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt"></i></div>\n        <span class="font-bold text-white text-base">' + title + '</span>\n      </div>\n      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300 font-medium">\n        <a href="#fitur" class="hover:text-blue-400">Fitur</a>\n        <a href="#layanan" class="hover:text-blue-400">Layanan</a>\n        <a href="#kontak" class="hover:text-blue-400">Hubungi Kami</a>\n      </nav>\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Mulai Sekarang</button>\n    </div>\n  </header>\n  <main class="max-w-6xl mx-auto px-6 py-20 text-center">\n    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">' + title + '</h1>\n    <p class="text-slate-400 text-base max-w-2xl mx-auto mb-8">Solusi arsitektur digital modern kelas produksi berkinerja tinggi yang dirancang oleh Roster Ahli NEXUS AI Enterprise.</p>\n    <div class="flex justify-center gap-4">\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm">Konsultasi Gratis</button>\n      <button class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold text-sm">Lihat Portofolio</button>\n    </div>\n  </main>\n</body>\n</html>';
-            }
-
-            if (htmlCode) {
-              data = {
-                status: 'success',
-                agent: agent,
-                tier: tier,
-                model: 'gemini-2.5-flash',
-                text: `Berikut adalah kode sumber dan arsitektur website **${title}** yang telah dirancang secara profesional oleh **RAKA (Senior Fullstack Lead)** & **ARKA (Lead AI Orchestrator)**:\n\n\`\`\`html\n${htmlCode}\n\`\`\`\n\n*Website di atas dirancang lengkap siap pakai kelas produksi. Klik tombol **Pratinjau Web** di atas untuk melihat tampilan live di NEXUS Web Canvas.*`
-              };
-            }
-          }
-
-          if (!data) {
-            if (resText.trim().startsWith('<!DOCTYPE') || resText.trim().startsWith('<html')) {
-              throw new Error('Server Vercel sedang memperbarui koneksi ke Google Gemini. Silakan kirim ulang pesan Anda.');
-            }
-            throw new Error(resText.slice(0, 120) || `HTTP error ${res.status}`);
-          }
+          throw new Error('Gagal memproses respons dari server: ' + (resText.slice(0, 150) || `HTTP ${res.status}`));
         }
 
         const loadElem = document.getElementById(loadingId);
@@ -7056,7 +6986,8 @@ function applyHumanizedStateToUI() {
 
       let tokenPill = '';
       if (data.tokens) {
-        tokenPill = `<span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">${data.tokens.total_tokens || 0} tok (${tier})</span>`;
+        const totalTok = data.tokens.total_tokens || data.tokens.totalTokenCount || 0;
+        tokenPill = `<span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">${totalTok.toLocaleString()} tok (${data.model || tier})</span>`;
       }
 
       let thinkingAccordion = '';
