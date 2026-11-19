@@ -44,8 +44,17 @@ class GeminiClient {
   /**
    * Resolve appropriate model identifier based on cognitive mode / tier
    */
-  static resolveModel(cognitiveMode = 'flash') {
-    const mode = (cognitiveMode || 'flash').toLowerCase();
+  static resolveModel(cognitiveMode = 'gemini-3.8-high') {
+    const mode = (cognitiveMode || 'gemini-3.8-high').toLowerCase();
+    if (mode === 'gemini-3.8-high' || mode.includes('3.8') || mode.includes('high')) {
+      return process.env.GEMINI_MODEL_3_8 || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
+    }
+    if (mode === 'gemini-3-pro' || mode.includes('3-pro') || mode.includes('3.0-pro')) {
+      return process.env.GEMINI_MODEL_3_PRO || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
+    }
+    if (mode === 'gemini-3-flash' || mode.includes('3-flash') || mode.includes('3.0-flash')) {
+      return process.env.GEMINI_MODEL_3_FLASH || process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    }
     if (mode === 'pro' || mode === 'gemini-pro' || mode.includes('architect')) {
       return process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
     }
@@ -124,7 +133,14 @@ ${cognitiveGuidance}
 [PROTOKOL PEMBUATAN WEBSITE & KODE WEB]:
 Jika pengguna meminta pembuatan website, landing page, atau aplikasi web:
 1. Hasilkan KODE LENGKAP UTUH dari <!DOCTYPE html> sampai </html> di dalam blok kode \`\`\`html.
-2. Gunakan TailwindCSS CDN dan FontAwesome 6 dengan desain modern, estetik, responsif (mobile/desktop), dan interaktif.`;
+2. Gunakan TailwindCSS CDN dan FontAwesome 6 dengan desain modern, estetik, responsif (mobile/desktop), dan interaktif.
+
+[PROTOKOL VISUAL DIAGRAM & FLOWCHART (MERMAID.JS)]:
+Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, arsitektur sistem, ERD database, mindmap, atau Gantt chart:
+1. Hasilkan diagram menggunakan sintaks Mermaid.js di dalam blok kode \`\`\`mermaid ... \`\`\`.
+2. Selalu gunakan tanda kutip dua untuk teks label node yang mengandung karakter khusus (misal: id["Proses Utama (Aktif)"]).
+3. Jangan sertakan tag HTML di dalam label node.
+4. Diagram akan otomatis di-render oleh Visual Architecture Studio di Split Canvas dengan kontrol interaktif Zoom In, Zoom Out, Reset, dan Ekspor SVG/PNG.`;
   }
 
   /**

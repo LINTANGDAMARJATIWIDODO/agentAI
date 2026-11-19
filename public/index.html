@@ -12,6 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
     if (typeof pdfjsLib !== 'undefined') {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -482,18 +483,32 @@
         </div>
 
         <!-- Cognitive Brain / Multi-Model Router Selector -->
-        <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 transition">
-          <i class="fa-solid fa-microchip text-purple-400 text-xs"></i>
-          <span class="text-[10px] text-slate-400 font-bold hidden sm:inline">Brain:</span>
-          <select id="geminiTierSelect" class="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer">
-            <option value="flash" selected class="bg-slate-900 text-slate-200">Gemini 2.5 Flash</option>
-            <option value="pro" class="bg-slate-900 text-slate-200">Gemini 2.5 Pro</option>
-            <option value="claude" class="bg-slate-900 text-slate-200">Claude-Style</option>
-            <option value="gpt" class="bg-slate-900 text-slate-200">GPT-Style</option>
+        <div class="flex items-center gap-1.5 bg-slate-900/90 border border-purple-500/40 rounded-xl px-2.5 py-1.5 hover:border-purple-400 transition shadow-sm shadow-purple-500/10">
+          <i class="fa-solid fa-microchip text-purple-400 text-xs animate-pulse"></i>
+          <span class="text-[10px] text-purple-300 font-bold hidden sm:inline">Brain:</span>
+          <select id="geminiTierSelect" class="bg-transparent text-purple-200 text-xs font-bold focus:outline-none cursor-pointer">
+            <option value="gemini-3.8-high" selected class="bg-slate-900 text-purple-300 font-bold">Gemini 3.8 High (Deep Reasoning)</option>
+            <option value="gemini-3-pro" class="bg-slate-900 text-blue-300 font-semibold">Gemini 3.0 Pro (Enterprise Architect)</option>
+            <option value="gemini-3-flash" class="bg-slate-900 text-emerald-300 font-semibold">Gemini 3.0 Flash (Ultra-Fast)</option>
+            <option value="claude" class="bg-slate-900 text-amber-300">Claude-Style (Editorial Humanizer)</option>
+            <option value="gpt" class="bg-slate-900 text-cyan-300">GPT-Style (Structured Analyst)</option>
           </select>
         </div>
 
-        <!-- Google Search Grounding Toggle (Desktop only) -->
+        <!-- Grounding & Autonomous Deep Research Pipeline -->
+        <div class="hidden sm:flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 transition" title="Mode Grounding & Riset Web Terverifikasi">
+          <i class="fa-brands fa-google text-blue-400 text-xs"></i>
+          <select id="geminiGroundingMode" class="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer">
+            <option value="fast" selected class="bg-slate-900 text-slate-200">Grounded Search</option>
+            <option value="deep" class="bg-slate-900 text-purple-300 font-bold">Deep Research (Multi-Step)</option>
+            <option value="off" class="bg-slate-900 text-slate-400">Grounding Off</option>
+          </select>
+        </div>
+
+        <!-- Corporate Brand Kit Modal Launcher -->
+        <button onclick="openBrandKitModal()" class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition font-medium" title="Kop Surat, Logo & Identitas Perusahaan">
+          <i class="fa-solid fa-palette text-amber-400"></i><span class="hidden md:inline">Brand Kit</span>
+        </button><!-- Google Search Grounding Toggle (Desktop only) -->
         <label class="hidden xl:flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2 py-1.5 cursor-pointer hover:border-slate-700 transition" title="Aktifkan penelusuran fakta terkini dengan Google Search Grounding">
           <input type="checkbox" id="geminiGroundingCheck" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0 w-3.5 h-3.5 cursor-pointer">
           <span class="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
@@ -650,708 +665,176 @@
 
         </div>
 
-        <!-- Right: Living 3D Corporate Office Column (Hidden on Mobile by default, toggled via '3D' button!) -->
-        <div id="officeCanvasHolder" class="hidden lg:block w-full lg:w-1/2 h-full relative overflow-hidden bg-[#0a0f1d]">
-          <!-- 3D Canvas element injected here -->
-          <div id="canvas-container" class="w-full h-full absolute inset-0"></div>
-          <div id="bubbles-layer" class="pointer-events-none absolute inset-0 z-20"></div>
-
-          <!-- Office Overlay Controls (Camera Presets) -->
-          <div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl p-1 sm:p-1.5 shadow-xl text-xs">
-            <button onclick="setCameraView('iso')" class="px-2 sm:px-2.5 py-1 rounded-xl bg-blue-600/30 text-blue-300 font-bold hover:text-white transition" title="Isometric Overview">
-              <i class="fa-solid fa-cube sm:mr-1"></i><span class="hidden sm:inline">Overview</span>
-            </button>
-            <button onclick="setCameraView('boardroom')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Ruang Rapat Direksi">
-              <i class="fa-solid fa-users-rectangle"></i>
-            </button>
-            <button onclick="setCameraView('tech')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Lab Teknologi">
-              <i class="fa-solid fa-server"></i>
-            </button>
-            <button onclick="setCameraView('lounge')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Lounge & Pantry">
-              <i class="fa-solid fa-mug-hot"></i>
-            </button>
-          </div>
-
-          <!-- Bottom Left Badge: Active Agents Status -->
-          <div class="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-30 bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl px-2.5 sm:px-3.5 py-1.5 sm:py-2 shadow-xl flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="text-xs font-bold text-white">Kantor 3D Aktif</span>
-            <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">10 Agen Otonom</span>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ======================================================== -->
-      <!-- WORKSPACE 2: DEDICATED JUSTDONE HUMANIZER (RESPONSIVE) -->
-      <!-- ======================================================== -->
-      <section id="workspaceViewHumanizer" class="hidden h-full w-full overflow-y-auto p-2 sm:p-4 lg:p-6 bg-[#080c14]">
-        <div class="max-w-5xl mx-auto space-y-3 sm:space-y-6">
-          <div class="bg-slate-900 border border-purple-500/40 rounded-2xl sm:rounded-3xl max-w-5xl w-full shadow-2xl p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 text-slate-100">
-      
-      <!-- Header -->
-      <div class="flex items-center justify-between border-b border-purple-500/20 pb-3 sm:pb-4 gap-2">
-        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white text-base sm:text-xl shadow-lg shadow-purple-600/30 shrink-0">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <h2 class="text-sm sm:text-lg lg:text-xl font-extrabold text-white truncate">JUSTDONE AI SUITE</h2>
-              <span class="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">13 IN 1</span>
-            </div>
-            <p class="text-[10px] sm:text-xs text-slate-400 truncate">Forensic AI Detector & Rekonstruksi Standar Baku KBBI</p>
-          </div>
-        </div>
-        <button onclick="closeHumanizerModal()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition shrink-0">
-          <i class="fa-solid fa-xmark text-sm sm:text-lg"></i>
-        </button>
-      </div>
-
-      <!-- JustDone Suite Hub Navigation (Writing, Learning & Research, Productivity) -->
-      <div class="space-y-2.5 sm:space-y-3 bg-slate-950/70 p-2.5 sm:p-3.5 rounded-2xl border border-slate-800">
-        <!-- Main Hub Categories: Horizontal scrollable on mobile -->
-        <div class="flex items-center gap-1.5 sm:gap-2 border-b border-slate-800/80 pb-2 overflow-x-auto no-scrollbar">
-          <button onclick="switchJustDoneHub('writing')" id="hubBtnWriting" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-900/30 shrink-0">
-            <i class="fa-solid fa-pen-nib"></i>
-            <span>Writing</span>
-          </button>
-          <button onclick="switchJustDoneHub('learning')" id="hubBtnLearning" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span>Learning & Research</span>
-          </button>
-          <button onclick="switchJustDoneHub('productivity')" id="hubBtnProductivity" class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-bolt"></i>
-            <span>Productivity</span>
-          </button>
-        </div>
-
-        <!-- Sub-Tools for Writing Hub -->
-        <div id="subToolsWriting" class="flex flex-wrap gap-1.5">
-          <button onclick="selectJustDoneTool('humanizer')" data-tool="humanizer" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-600 text-white shadow-md border border-purple-400 transition">
-            <i class="fa-solid fa-wand-magic-sparkles mr-1 text-purple-200"></i>AI Humanizer
-          </button>
-          <button onclick="selectJustDoneTool('detector')" data-tool="detector" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-shield-halved mr-1 text-indigo-400"></i>AI Detector
-          </button>
-          <button onclick="selectJustDoneTool('paraphraser')" data-tool="paraphraser" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-arrows-rotate mr-1 text-pink-400"></i>Paraphraser
-          </button>
-          <button onclick="selectJustDoneTool('grammar')" data-tool="grammar" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-spell-check mr-1 text-emerald-400"></i>Grammar Checker
-          </button>
-          <button onclick="selectJustDoneTool('plagiarism')" data-tool="plagiarism" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-fingerprint mr-1 text-amber-400"></i>Plagiarism Checker
-          </button>
-        </div>
-
-        <!-- Sub-Tools for Learning & Research Hub -->
-        <div id="subToolsLearning" class="hidden flex flex-wrap gap-1.5">
-          <button onclick="selectJustDoneTool('researcher')" data-tool="researcher" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-book-bookmark mr-1 text-blue-400"></i>AI Researcher
-          </button>
-          <button onclick="selectJustDoneTool('explainer')" data-tool="explainer" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-lightbulb mr-1 text-amber-400"></i>Topic Explainer
-          </button>
-          <button onclick="selectJustDoneTool('chatbot')" data-tool="chatbot" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-comments mr-1 text-cyan-400"></i>AI Chatbot
-          </button>
-        </div>
-
-        <!-- Sub-Tools for Productivity Hub -->
-        <div id="subToolsProductivity" class="hidden flex flex-wrap gap-1.5">
-          <button onclick="selectJustDoneTool('summarizer')" data-tool="summarizer" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-compress mr-1 text-purple-400"></i>Summarizer
-          </button>
-          <button onclick="selectJustDoneTool('citations')" data-tool="citations" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-quote-right mr-1 text-indigo-400"></i>Citations Tool
-          </button>
-          <button onclick="selectJustDoneTool('notes')" data-tool="notes" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-list-check mr-1 text-emerald-400"></i>Note Organizer
-          </button>
-          <button onclick="selectJustDoneTool('extension')" data-tool="extension" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-brands fa-chrome mr-1 text-yellow-400"></i>Chrome Extension
-          </button>
-          <button onclick="selectJustDoneTool('planner')" data-tool="planner" class="btn-jd-tool px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
-            <i class="fa-solid fa-calendar-days mr-1 text-pink-400"></i>AI Study Planner
-          </button>
-        </div>
-      </div>
-
-      <!-- Enterprise Production Hero Upload Banner -->
-      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950/50 via-slate-950 to-indigo-950/50 border border-purple-500/40 p-5 sm:p-6 shadow-2xl">
-        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[11px] font-bold tracking-wide">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>ENTERPRISE FORENSIC ENGINE • MULTI-VECTOR AUDIT</span>
-            </div>
-            <h3 id="jdToolTitleDisplay" class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i><span>AI Humanizer & Detektor Forensik</span>
-            </h3>
-            <p id="jdToolDescDisplay" class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-              Silakan unggah dokumen PDF / Word (.docx) atau tempelkan teks naskah untuk memulai audit probabilitas AI per kalimat dan rekonstruksi baku KBBI yang lolos Turnitin.
-            </p>
-          </div>
-          <button onclick="loadDemoAndShowResults()" class="px-4 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-purple-300 hover:text-white border border-purple-500/40 hover:border-purple-400 text-xs font-bold transition flex items-center gap-2 shadow-lg shrink-0">
-            <i class="fa-solid fa-file-invoice text-purple-400"></i>
-            <span>⚡ Contoh Dokumen SPBE</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Controls: Tones & Intensity (JustDone Style) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-        <!-- Tone Selector -->
-        <div id="toolToneBox" class="space-y-1.5">
-          <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider"><i class="fa-solid fa-sliders text-purple-400 mr-1.5"></i>Gaya / Tone Penulisan:</span>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="setHumanizerMode('formal_spbe')" data-mode="formal_spbe" class="btn-hz-mode px-3 py-1.5 rounded-xl text-[11px] font-bold bg-purple-600 text-white shadow-md border border-purple-400 transition">
-              🏛️ Formal SPBE & Eksekutif (Baku KBBI)
-            </button>
-            <button onclick="setHumanizerMode('academic')" data-mode="academic" class="btn-hz-mode px-3 py-1.5 rounded-xl text-[11px] font-medium bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">
-              🎓 Akademik & Riset
-            </button>
-            <button onclick="setHumanizerMode('casual_pro')" data-mode="casual_pro" class="btn-hz-mode px-3 py-1.5 rounded-xl text-[11px] font-medium bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">
-              💼 Percakapan Profesional
-            </button>
-          </div>
-        </div>
-
-        <!-- Intensity Selector -->
-        <div id="toolIntensityBox" class="space-y-1.5">
-          <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider"><i class="fa-solid fa-gauge-high text-indigo-400 mr-1.5"></i>Intensitas Rekayasa:</span>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="setHumanizerIntensity('light')" data-intensity="light" class="btn-hz-intensity px-3 py-1.5 rounded-xl text-[11px] font-medium bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">
-              Ringan (Smooth)
-            </button>
-            <button onclick="setHumanizerIntensity('balanced')" data-intensity="balanced" class="btn-hz-intensity px-3 py-1.5 rounded-xl text-[11px] font-bold bg-indigo-600 text-white shadow-md border border-indigo-400 transition">
-              Seimbang (Rekomendasi)
-            </button>
-            <button onclick="setHumanizerIntensity('strong')" data-intensity="strong" class="btn-hz-intensity px-3 py-1.5 rounded-xl text-[11px] font-medium bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">
-              Kuat (Bypass Max)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mode Selector Tabs: PDF vs Manual Text -->
-      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-        <button id="tabBtnPdf" onclick="switchHumanizerTab('pdf')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-900/30">
-          <i class="fa-solid fa-file-pdf"></i>
-          <span>Upload Dokumen PDF</span>
-        </button>
-        <button id="tabBtnText" onclick="switchHumanizerTab('text')" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center gap-2">
-          <i class="fa-solid fa-align-left"></i>
-          <span>Tempel Teks / Input Data</span>
-        </button>
-      </div>
-
-      <!-- Tab Content 1: PDF & Document Upload -->
-      <div id="humanizerTabPdf" class="space-y-4">
-        <div id="pdfDropZone" onclick="document.getElementById('pdfFileInput').click()" class="group relative border-2 border-dashed border-purple-500/40 hover:border-purple-400 bg-gradient-to-b from-purple-950/10 via-slate-950 to-indigo-950/20 hover:from-purple-950/25 hover:to-slate-900 rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 shadow-xl hover:shadow-purple-950/40">
-          <input type="file" id="pdfFileInput" accept=".pdf,.docx,.txt" class="hidden" onchange="handlePdfFileSelect(event)">
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-purple-600/25 to-indigo-600/25 border border-purple-500/40 text-purple-300 flex items-center justify-center text-3xl sm:text-4xl shadow-inner group-hover:scale-110 group-hover:text-white transition-all duration-300">
-            <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i>
-          </div>
-          <div class="space-y-1.5 max-w-md">
-            <h4 class="font-extrabold text-base sm:text-lg text-white group-hover:text-purple-200 transition">
-              Seret & Letakkan Dokumen ke Sini, atau <span class="text-purple-400 underline decoration-purple-500/50">Pilih Berkas</span>
-            </h4>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Mendukung dokumen arsitektur SPBE, kajian kebijakan, naskah dinas, peraturan daerah, dan jurnal ilmiah (Maksimal 50 MB).
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
-            <span class="text-[10px] text-purple-300 bg-purple-950/80 border border-purple-500/40 px-3 py-1 rounded-full font-mono flex items-center gap-1.5">
-              <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
-            </span>
-            <span class="text-[10px] text-indigo-300 bg-indigo-950/80 border border-indigo-500/40 px-3 py-1 rounded-full font-mono flex items-center gap-1.5">
-              <i class="fa-solid fa-file-word text-blue-400"></i> DOCX
-            </span>
-            <span class="text-[10px] text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-3 py-1 rounded-full font-mono flex items-center gap-1.5">
-              <i class="fa-solid fa-shield-halved text-emerald-400"></i> 100% Aman & Terenkripsi
-            </span>
-          </div>
-        </div>
-
-        <div id="selectedPdfInfo" class="hidden bg-slate-950 border border-purple-500/30 rounded-xl p-3.5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-base">
-              <i class="fa-solid fa-file-pdf"></i>
-            </div>
-            <div>
-              <span id="selectedPdfName" class="font-bold text-xs text-white block">dokumen.pdf</span>
-              <span id="selectedPdfSize" class="text-[10px] text-slate-400 font-mono">0 KB</span>
-            </div>
-          </div>
-          <button onclick="clearChosenPdf()" class="text-slate-400 hover:text-rose-400 text-xs px-2 py-1 rounded transition">
-            <i class="fa-solid fa-trash mr-1"></i>Hapus
-          </button>
-        </div>
-      </div>
-
-      <!-- Tab Content 2: Textarea & Forms -->
-      <div id="humanizerTabText" class="hidden space-y-4">
-        <!-- Default Text Input Area -->
-        <div id="defaultTextInputArea" class="space-y-2">
-          <label class="block text-xs font-semibold text-slate-300">Tempelkan Teks Naskah yang Ingin Diproses:</label>
-          <textarea id="humanizerTextInput" rows="6" placeholder="Contoh: Bab ini menurunkannya menjadi arsitektur pada enam domain: proses bisnis, data dan informasi, layanan, aplikasi, infrastruktur, dan keamanan..." class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-sans leading-relaxed"></textarea>
-        </div>
-
-        <!-- Form for Citations Tool -->
-        <div id="citationsFormInput" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">Judul Dokumen / Regulasi:</label>
-            <input type="text" id="citTitleInput" placeholder="Contoh: Arsitektur SPBE Nasional" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">Penulis / Instansi:</label>
-            <input type="text" id="citAuthorInput" placeholder="Contoh: Kementerian PANRB" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">Tahun Terbit:</label>
-            <input type="text" id="citYearInput" placeholder="Contoh: 2024" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">Penerbit / Kota:</label>
-            <input type="text" id="citPublisherInput" placeholder="Contoh: Jakarta: Kementerian PANRB" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-          </div>
-          <div class="sm:col-span-2">
-            <label class="block text-[11px] font-bold text-slate-400 mb-1">URL Sumber (Opsional):</label>
-            <input type="text" id="citUrlInput" placeholder="Contoh: https://jdih.menpan.go.id" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-          </div>
-        </div>
-
-        <!-- Form for Topic Explainer / Study Planner / Researcher -->
-        <div id="explainerFormInput" class="hidden space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-          <label class="block text-xs font-semibold text-slate-300">Topik / Pertanyaan Riset / Konsep yang Ingin Dianalisis:</label>
-          <input type="text" id="explainerTopicInput" placeholder="Contoh: Interoperabilitas Data SPBE dan Integrasi Portal Pelayanan Publik" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
-        </div>
-
-        <!-- Chrome Extension Quick Panel -->
-        <div id="chromeExtensionPanel" class="hidden bg-slate-950 p-5 rounded-2xl border border-yellow-500/30 space-y-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xl">
-              <i class="fa-brands fa-chrome"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-white">JustDone AI Chrome Extension & Bookmarklet</h4>
-              <p class="text-xs text-slate-400">Analisis tata bahasa, deteksi AI, dan parafrase langsung dari tab aktif peramban Anda.</p>
-            </div>
-          </div>
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-300">
-            <strong>Cara Pintas:</strong> Seret tautan berikut ke bilah bookmark (Bookmark Bar) browser Anda untuk analisis instan:
-            <div class="mt-2">
-              <a href="javascript:(function(){window.open('http://localhost:3000','_blank');})();" class="inline-block bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 px-3 py-1.5 rounded-lg border border-yellow-500/40 font-mono text-[11px] cursor-grab">
-                ⭐ NEXUS JustDone AI
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <div class="text-xs text-slate-400 flex items-center gap-2">
-          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>JustDone AI Engine: Multimodel Orchestration & Baku KBBI</span>
-        </div>
-        <div class="flex items-center gap-2.5">
-          <button id="btnJustDoneMainAction" onclick="runJustDoneUnifiedAction()" class="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-2xl shadow-lg shadow-purple-900/50 transition flex items-center gap-2 border border-purple-400/40">
-            <i class="fa-solid fa-play"></i>
-            <span id="btnJustDoneMainActionText">Jalankan JustDone Tool</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- General Tools Results Area -->
-      <div id="jdGeneralResultsArea" class="hidden space-y-4 pt-4 border-t border-slate-800">
-        <div class="flex items-center justify-between">
-          <h4 id="jdGeneralResultsTitle" class="text-sm font-bold text-purple-300 flex items-center gap-2">
-            <i class="fa-solid fa-square-poll-vertical"></i>
-            <span>Hasil Analisis:</span>
-          </h4>
-        </div>
-        <div id="jdGeneralResultsContent" class="space-y-4"></div>
-      </div>
-
-      <!-- Humanizer & Detector Results Area (Dual-Pane JustDone Layout matching User Screenshot 1) -->
-      <div id="humanizerResults" class="hidden space-y-6 pt-4 border-t border-slate-800">
-        <!-- Result Bar with Back to Upload Button -->
-        <div class="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-500/40 shadow-lg">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-sm font-bold border border-purple-500/30">
-              <i class="fa-solid fa-chart-pie"></i>
-            </div>
-            <div>
-              <span class="text-xs font-extrabold text-white block">Hasil Audit Forensik & Verifikasi Naskah Berhasil</span>
-              <span class="text-[10px] text-purple-300">Skor probabilitas terhitung per kalimat • Rekonstruksi naskah baku KBBI siap pakai</span>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button onclick="scrollToForensicAnalysis()" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 hover:text-white border border-blue-500/50 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-              <i class="fa-solid fa-magnifying-glass-chart text-blue-400"></i>
-              <span>Lihat Hasil Analisis</span>
-            </button>
-            <button onclick="downloadForensicAuditPdf(event)" class="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
-              <i class="fa-solid fa-file-pdf"></i>
-              <span>Unduh Laporan PDF</span>
-            </button>
-            <button onclick="resetHumanizerToUpload()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:border-purple-400 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-              <i class="fa-solid fa-arrow-left"></i>
-              <span>Unggah Baru</span>
-            </button>
-          </div>
-        </div>
-        
-        <!-- 4-OUTCOME SCIENTIFIC VERDICT BANNER -->
-        <div id="jdScientificVerdictBanner" class="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-xl transition-all duration-500">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div id="jdVerdictBadgeIcon" class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-robot"></i>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span id="jdVerdictOutcomeTag" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/30 text-rose-200 border border-rose-400/40">AI-like</span>
-                  <span id="jdVerdictConfidenceTag" class="text-[11px] text-slate-400 font-semibold">• Keyakinan: Tinggi (High Certainty)</span>
-                </div>
-                <h3 id="jdVerdictTitle" class="text-sm sm:text-base font-extrabold text-white mt-0.5">Terindikasi Buatan Model Bahasa (AI-like)</h3>
-                <p id="jdVerdictDescription" class="text-xs text-slate-300 mt-0.5 leading-relaxed">Teks memperlihatkan pola distribusi panjang kalimat yang seragam dan penumpukan transisi formal klise.</p>
-              </div>
-            </div>
-            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0 shrink-0">
-              <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Probabilitas Kalibrasi</span>
-              <span id="jdCalibratedProbDisplay" class="text-2xl font-black text-rose-400 font-mono">98.0%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCIENTIFIC METRICS GRID -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
-          <!-- Card 1: Burstiness -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Burstiness (Ritme)</span>
-              <i class="fa-solid fa-wave-square text-cyan-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardBurstinessVal" class="text-base font-black text-white font-mono">-0.84</span>
-              <span id="cardBurstinessLabel" class="block text-[10px] text-rose-400 font-semibold">Sangat Seragam (AI)</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Variasi panjang antar-klausa</span>
-          </div>
-
-          <!-- Card 2: Lexical Diversity (Yule's K) -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Yule's K / TTR</span>
-              <i class="fa-solid fa-spell-check text-purple-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardYulesKVal" class="text-base font-black text-white font-mono">85.2</span>
-              <span id="cardTtrVal" class="block text-[10px] text-slate-300 font-semibold">TTR: 0.88</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Kekayaan kosakata invarian</span>
-          </div>
-
-          <!-- Card 3: Shannon Entropy -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Shannon Entropy</span>
-              <i class="fa-solid fa-chart-line text-emerald-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardEntropyVal" class="text-base font-black text-white font-mono">5.21</span>
-              <span class="block text-[10px] text-emerald-400 font-semibold">Prediktabilitas Sedang</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Kepadatan muatan informasi</span>
-          </div>
-
-          <!-- Card 4: Transisi Klise AI -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Kerapatan Transisi</span>
-              <i class="fa-solid fa-link text-amber-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardTransitionDensityVal" class="text-base font-black text-white font-mono">4.50%</span>
-              <span id="cardTransitionLabel" class="block text-[10px] text-amber-400 font-semibold">Tinggi (Khas AI)</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Frekuensi konjungsi awal</span>
-          </div>
-
-          <!-- Card 5: Model Agreement -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Konsensus Model</span>
-              <i class="fa-solid fa-handshake text-indigo-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardModelAgreementVal" class="text-base font-black text-white font-mono">98.8%</span>
-              <span class="block text-[10px] text-indigo-300 font-semibold">Tree + Linear Sepakat</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Konkordansi ensemble ML</span>
-          </div>
-
-          <!-- Card 6: Uncertainty Score -->
-          <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
-            <div class="text-[11px] text-slate-400 font-bold flex items-center justify-between">
-              <span>Ketidakpastian</span>
-              <i class="fa-solid fa-circle-question text-teal-400 text-[10px]"></i>
-            </div>
-            <div class="my-1.5">
-              <span id="cardUncertaintyVal" class="text-base font-black text-white font-mono">0.06</span>
-              <span id="cardUncertaintyLevel" class="block text-[10px] text-teal-400 font-semibold">Sangat Rendah</span>
-            </div>
-            <span class="text-[9px] text-slate-500 leading-tight">Margin & deviasi statistik</span>
-          </div>
-        </div>
-
-        <!-- Hidden Legacy Metrics Compatibility -->
-        <div class="hidden">
-          <span id="jdConfidenceVal">99.8% (Certainty)</span>
-          <span id="jdPerplexityVal">42.1 (0.91)</span>
-          <span id="jdAiScoreVal">0%</span>
-          <span id="jdHumanScoreVal">0%</span>
-          <span id="jdScoreDropVal">0%</span>
-          <span id="jdBurstinessScore">0.5</span>
-          <span id="jdBurstinessLevel">SEDANG</span>
-          <span id="cntAiSentences">0</span>
-          <span id="cntMixedSentences">0</span>
-          <span id="cntHumanSentences">0</span>
-        </div>
-
-        <!-- DUAL-PANE SPLIT VIEW -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- Right: Multi-Tab Enterprise Split Studio (Kantor 3D, Dokumen, Mermaid, Red-Team) -->
+        <div id="officeCanvasHolder" class="hidden lg:block w-full lg:w-1/2 h-full relative overflow-hidden bg-[#0a0f1d] border-l border-slate-800/80">
           
-          <!-- LEFT PANE: Document Text Reader with Highlighted Sentences -->
-          <div class="lg:col-span-7 bg-slate-950 text-slate-100 rounded-3xl p-5 sm:p-6 shadow-xl border border-slate-800 flex flex-col space-y-3.5 max-h-[640px] overflow-hidden">
-            <!-- Header of Left Pane: Circular Indicator with % AI Content -->
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div class="flex items-center gap-2.5">
-                <!-- Mini Circular Badge -->
-                <div class="relative w-8 h-8 flex items-center justify-center shrink-0">
-                  <svg class="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
-                    <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    <path id="jdMiniScoreCircle" class="text-rose-500 transition-all duration-700" stroke-dasharray="55, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  </svg>
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="jdMiniScorePercent" class="text-[9px] font-extrabold text-rose-400">55%</span>
+          <!-- Top Multi-Tab Studio Header -->
+          <div class="absolute top-3 left-3 z-30 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md border border-slate-800/90 rounded-2xl p-1 shadow-2xl text-xs">
+            <button id="btnTabOffice3D" onclick="switchSplitStudioTab('office')" class="px-2.5 py-1 rounded-xl bg-blue-600/30 text-blue-300 font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-building"></i><span class="hidden sm:inline">Kantor 3D</span>
+            </button>
+            <button id="btnTabCanvasDoc" onclick="switchSplitStudioTab('document')" class="px-2.5 py-1 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-lines"></i><span class="hidden sm:inline">Dokumen</span>
+            </button>
+            <button id="btnTabMermaid" onclick="switchSplitStudioTab('mermaid')" class="px-2.5 py-1 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i class="fa-solid fa-diagram-project text-purple-400"></i><span class="hidden sm:inline">Mermaid</span>
+            </button>
+            <button id="btnTabRedTeam" onclick="switchSplitStudioTab('redteam')" class="px-2.5 py-1 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-rose-400"></i><span class="hidden sm:inline">Red-Team</span>
+            </button>
+          </div>
+
+          <!-- TAB 1: 3D LIVING OFFICE VIEW -->
+          <div id="viewSplitOffice3D" class="w-full h-full relative">
+            <div id="canvas-container" class="w-full h-full absolute inset-0"></div>
+            <div id="bubbles-layer" class="pointer-events-none absolute inset-0 z-20"></div>
+
+            <!-- Camera Presets -->
+            <div class="absolute top-3 right-3 z-30 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl p-1 shadow-xl text-xs">
+              <button onclick="setCameraView('iso')" class="px-2.5 py-1 rounded-xl bg-blue-600/30 text-blue-300 font-bold hover:text-white transition" title="Isometric Overview">
+                <i class="fa-solid fa-cube mr-1"></i><span class="hidden sm:inline">Overview</span>
+              </button>
+              <button onclick="setCameraView('boardroom')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Ruang Rapat Direksi">
+                <i class="fa-solid fa-users-rectangle"></i>
+              </button>
+              <button onclick="setCameraView('tech')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Lab Teknologi">
+                <i class="fa-solid fa-server"></i>
+              </button>
+              <button onclick="setCameraView('lounge')" class="px-2 py-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Lounge & Pantry">
+                <i class="fa-solid fa-mug-hot"></i>
+              </button>
+            </div>
+
+            <!-- Bottom Left Telemetry Status -->
+            <div class="absolute bottom-3 left-3 z-30 bg-slate-900/90 backdrop-blur-md border border-slate-800/80 rounded-2xl px-3 py-1.5 shadow-xl flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span class="text-xs font-bold text-white">Kantor 3D Aktif</span>
+              <span id="telemetryStateBadge" class="text-[10px] text-blue-300 font-mono hidden sm:inline">10 Agen Terhubung</span>
+            </div>
+          </div>
+
+          <!-- TAB 2: SPLIT DOCUMENT & DOSSIER CANVAS -->
+          <div id="viewSplitDocument" class="hidden w-full h-full flex flex-col p-4 bg-slate-950 overflow-hidden">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 pt-12">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-file-contract text-blue-400 text-sm"></i>
+                <h3 id="splitDocTitle" class="font-bold text-sm text-white truncate">Dokumen Aktif Canvas</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="triggerRedTeamAudit()" class="px-2.5 py-1 rounded-lg bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 border border-rose-500/30 text-[11px] font-bold flex items-center gap-1 transition">
+                  <i class="fa-solid fa-shield-halved text-rose-400"></i> Red-Team
+                </button>
+                <button onclick="downloadForensicAuditPdf(event)" class="px-2.5 py-1 rounded-lg bg-blue-600/30 text-blue-200 hover:bg-blue-600/40 border border-blue-500/30 text-[11px] font-bold flex items-center gap-1 transition">
+                  <i class="fa-solid fa-download"></i> Ekspor PDF
+                </button>
+              </div>
+            </div>
+            <div id="splitDocEditorContainer" class="flex-1 flex flex-col min-h-0 bg-slate-900/60 rounded-2xl border border-slate-800 p-3 sm:p-4 overflow-y-auto">
+              <textarea id="splitDocTextarea" class="w-full flex-1 bg-transparent text-slate-200 font-mono text-xs focus:outline-none resize-none leading-relaxed" placeholder="Ketik atau edit naskah dokumen di sini..."></textarea>
+            </div>
+          </div>
+
+          <!-- TAB 3: VISUAL ARCHITECTURE & MERMAID STUDIO -->
+          <div id="viewSplitMermaid" class="hidden w-full h-full flex flex-col p-4 bg-slate-950 overflow-hidden">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 pt-12 gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-diagram-project text-purple-400 text-sm"></i>
+                <h3 class="font-bold text-sm text-white truncate">Visual Architecture Studio</h3>
+              </div>
+              <!-- Diagram Controls -->
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="zoomMermaid(1.15)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center transition" title="Zoom In">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+                <button onclick="zoomMermaid(0.85)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center transition" title="Zoom Out">
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+                <button onclick="resetMermaidZoom()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center transition" title="Reset Tampilan">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button onclick="toggleMermaidSource()" id="btnToggleMermaidCode" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 text-[11px] font-mono transition" title="Toggle Kode Sumber">
+                  &lt;/&gt;
+                </button>
+                <button onclick="exportMermaidSvg()" class="px-2 py-1 rounded-lg bg-blue-600/30 text-blue-200 hover:bg-blue-600/40 text-[11px] font-bold transition flex items-center gap-1">
+                  <i class="fa-solid fa-download"></i> SVG
+                </button>
+                <button onclick="exportMermaidPng()" class="px-2 py-1 rounded-lg bg-emerald-600/30 text-emerald-200 hover:bg-emerald-600/40 text-[11px] font-bold transition flex items-center gap-1">
+                  <i class="fa-solid fa-image"></i> PNG 2x
+                </button>
+              </div>
+            </div>
+
+            <!-- Mermaid Source Editor (Collapsible) -->
+            <div id="mermaidSourcePanel" class="hidden mb-3 bg-slate-900 border border-slate-800 rounded-xl p-3">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] font-bold text-slate-400 font-mono">Kode Sintaks Mermaid:</span>
+                <button onclick="renderMermaidFromEditor()" class="px-2 py-0.5 rounded bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold">Perbarui Diagram</button>
+              </div>
+              <textarea id="mermaidEditorTextarea" class="w-full h-32 bg-slate-950 text-purple-300 font-mono text-[11px] p-2 rounded-lg border border-slate-800 focus:outline-none resize-none leading-relaxed"></textarea>
+            </div>
+
+            <!-- Mermaid Visual Display Viewport -->
+            <div id="mermaidViewport" class="flex-1 min-h-0 bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4 overflow-hidden relative flex items-center justify-center">
+              <div id="mermaidRenderArea" class="w-full h-full flex items-center justify-center transition-transform duration-150 origin-center">
+                <span class="text-xs text-slate-500 font-mono">Diagram Mermaid akan di-render di sini...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: RED-TEAM COMPLIANCE & PROPOSAL RISK SIMULATOR -->
+          <div id="viewSplitRedTeam" class="hidden w-full h-full flex flex-col p-4 bg-slate-950 overflow-hidden">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 pt-12">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-shield-halved text-rose-400 text-sm"></i>
+                <h3 class="font-bold text-sm text-white truncate">Red-Team Compliance & Proposal Risk Simulator</h3>
+              </div>
+              <button onclick="triggerRedTeamAudit()" id="btnRunRedTeamAudit" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-600/30 transition">
+                <i class="fa-solid fa-magnifying-glass-shield"></i><span>Jalankan Audit</span>
+              </button>
+            </div>
+
+            <div id="redTeamContentArea" class="flex-1 flex flex-col min-h-0 space-y-3 overflow-y-auto pr-1">
+              <!-- Default Readiness Card -->
+              <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-rose-600/30">
+                    <span id="redTeamScoreDisplay">--%</span>
+                  </div>
+                  <div>
+                    <h4 class="font-extrabold text-sm text-white">Document Readiness Score</h4>
+                    <p id="redTeamVerdictBadge" class="text-xs text-slate-400 mt-0.5">Klik "Jalankan Audit" untuk memindai dokumen.</p>
                   </div>
                 </div>
-                <span id="jdDocViewerHeaderTitle" class="font-bold text-sm text-white">55% AI content</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-[11px] text-slate-400 font-mono" id="jdPageOrSentenceInfo">Naskah Asli</span>
-                <button onclick="toggleCleanTextView()" id="btnToggleCleanText" class="text-xs text-purple-400 hover:text-purple-300 transition underline">Mode Naskah Bersih</button>
-              </div>
-            </div>
-
-            <!-- Scrollable Text Area with Highlighted Sentences -->
-            <div id="jdColoredSentencesContainer" class="flex-1 overflow-y-auto pr-2 text-xs sm:text-[13px] leading-relaxed text-slate-200 space-y-2 font-sans select-text">
-              <!-- Rendered sentences dynamically -->
-            </div>
-
-            <!-- Interactive Sentence Inspector Drawer/Box -->
-            <div id="jdSentenceInspectorBox" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
-                  <i class="fa-solid fa-magnifying-glass text-purple-400"></i>
-                  <span id="jdInspectorSentenceHeader">Klik salah satu kalimat untuk telaah alasan penandaan</span>
-                </span>
-                <span id="jdInspectorSentenceBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase"></span>
-              </div>
-              <p id="jdInspectorSentenceDetail" class="text-slate-300 text-[11px] leading-relaxed italic">
-                Setiap kalimat dianalisis secara independen terhadap pola ritme staccato, keteraturan klausa, dan penumpukan konjungsi transisi klise AI.
-              </p>
-            </div>
-          </div>
-
-          <!-- RIGHT PANE: JustDone AI Inspector Card (Exact match to Screenshot 1) -->
-          <div class="lg:col-span-5 bg-slate-900 text-slate-100 rounded-3xl p-6 shadow-2xl border border-slate-800 flex flex-col space-y-5">
-            
-            <!-- Top Title: Your Text -->
-            <div>
-              <span class="text-xs font-semibold text-slate-400 block mb-1">Your Text:</span>
-              <h3 id="jdInspectorDocTitle" class="text-base font-extrabold text-white leading-snug line-clamp-2">
-                SPBE Pemerintah Provinsi is
-              </h3>
-            </div>
-
-            <!-- Circular AI Content Gauge -->
-            <div class="flex flex-col items-center justify-center py-2">
-              <div class="relative w-36 h-36 flex items-center justify-center">
-                <svg class="w-36 h-36 transform -rotate-90" viewBox="0 0 120 120">
-                  <!-- Background track -->
-                  <circle cx="60" cy="60" r="48" stroke-width="8" stroke="currentColor" fill="none" class="text-slate-800" />
-                  <!-- Animated progress circle -->
-                  <circle id="jdMainScoreSvgCircle" cx="60" cy="60" r="48" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="none" class="text-rose-500 transition-all duration-1000 ease-out" stroke-dasharray="301.6" stroke-dashoffset="135.7" />
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span id="jdMainScorePercent" class="text-3xl font-extrabold text-white">55%</span>
-                  <span class="text-[11px] font-bold text-slate-400">AI content</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Horizontal 3-tier Range Bar (0-20% Low, 20-40% Moderate, 40%+ High) -->
-            <div class="space-y-3 pt-3">
-              <div class="relative w-full">
-                <!-- The Bar -->
-                <div class="w-full h-2 rounded-full flex overflow-hidden shadow-inner">
-                  <div class="w-[20%] bg-emerald-500" title="0-20% Low"></div>
-                  <div class="w-[20%] bg-amber-400" title="20-40% Moderate"></div>
-                  <div class="w-[60%] bg-rose-500" title="40%+ High"></div>
-                </div>
-                <!-- Floating "Your score" pointer badge -->
-                <div id="jdYourScorePointer" class="absolute -top-7 transform -translate-x-1/2 flex flex-col items-center pointer-events-none transition-all duration-700" style="left: 55%;">
-                  <span class="bg-black/90 text-[10px] text-white font-extrabold px-2 py-0.5 rounded-md shadow-md whitespace-nowrap border border-slate-700">Your score</span>
-                  <div class="w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-black/90"></div>
+                <div class="flex items-center gap-3 text-center">
+                  <div class="bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                    <span class="block text-[9px] text-slate-400 font-bold uppercase">Inkonsistensi</span>
+                    <span id="rtMetricConsistency" class="text-xs font-mono font-bold text-slate-200">--</span>
+                  </div>
+                  <div class="bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                    <span class="block text-[9px] text-slate-400 font-bold uppercase">Kepatuhan</span>
+                    <span id="rtMetricCompliance" class="text-xs font-mono font-bold text-slate-200">--</span>
+                  </div>
+                  <div class="bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                    <span class="block text-[9px] text-slate-400 font-bold uppercase">Kejelasan KPI</span>
+                    <span id="rtMetricClarity" class="text-xs font-mono font-bold text-slate-200">--</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Legend under bar -->
-              <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                <span class="flex items-center gap-1.5 text-emerald-400">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> 0-20% Low
-                </span>
-                <span class="flex items-center gap-1.5 text-amber-400">
-                  <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> 20-40% Moderate
-                </span>
-                <span class="flex items-center gap-1.5 text-rose-400">
-                  <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> 40%+ High
-                </span>
+              <!-- Findings List Container -->
+              <div id="redTeamFindingsList" class="space-y-2.5">
+                <div class="text-center py-10 text-slate-500 text-xs">
+                  <i class="fa-solid fa-file-circle-check text-2xl text-slate-600 mb-2 block"></i>
+                  Naskah siap diuji terhadap regulasi SPBE, UU PDP, dan konsistensi matriks angka.
+                </div>
               </div>
             </div>
-
-            <!-- Warning Box (Turnitin alert matching Screenshot 1) -->
-            <div id="jdTurnitinWarningBox" class="p-3.5 rounded-2xl bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 flex items-start gap-2.5 leading-relaxed">
-              <span class="text-sm mt-0.5">⚠️</span>
-              <div>
-                <span class="font-bold block">Your text may be flagged as AI-generated.</span>
-                <span>Tools like <strong class="underline">Turnitin</strong> start flagging at 20% - get under 20% before you submit.</span>
-              </div>
-            </div>
-
-            <!-- Flagged Sentence Count -->
-            <div class="text-center">
-              <span id="jdFlaggedSentenceCountText" class="text-sm font-extrabold text-slate-200">
-                6 sentences are flagged as AI
-              </span>
-            </div>
-
-            <!-- Action Button: Remove AI (Matches Screenshot 1 Teal button) -->
-            <div>
-              <button id="btnRemoveAiAction" onclick="triggerRemoveAiWorkflow()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-extrabold text-sm shadow-xl shadow-teal-950/50 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 border border-teal-400/40">
-                <i class="fa-solid fa-wand-magic-sparkles text-teal-200"></i>
-                <span>Remove AI</span>
-              </button>
-            </div>
-
-            <!-- Download Rebuilt PDF & DOCX (Shown after Humanization) -->
-            <div id="jdPostHumanizeDownloadArea" class="hidden space-y-2.5 pt-3 border-t border-slate-800">
-              <span class="text-xs font-bold text-slate-300 block text-center">Unduh Dokumen Hasil Rekonstruksi Baku KBBI:</span>
-              <div class="grid grid-cols-2 gap-2">
-                <button id="btnDownloadRebuiltPdf" onclick="downloadForensicAuditPdf(event)" class="py-2.5 px-3 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-300 hover:text-white border border-red-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
-                  <i class="fa-solid fa-file-pdf"></i>
-                  <span>Unduh Laporan PDF</span>
-                </button>
-                <a id="btnDownloadRebuiltDocx" href="#" download class="py-2.5 px-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-                  <i class="fa-solid fa-file-word"></i>
-                  <span>Word (.docx)</span>
-                </a>
-              </div>
-            </div>
-
           </div>
 
         </div>
-
-        <!-- GEMINI LLM CONTEXTUAL FORENSIC AUDIT PANEL -->
-        <div id="jdGeminiAuditPanel" class="p-5 sm:p-6 rounded-3xl bg-slate-950 border border-indigo-900/50 shadow-2xl space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-sm font-bold border border-indigo-500/30">
-                <i class="fa-solid fa-brain"></i>
-              </div>
-              <div>
-                <h4 class="text-sm font-extrabold text-white">Audit Kontekstual Gemini AI (Pengulas Independen)</h4>
-                <span class="text-[10px] text-slate-400">Analisis kualitatif stilistika, diksi institusional, dan kaidah baku KBBI & EYD V</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="downloadForensicJsonReport()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-download text-purple-400"></i>
-                <span>Unduh JSON Forensik</span>
-              </button>
-              <button onclick="copyForensicSummary()" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-white border border-indigo-500/40 text-xs font-bold transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-copy text-indigo-400"></i>
-                <span>Salin Ringkasan</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Assessment Text -->
-          <div class="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-900/40 text-xs text-indigo-200 leading-relaxed font-sans" id="jdLlmAssessmentText">
-            Memuat telaah kontekstual...
-          </div>
-
-          <!-- 2 Columns: Human Indicators vs AI Indicators -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-900/40 space-y-2">
-              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                <i class="fa-solid fa-check-circle"></i> Indikator Tulisan Manusia Alami:
-              </span>
-              <ul id="jdLlmHumanIndicatorsList" class="text-xs text-slate-300 space-y-1 list-disc list-inside">
-                <li>Variasi panjang klausa dan transisi kontekstual alami.</li>
-              </ul>
-            </div>
-            <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-900/40 space-y-2">
-              <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
-                <i class="fa-solid fa-triangle-exclamation"></i> Indikator Gaya Khas Model Bahasa (AI):
-              </span>
-              <ul id="jdLlmAiIndicatorsList" class="text-xs text-slate-300 space-y-1 list-disc list-inside">
-                <li>Penumpukan konjungsi transisi mekanis di awal kalimat.</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Stylistic Critique & Investigation -->
-          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 space-y-1.5">
-            <span class="font-bold text-slate-200 block"><i class="fa-solid fa-feather text-amber-400 mr-1.5"></i>Kritik Stilistika & Langkah Investigasi yang Direkomendasikan:</span>
-            <p id="jdLlmStylisticCritiqueText" class="leading-relaxed text-slate-400">Verifikasi berkas pendukung dan jejak penyusunan dianjurkan untuk konfirmasi mutlak.</p>
-          </div>
-
-          <!-- Scientific Transparency Disclaimer -->
-          <div class="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80 text-[10px] text-slate-400 leading-relaxed flex items-start gap-2">
-            <i class="fa-solid fa-shield-halved text-purple-400 mt-0.5 shrink-0"></i>
-            <span><strong>TRANSPARANSI & BATASAN ILMIAH:</strong> Deteksi berbasis teks semata adalah estimasi probabilistik dan tidak dapat dijadikan bukti hukum tunggal mengenai kepengarangan. Jangan pernah mendakwa pelanggaran integritas akademik semata-mata dari skor detektor tanpa bukti proses kerja pendukung.</span>
-          </div>
-        </div>
-
-        <!-- Optional Full Humanized Text View -->
-        <div id="jdHumanizedOutputArea" class="hidden bg-slate-950 border border-emerald-500/40 rounded-2xl p-5 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span class="text-xs font-bold text-emerald-300 flex items-center gap-2">
-              <i class="fa-solid fa-sparkles text-emerald-400"></i>
-              <span>Naskah Hasil Humanisasi (Standar Baku KBBI & Lolos AI Detector):</span>
-            </span>
-            <div class="flex items-center gap-2">
-              <button onclick="copyHumanizedText()" class="text-xs text-emerald-400 hover:text-white bg-emerald-500/20 hover:bg-emerald-500/40 px-3 py-1 rounded-xl transition flex items-center gap-1.5 border border-emerald-500/40">
-                <i class="fa-solid fa-copy"></i>
-                <span>Salin Teks</span>
-              </button>
-            </div>
-          </div>
-          <div id="jdHumanizedTextDisplay" class="text-xs text-slate-100 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto pr-2 font-sans"></div>
-        </div>
-
       </div>
     </div>
-        </div>
-      </section>
+  </section>
 
       <!-- ======================================================== -->
       <!-- WORKSPACE 3: SPBE INTELLIGENCE HUB & ARCHITECTURE -->
@@ -1574,6 +1057,9 @@
           <i class="fa-solid fa-expand"></i>
         </button>
       </div>
+      <button id="btnAssignAgentToChat" onclick="assignActiveAgentToChat()" class="w-full mt-2 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/30">
+        <i class="fa-solid fa-paper-plane text-[10px]"></i><span>Tugaskan Agen Ini ke Chat</span>
+      </button>
     </div>
   </div>
 
@@ -3027,6 +2513,95 @@
           <i class="fa-solid fa-paper-plane"></i>
           <span>Kirim</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- CORPORATE BRAND KIT & WHITE-LABEL DELIVERABLE MODAL -->
+  <div id="brandKitModal" style="display: none;" class="hidden fixed inset-0 z-[80] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white text-sm shadow-md">
+            <i class="fa-solid fa-palette"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-white">Identitas & Kop Perusahaan (Brand Kit)</h3>
+            <p class="text-[11px] text-slate-400">Kustomisasi kop surat, logo, dan stempel dokumen resmi</p>
+          </div>
+        </div>
+        <button onclick="closeBrandKitModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <!-- Logo Upload -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Logo Instansi / Perusahaan (PNG / SVG):</label>
+          <div class="flex items-center gap-3">
+            <div id="brandLogoPreviewBox" class="w-14 h-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+              <span class="text-[10px] text-slate-600 font-mono">No Logo</span>
+            </div>
+            <div class="flex-1">
+              <input type="file" id="brandLogoFileInput" accept="image/*" onchange="handleBrandLogoUpload(event)" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-blue-600/20 file:text-blue-300 hover:file:bg-blue-600/30 cursor-pointer">
+              <span class="text-[10px] text-slate-500 block mt-1">Disimpan secara lokal di browser via base64 data URL.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nama Instansi -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nama Perusahaan / Instansi:</label>
+          <input type="text" id="brandCompanyNameInput" placeholder="Contoh: Pemerintah Provinsi DKI Jakarta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500 text-xs">
+        </div>
+
+        <!-- Sub Judul / Divisi -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Sub-Judul / Divisi / Unit Kerja:</label>
+          <input type="text" id="brandDivisionInput" placeholder="Contoh: Dinas Komunikasi, Informatika dan Statistik" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500 text-xs">
+        </div>
+
+        <!-- Alamat / Footer -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Alamat Kantor / Catatan Kaki (Footer Dokumen):</label>
+          <input type="text" id="brandAddressInput" placeholder="Contoh: Jl. Medan Merdeka Selatan No. 8-9, Jakarta Pusat • www.jakarta.go.id" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-blue-500 text-xs">
+        </div>
+
+        <!-- Accent Color & Classification -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Warna Aksen Dokumen:</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="brandAccentColorInput" value="#1E3A8A" onchange="document.getElementById('brandAccentColorLabel').innerText = this.value" class="w-8 h-8 rounded-lg bg-transparent border-0 cursor-pointer">
+              <span class="text-xs font-mono text-slate-400" id="brandAccentColorLabel">#1E3A8A</span>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Stempel Klasifikasi Dokumen:</label>
+            <select id="brandClassificationSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-semibold focus:outline-none text-xs">
+              <option value="FINAL">FINAL (Resmi Disahkan)</option>
+              <option value="CONFIDENTIAL">CONFIDENTIAL (Rahasia)</option>
+              <option value="INTERNAL ONLY">INTERNAL ONLY (Hanya Internal)</option>
+              <option value="DRAFT">DRAFT (Konsep Uji Coba)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+        <button onclick="resetBrandKitToDefault()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          Reset Default
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeBrandKitModal()" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold transition">
+            Batal
+          </button>
+          <button onclick="saveBrandKit()" class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-lg shadow-blue-600/30">
+            Simpan Brand Kit
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -6331,8 +5906,54 @@ function applyHumanizedStateToUI() {
       if (!prompt) return;
 
       const agent = document.getElementById('geminiAgentSelect') ? document.getElementById('geminiAgentSelect').value : 'ARKA';
-      const tier = document.getElementById('geminiTierSelect') ? document.getElementById('geminiTierSelect').value : 'flash';
-      const enableGrounding = document.getElementById('geminiGroundingCheck') ? document.getElementById('geminiGroundingCheck').checked : false;
+      const tier = document.getElementById('geminiTierSelect') ? document.getElementById('geminiTierSelect').value : 'gemini-3.8-high';
+      const groundingMode = document.getElementById('geminiGroundingMode') ? document.getElementById('geminiGroundingMode').value : 'fast';
+      const enableGrounding = (groundingMode === 'fast' || groundingMode === 'deep');
+
+      if (groundingMode === 'deep') {
+        appendFeedUserMessage(finalPrompt, currentChatAttachment);
+        const loadingId = 'feedLoading_' + Date.now();
+        appendFeedLoading(loadingId, agent, 'Gemini 3.8 High Deep Research');
+        try {
+          const res = await fetch('/api/research', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              query: finalPrompt,
+              depth: 'deep',
+              agent: agent,
+              model: tier
+            })
+          });
+          const loadEl = document.getElementById(loadingId);
+          if (loadEl) loadEl.remove();
+
+          if (res.ok) {
+            const data = await res.json();
+            const dossier = data.dossier || data.text || '';
+            const sources = data.sources || [];
+            geminiChatHistory.push({ role: 'user', content: finalPrompt });
+            geminiChatHistory.push({ role: 'model', content: dossier });
+            appendFeedAssistantMessage({
+              text: dossier,
+              grounding_sources: sources,
+              tokens: data.tokens || { total_tokens: 1250 },
+              model: 'Gemini 3.8 High (Autonomous Deep Research)'
+            }, agent, 'Gemini 3.8 High');
+
+            const splitArea = document.getElementById('splitDocTextarea');
+            if (splitArea) {
+              splitArea.value = dossier;
+              switchSplitStudioTab('document');
+            }
+            return;
+          }
+        } catch (deepErr) {
+          console.warn('Deep Research error, falling back:', deepErr);
+          const loadEl = document.getElementById(loadingId);
+          if (loadEl) loadEl.remove();
+        }
+      }
 
       openGeminiModal(agent, tier);
       appendGeminiUserMessage(prompt);
@@ -6898,7 +6519,7 @@ function applyHumanizedStateToUI() {
             }
 
             if (!htmlCode) {
-              htmlCode = '<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + title + '</title>\n  \x3Cscript src="https://cdn.tailwindcss.com">\x3C/script>\n  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n</head>\n<body class="bg-slate-950 text-slate-100 font-sans antialiased">\n  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">\n    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">\n      <div class="flex items-center gap-3">\n        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt"></i></div>\n        <span class="font-bold text-white text-base">' + title + '</span>\n      </div>\n      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300 font-medium">\n        <a href="#fitur" class="hover:text-blue-400">Fitur</a>\n        <a href="#layanan" class="hover:text-blue-400">Layanan</a>\n        <a href="#kontak" class="hover:text-blue-400">Hubungi Kami</a>\n      </nav>\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Mulai Sekarang</button>\n    </div>\n  </header>\n  <main class="max-w-6xl mx-auto px-6 py-20 text-center">\n    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">' + title + '</h1>\n    <p class="text-slate-400 text-base max-w-2xl mx-auto mb-8">Solusi arsitektur digital modern kelas produksi berkinerja tinggi yang dirancang oleh Roster Ahli NEXUS AI Enterprise.</p>\n    <div class="flex justify-center gap-4">\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm">Konsultasi Gratis</button>\n      <button class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold text-sm">Lihat Portofolio</button>\n    </div>\n  </main>\n</body>\n</html>';
+              htmlCode = '<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + title + '</title>\n  ' + '<' + 'script src="https://cdn.tailwindcss.com"><' + '/script>' + '\n  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">\n</head>\n<body class="bg-slate-950 text-slate-100 font-sans antialiased">\n  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">\n    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">\n      <div class="flex items-center gap-3">\n        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-bolt"></i></div>\n        <span class="font-bold text-white text-base">' + title + '</span>\n      </div>\n      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300 font-medium">\n        <a href="#fitur" class="hover:text-blue-400">Fitur</a>\n        <a href="#layanan" class="hover:text-blue-400">Layanan</a>\n        <a href="#kontak" class="hover:text-blue-400">Hubungi Kami</a>\n      </nav>\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Mulai Sekarang</button>\n    </div>\n  </header>\n  <main class="max-w-6xl mx-auto px-6 py-20 text-center">\n    <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">' + title + '</h1>\n    <p class="text-slate-400 text-base max-w-2xl mx-auto mb-8">Solusi arsitektur digital modern kelas produksi berkinerja tinggi yang dirancang oleh Roster Ahli NEXUS AI Enterprise.</p>\n    <div class="flex justify-center gap-4">\n      <button class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm">Konsultasi Gratis</button>\n      <button class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold text-sm">Lihat Portofolio</button>\n    </div>\n  </main>\n</body>\n</html>';
             }
 
             if (htmlCode) {
@@ -7109,6 +6730,11 @@ function applyHumanizedStateToUI() {
                           (/<nav[\s>]/i.test(rawCode) && /<\/nav>/i.test(rawCode));
 
         if (isHtmlWeb) lang = 'HTML / WEB APP';
+        const isMermaid = lang.includes('MERMAID') ||
+                          lang.includes('FLOWCHART') ||
+                          lang.includes('GRAPH') ||
+                          /^(?:graph|flowchart|sequenceDiagram|erDiagram|classDiagram|mindmap|gantt)\b/m.test(rawCode.trim());
+        if (isMermaid) lang = 'MERMAID DIAGRAM';
 
         const toolbar = document.createElement('div');
         toolbar.className = 'flex items-center justify-between px-3 py-1.5 bg-slate-950 border border-b-0 border-slate-700/80 rounded-t-xl text-[11px] font-mono text-slate-400 mt-3';
@@ -7128,7 +6754,7 @@ function applyHumanizedStateToUI() {
             <span class="font-bold text-slate-300 text-[10px]">${lang}</span>
           </div>
           <div class="flex items-center gap-1.5">
-            ${previewBtn}
+            ${previewBtn}\n            ${isMermaid ? `\n            <button type="button" class="mermaid-studio-btn px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 transition font-bold flex items-center gap-1.5 text-[10px] shadow-sm shadow-purple-500/20">\n              <i class="fa-solid fa-diagram-project text-purple-400"></i> Split Studio\n            </button>\n          ` : ''}
             <button type="button" class="copy-code-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1 text-[10px]">
               <i class="fa-regular fa-copy"></i> Salin
             </button>
@@ -7147,6 +6773,15 @@ function applyHumanizedStateToUI() {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
               openLiveWebPreview(rawCode);
+            });
+          }
+        }
+        if (isMermaid) {
+          const mBtn = toolbar.querySelector('.mermaid-studio-btn');
+          if (mBtn) {
+            mBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              renderMermaidDiagram(rawCode);
             });
           }
         }
@@ -7218,7 +6853,7 @@ function applyHumanizedStateToUI() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  \x3Cscript src="https://cdn.tailwindcss.com">\x3C/script>
+  ' + '<' + 'script src="https://cdn.tailwindcss.com"><' + '/script>' + '
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
@@ -7232,7 +6867,7 @@ ${fullHtml}
         if (!fullHtml.includes('cdn.tailwindcss.com') && !fullHtml.includes('tailwind')) {
           if (fullHtml.includes('<head>')) {
             fullHtml = fullHtml.replace('<head>', `<head>
-  \x3Cscript src="https://cdn.tailwindcss.com">\x3C/script>
+  ' + '<' + 'script src="https://cdn.tailwindcss.com"><' + '/script>' + '
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>`);
@@ -7571,13 +7206,29 @@ ${fullHtml}
 
           const cntAman = Math.max(0, totalSentences - (cntWajib + cntRevisi)) || 241;
 
-          let currentY = 55;
+          const bk = typeof getBrandKit === 'function' ? getBrandKit() : { companyName: 'Pemerintah Provinsi DKI Jakarta', division: 'Dinas Komunikasi, Informatika dan Statistik', classification: 'FINAL', accentColor: '#1E3A8A' };
+          let currentY = 50;
 
-          // Document Main Title
+          // Classification Stamp Watermark (Top Right)
+          if (bk.classification) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.setTextColor(220, 38, 38);
+            doc.text('[' + bk.classification + ']', pageWidth - margin, 35, { align: 'right' });
+          }
+
+          // Corporate Logo (if uploaded in Brand Kit)
+          if (bk.logo && bk.logo.startsWith('data:image')) {
+            try {
+              doc.addImage(bk.logo, 'PNG', margin, currentY - 5, 30, 30);
+            } catch (imgErr) {}
+          }
+
+          // Document Main Title with Brand Kit Company Name
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(14);
+          doc.setFontSize(13);
           doc.setTextColor(30, 58, 138); // #1E3A8A
-          doc.text("NEXUS AI ENTERPRISE — AUDIT FORENSIK AI & NASKAH HASIL HUMANISASI", pageWidth / 2, currentY, { align: 'center' });
+          doc.text((bk.companyName || "NEXUS AI ENTERPRISE").toUpperCase() + " — AUDIT FORENSIK AI", pageWidth / 2, currentY, { align: 'center' });
           currentY += 15;
 
           // Subtitle
@@ -7865,6 +7516,26 @@ ${fullHtml}
     window.toggleSidebarCollapse = toggleSidebarCollapse;
     window.triggerRemoveAiWorkflow = triggerRemoveAiWorkflow;
     window.openLiveWebPreview = openLiveWebPreview;
+    window.switchSplitStudioTab = switchSplitStudioTab;
+    window.renderMermaidDiagram = renderMermaidDiagram;
+    window.zoomMermaid = zoomMermaid;
+    window.resetMermaidZoom = resetMermaidZoom;
+    window.toggleMermaidSource = toggleMermaidSource;
+    window.renderMermaidFromEditor = renderMermaidFromEditor;
+    window.exportMermaidSvg = exportMermaidSvg;
+    window.exportMermaidPng = exportMermaidPng;
+    window.triggerRedTeamAudit = triggerRedTeamAudit;
+    window.autoPatchFinding = autoPatchFinding;
+    window.updateAgentTelemetry = updateAgentTelemetry;
+    window.assignActiveAgentToChat = assignActiveAgentToChat;
+    window.assignAgentToChat = assignAgentToChat;
+    window.getBrandKit = getBrandKit;
+    window.openBrandKitModal = openBrandKitModal;
+    window.closeBrandKitModal = closeBrandKitModal;
+    window.handleBrandLogoUpload = handleBrandLogoUpload;
+    window.saveBrandKit = saveBrandKit;
+    window.resetBrandKitToDefault = resetBrandKitToDefault;
+
     window.enhanceMessageCodeBlocks = enhanceMessageCodeBlocks;
 
 </script>

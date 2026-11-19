@@ -10,6 +10,8 @@
     { "source": "/api/agent", "destination": "/api/agent" },
     { "source": "/api/audit", "destination": "/api/audit" },
     { "source": "/api/humanize", "destination": "/api/humanize" },
+    { "source": "/api/red-team", "destination": "/api/red-team" },
+    { "source": "/api/research", "destination": "/api/research" },
     { "source": "/api/download/(.*)", "destination": "/api/download?file=$1" },
     { "source": "/downloads/(.*)", "destination": "/api/download?file=$1" },
     { "source": "/api/report/(.*)", "destination": "/api/report?file=$1" },

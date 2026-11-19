@@ -71,7 +71,15 @@ module.exports = async (req, res) => {
     let intentLabel = 'General Knowledge & Adaptive Intelligence';
     let requiresCanvas = false;
 
-    if (/buatkan\s+web|website|landing|dashboard|frontend|backend/i.test(pLower)) {
+    if (/diagram|flowchart|alur\s+proses|sequence|erd|mindmap|gantt/i.test(pLower)) {
+      selectedSkill = 'skill_generate_diagram';
+      intentLabel = 'Visual Architecture & Flowchart Studio (Mermaid.js)';
+      requiresCanvas = true;
+    } else if (/red\s*team|audit\s+proposal|uji\s+kepatuhan|simulasi\s+risiko/i.test(pLower)) {
+      selectedSkill = 'skill_red_team_audit';
+      intentLabel = 'Red-Team Compliance & Proposal Risk Audit';
+      requiresCanvas = true;
+    } else if (/buatkan\s+web|website|landing|dashboard|frontend|backend/i.test(pLower)) {
       selectedSkill = 'skill_open_canvas';
       intentLabel = 'Software Engineering & Interactive Web Synthesis';
       requiresCanvas = true;
