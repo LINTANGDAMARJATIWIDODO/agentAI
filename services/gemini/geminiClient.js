@@ -292,6 +292,50 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
     }
 
     if (!res.ok || !data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      // If primary model hit quota (429) or temporary high demand (503), attempt resilient failover to gemini-2.5-flash-lite
+      if ((res.status === 429 || res.status === 503 || data?.error?.status === 'RESOURCE_EXHAUSTED') && modelName !== 'gemini-2.5-flash-lite') {
+        console.warn(`[GEMINI API]: ${modelName} hit quota/high demand (${res.status}), attempting resilient failover to gemini-2.5-flash-lite...`);
+        const fallbackUrl = rawBaseUrl.includes('/models')
+          ? `${rawBaseUrl}/gemini-2.5-flash-lite:generateContent?key=${apiKey}`
+          : `${rawBaseUrl}/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+        try {
+          const fallbackRes = await fetch(fallbackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const fallbackData = await fallbackRes.json();
+          if (fallbackRes.ok && fallbackData.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const cand = fallbackData.candidates[0];
+            const fText = cand.content.parts.map(p => p.text).join('');
+            const fGrounding = cand.groundingMetadata?.groundingChunks || [];
+            const fQueries = cand.groundingMetadata?.webSearchQueries || [];
+            const fu = fallbackData.usageMetadata || {};
+            const fToks = fu.totalTokenCount || 0;
+            return GeminiClient.formatSuccessResponse({
+              text: fText,
+              agent,
+              tier: 'gemini-2.5-flash-lite',
+              model: 'gemini-2.5-flash-lite',
+              prompt,
+              isWebReq,
+              groundingChunks: fGrounding,
+              searchQueries: fQueries,
+              usageMeta: {
+                total_tokens: fToks,
+                totalTokenCount: fToks,
+                prompt_tokens: fu.promptTokenCount || 0,
+                promptTokenCount: fu.promptTokenCount || 0,
+                candidates_tokens: fu.candidatesTokenCount || 0,
+                candidatesTokenCount: fu.candidatesTokenCount || 0
+              }
+            });
+          }
+        } catch (fbErr) {
+          console.warn('[GEMINI FAILOVER ERR]:', fbErr.message);
+        }
+      }
+
       const errMsg = data?.error?.message || `HTTP ${res.status}: Gagal memproses balasan dari model ${modelName}`;
       throw new Error(`Google Gemini Error (${modelName}): ${errMsg}`);
     }
