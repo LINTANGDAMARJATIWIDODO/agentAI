@@ -8,6 +8,7 @@
   },
   "rewrites": [
     { "source": "/api/agent", "destination": "/api/agent" },
+    { "source": "/api/justdone-audit", "destination": "/api/justdone-audit" },
     { "source": "/api/audit", "destination": "/api/audit" },
     { "source": "/api/humanize", "destination": "/api/humanize" },
     { "source": "/api/red-team", "destination": "/api/red-team" },
