@@ -553,38 +553,50 @@
                 </p>
               </div>
 
-              <!-- Quick Prompt Chips: Responsive 2-col Grid on Mobile & Desktop -->
-              <div class="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left pt-1 sm:pt-2">
-                <button onclick="setAndSendChatPrompt('Buatkan website landing page modern, futuristik, dan responsif dengan TailwindCSS dan animasi interaktif untuk startup teknologi NEXUS AI.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-cyan-500/40 transition group flex flex-col justify-between">
-                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-cyan-400 mb-0.5">
-                    <i class="fa-solid fa-laptop-code text-xs"></i>
-                    <span class="text-[11px] sm:text-xs truncate">Buat Website</span>
+              <!-- 4 Action Cards Matching Original NEXUS AI Design (media_1795012442059_3d662d12.jpg) -->
+              <div class="space-y-2.5 sm:space-y-3 text-left pt-2 max-w-xl mx-auto w-full">
+                <!-- Card 1: Buatkan Website Modern -->
+                <button onclick="setAndSendChatPrompt('Buatkan website landing page modern, futuristik, dan responsif dengan TailwindCSS dan animasi interaktif untuk startup teknologi NEXUS AI.')" class="w-full p-3.5 sm:p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800/80 hover:border-cyan-500/40 transition group flex flex-col gap-1 text-left shadow-sm">
+                  <div class="flex items-center gap-2 font-bold text-cyan-400 text-xs sm:text-sm">
+                    <i class="fa-solid fa-laptop-code text-sm"></i>
+                    <span>Buatkan Website Modern</span>
                   </div>
-                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Website modern interaktif + live preview.</p>
+                  <p class="text-[11px] sm:text-xs text-slate-400 group-hover:text-slate-300 leading-relaxed pl-5 sm:pl-6">
+                    Rancang dan bangun website lengkap + live interactive preview.
+                  </p>
                 </button>
 
-                <button onclick="setAndSendChatPrompt('Susun dokumen SOP dan naskah dinas resmi integrasi Satu Data SPBE berstandar baku KBBI & EYD V.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-emerald-500/40 transition group flex flex-col justify-between">
-                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-emerald-400 mb-0.5">
-                    <i class="fa-solid fa-file-signature text-xs"></i>
-                    <span class="text-[11px] sm:text-xs truncate">Susun Dokumen</span>
+                <!-- Card 2: Susun Dokumen Resmi -->
+                <button onclick="setAndSendChatPrompt('Susun dokumen SOP dan naskah dinas resmi integrasi Satu Data SPBE berstandar baku KBBI & EYD V.')" class="w-full p-3.5 sm:p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800/80 hover:border-emerald-500/40 transition group flex flex-col gap-1 text-left shadow-sm">
+                  <div class="flex items-center gap-2 font-bold text-emerald-400 text-xs sm:text-sm">
+                    <i class="fa-solid fa-file-signature text-sm"></i>
+                    <span>Susun Dokumen Resmi</span>
                   </div>
-                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Draf naskah dinas baku KBBI & EYD V.</p>
+                  <p class="text-[11px] sm:text-xs text-slate-400 group-hover:text-slate-300 leading-relaxed pl-5 sm:pl-6">
+                    Hasilkan draf naskah dinas, dokumen teknis, atau laporan eksekutif.
+                  </p>
                 </button>
 
-                <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-blue-500/40 transition group flex flex-col justify-between">
-                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-blue-400 mb-0.5">
-                    <i class="fa-solid fa-shield-halved text-xs"></i>
-                    <span class="text-[11px] sm:text-xs truncate">Audit SPBE</span>
+                <!-- Card 3: Audit Dokumen SPBE -->
+                <button onclick="setAndSendChatPrompt('Audit kepatuhan naskah dinas SPBE DKI Jakarta 2027 dan telaah potensi risiko.')" class="w-full p-3.5 sm:p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800/80 hover:border-blue-500/40 transition group flex flex-col gap-1 text-left shadow-sm">
+                  <div class="flex items-center gap-2 font-bold text-blue-400 text-xs sm:text-sm">
+                    <i class="fa-solid fa-shield-halved text-sm"></i>
+                    <span>Audit Dokumen SPBE</span>
                   </div>
-                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Telaah regulasi & kepatuhan arsitektur.</p>
+                  <p class="text-[11px] sm:text-xs text-slate-400 group-hover:text-slate-300 leading-relaxed pl-5 sm:pl-6">
+                    Telaah naskah regulasi dan dokumen arsitektur SPBE.
+                  </p>
                 </button>
 
-                <button onclick="switchWorkspaceView('humanizer')" class="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-200 hover:border-purple-500/40 transition group flex flex-col justify-between">
-                  <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-purple-400 mb-0.5">
-                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-                    <span class="text-[11px] sm:text-xs truncate">Humanizer AI</span>
+                <!-- Card 4: JustDone Humanizer -->
+                <button onclick="switchWorkspaceView('humanizer')" class="w-full p-3.5 sm:p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800/80 hover:border-purple-500/40 transition group flex flex-col gap-1 text-left shadow-sm">
+                  <div class="flex items-center gap-2 font-bold text-purple-400 text-xs sm:text-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                    <span>JustDone Humanizer</span>
                   </div>
-                  <p class="text-[10px] sm:text-[11px] text-slate-400 group-hover:text-slate-300 line-clamp-2">Deteksi skor AI & parafrase 13-in-1.</p>
+                  <p class="text-[11px] sm:text-xs text-slate-400 group-hover:text-slate-300 leading-relaxed pl-5 sm:pl-6">
+                    Deteksi probabilitas AI per kalimat & rekonstruksi baku KBBI.
+                  </p>
                 </button>
               </div>
             </div>
@@ -3104,7 +3116,7 @@
     let officeAgents = {}; // Stores agent 3D objects, rigs, and state machines
     let dynamicTextures = {}; // Monitors, LED matrices, charts
     let animatedObjects = []; // Steam particles, blinking lights, clock
-    let clock = new THREE.Clock();
+    let clock = (typeof THREE !== "undefined" && THREE.Clock) ? new THREE.Clock() : null;
 
     // Expanded Multi-Zone Office Layout (36 x 26 space)
     const officeConfig = {
@@ -3199,7 +3211,11 @@
 
     // Initialize 3D Scene
     function init3DOffice() {
+      if (!clock && typeof THREE !== 'undefined' && THREE.Clock) {
+        clock = new THREE.Clock();
+      }
       const container = document.getElementById('canvas-container');
+      if (!container || typeof THREE === 'undefined') return;
       const width = container.clientWidth;
       const height = container.clientHeight;
 
@@ -4178,7 +4194,7 @@
     // 11. Living Animation Loop: Natural Humanoid Movements & Autonomy
     function animate() {
       requestAnimationFrame(animate);
-      const time = clock.getElapsedTime();
+      const time = (clock && clock.getElapsedTime) ? clock.getElapsedTime() : (performance.now() * 0.001);
 
       // A. Update Living Animated Agent Rigs
       Object.keys(officeAgents).forEach((key, idx) => {
@@ -4359,7 +4375,7 @@
       const randomKey = idleAgents[Math.floor(Math.random() * idleAgents.length)];
       const ag = officeAgents[randomKey];
       ag.state = 'WALKING';
-      ag.walkStartTime = clock.getElapsedTime();
+      ag.walkStartTime = (clock && clock.getElapsedTime) ? clock.getElapsedTime() : (performance.now() * 0.001);
 
       // Show action speech bubble
       if (serverState.agent_bubbles) {
@@ -4375,7 +4391,7 @@
       if (officeAgents[name]) {
         const ag = officeAgents[name];
         ag.state = 'WALKING';
-        ag.walkStartTime = clock.getElapsedTime();
+        ag.walkStartTime = (clock && clock.getElapsedTime) ? clock.getElapsedTime() : (performance.now() * 0.001);
       }
     }
 
@@ -7121,7 +7137,7 @@ function applyHumanizedStateToUI() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script src="https://cdn.tailwindcss.com">${'<' + '/script>'}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
@@ -7135,7 +7151,7 @@ ${fullHtml}
         if (!fullHtml.includes('cdn.tailwindcss.com') && !fullHtml.includes('tailwind')) {
           if (fullHtml.includes('<head>')) {
             fullHtml = fullHtml.replace('<head>', `<head>
-  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script src="https://cdn.tailwindcss.com">${'<' + '/script>'}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>`);
@@ -7712,6 +7728,55 @@ ${fullHtml}
 
       window.open('/downloads/NEXUS_AI_FORENSIC_AUDIT_REPORT.pdf', '_blank');
     }
+
+    // Explicit global window bindings for all interactive HTML event handlers
+    window.askGeminiChat = askGeminiChat;
+    window.clearChatAttachment = clearChatAttachment;
+    window.clearChosenPdf = clearChosenPdf;
+    window.closeAgentDetail = closeAgentDetail;
+    window.closeGeminiModal = closeGeminiModal;
+    window.closeHumanizerModal = closeHumanizerModal;
+    window.closeWebPreviewModal = closeWebPreviewModal;
+    window.copyForensicSummary = copyForensicSummary;
+    window.copyHumanizedText = copyHumanizedText;
+    window.dispatchMandateChat = dispatchMandateChat;
+    window.downloadCurrentWebCode = downloadCurrentWebCode;
+    window.downloadForensicAuditPdf = downloadForensicAuditPdf;
+    window.downloadForensicJsonReport = downloadForensicJsonReport;
+    window.escapeHtml = escapeHtml;
+    window.fetchGeminiTelemetryData = fetchGeminiTelemetryData;
+    window.handleChatFileSelect = handleChatFileSelect;
+    window.handleChatInputKey = handleChatInputKey;
+    window.handlePdfFileSelect = handlePdfFileSelect;
+    window.inspectSentenceDetails = inspectSentenceDetails;
+    window.loadDemoAndShowResults = loadDemoAndShowResults;
+    window.loadDocContent = loadDocContent;
+    window.loadWebPreviewPreset = loadWebPreviewPreset;
+    window.openWebPreviewInNewTab = openWebPreviewInNewTab;
+    window.resetCameraView = resetCameraView;
+    window.resetChatSession = resetChatSession;
+    window.resetHumanizerToUpload = resetHumanizerToUpload;
+    window.runJustDoneUnifiedAction = runJustDoneUnifiedAction;
+    window.runSPBEReasoningDemo = runSPBEReasoningDemo;
+    window.scrollToForensicAnalysis = scrollToForensicAnalysis;
+    window.selectAndChatAgent = selectAndChatAgent;
+    window.selectJustDoneTool = selectJustDoneTool;
+    window.sendAgentOnMission = sendAgentOnMission;
+    window.sendGeminiFollowUp = sendGeminiFollowUp;
+    window.setAndSendChatPrompt = setAndSendChatPrompt;
+    window.setCameraView = setCameraView;
+    window.setChatViewMode = setChatViewMode;
+    window.setHumanizerIntensity = setHumanizerIntensity;
+    window.setHumanizerMode = setHumanizerMode;
+    window.setWebPreviewViewport = setWebPreviewViewport;
+    window.switchDrawerTab = switchDrawerTab;
+    window.switchHumanizerTab = switchHumanizerTab;
+    window.switchJustDoneHub = switchJustDoneHub;
+    window.switchWorkspaceView = switchWorkspaceView;
+    window.toggleCleanTextView = toggleCleanTextView;
+    window.toggleReportDrawer = toggleReportDrawer;
+    window.toggleSidebarCollapse = toggleSidebarCollapse;
+    window.triggerRemoveAiWorkflow = triggerRemoveAiWorkflow;
 
 </script>
 </body>
