@@ -120,8 +120,12 @@ class GeminiClient {
     const apiKey = process.env.GEMINI_API_KEY || '';
     const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(prompt);
 
-    const modelName = (tier === 'pro') ? 'gemini-2.5-pro' : (tier === 'lite' ? 'gemini-2.5-flash-lite' : 'gemini-2.5-flash');
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const envModel = process.env.GEMINI_MODEL || process.env.LLM_MODEL;
+    const modelName = envModel || ((tier === 'pro') ? (process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro') : (tier === 'lite' ? (process.env.GEMINI_MODEL_LITE || 'gemini-2.5-flash-lite') : (process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash')));
+    const rawBaseUrl = (process.env.GEMINI_BASE_URL || process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
+    const url = rawBaseUrl.includes('/models')
+      ? `${rawBaseUrl}/${modelName}:generateContent?key=${apiKey}`
+      : `${rawBaseUrl}/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
     const webGenerationDirective = `
 

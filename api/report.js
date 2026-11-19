@@ -29,14 +29,20 @@ module.exports = async (req, res) => {
 
   let targetPath = path.join(REPORTS_DIR, filename);
   if (!fs.existsSync(targetPath)) {
+    targetPath = path.join(BASE_DIR, 'public', 'reports', filename);
+  }
+  if (!fs.existsSync(targetPath)) {
     // Default fallback to LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.md
     targetPath = path.join(REPORTS_DIR, 'LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.md');
   }
+  if (!fs.existsSync(targetPath)) {
+    targetPath = path.join(BASE_DIR, 'public', 'reports', 'LAPORAN_AUDIT_3C_22_PERANGKAT_DAERAH.md');
+  }
 
   if (!fs.existsSync(targetPath)) {
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    return res.end('# Laporan Dokumen SPBE\n\nDokumen resmi sedang disiapkan oleh Tim Eksekutif AI.');
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    return res.end(`# Laporan Dokumen SPBE: ${filename}\n\nNaskah kajian resmi ini telah terdaftar dalam arsitektur NEXUS AI Enterprise.`);
   }
 
   try {

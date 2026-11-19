@@ -87,6 +87,16 @@ function requestHandler(req, res) {
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost:3000'}`);
 
+  // Modular Serverless Handlers
+  if (url.pathname === '/api/audit') {
+    const auditHandler = require('./api/audit');
+    return auditHandler(req, res);
+  }
+  if (url.pathname === '/api/humanize' && req.method === 'POST') {
+    const humanizeHandler = require('./api/humanize');
+    return humanizeHandler(req, res);
+  }
+
   // Unified Status and Document Intelligence Router
   if (
     url.pathname === '/api/status' ||

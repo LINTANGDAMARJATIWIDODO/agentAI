@@ -1,9 +1,16 @@
 {
   "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
   "rewrites": [
+    { "source": "/api/audit", "destination": "/api/audit" },
+    { "source": "/api/humanize", "destination": "/api/humanize" },
     { "source": "/api/upload-pdf", "destination": "/api/status?action=upload-pdf" },
     { "source": "/api/detect", "destination": "/api/status?action=detect" },
-    { "source": "/api/humanize", "destination": "/api/status?action=humanize" },
     { "source": "/api/grammar", "destination": "/api/status?action=grammar" },
     { "source": "/api/paraphrase", "destination": "/api/status?action=paraphrase" },
     { "source": "/api/summarize", "destination": "/api/status?action=summarize" },
