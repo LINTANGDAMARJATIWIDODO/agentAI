@@ -116,7 +116,6 @@ module.exports = async (req, res) => {
 
     const mode = body.mode || 'Formal SPBE & Eksekutif';
     const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
-    const fallbackModel = 'gemini-2.5-flash-lite';
 
     // -------------------------------------------------------------
     // ACTION: AUDIT FORENSIK (Real AI Authorship Scoring per Batch)
@@ -166,10 +165,10 @@ KRITERIA KALIBRASI KETAT:
       let totalTokens = 0;
       let modelUsed = primaryModel;
 
-      // 1. Try SDK with apiVersion v1beta
+      // 1. Try SDK with apiVersion: 'v1beta'
       if (GoogleGenAI) {
         try {
-          const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
+          const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
           const response = await ai.models.generateContent({
             model: primaryModel,
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -305,10 +304,10 @@ Tugas Anda adalah:
     let totalTokens = 0;
     let usage = {};
 
-    // 1. SDK with apiVersion v1beta
+    // 1. Try SDK with apiVersion: 'v1beta'
     if (GoogleGenAI) {
       try {
-        const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
+        const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
         const response = await ai.models.generateContent({
           model: primaryModel,
           contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
