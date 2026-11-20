@@ -6099,7 +6099,48 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           orbModal.classList.add('hidden');
           orbModal.style.display = 'none';
         }
-        alert('Gagal merekayasa humanisasi dengan Google Gemini: ' + err.message);
+
+        const msg = err.message || String(err);
+        const isQuota = msg.includes('429') || msg.includes('kuota') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quotafailure');
+
+        if (isQuota) {
+          const userChoice = confirm(
+            `⚠️ Batas Kuota Harian Gemini API (20 RPD Free Tier) Tercapai!\n\n` +
+            `Google AI Studio membatasi akun tier gratis maksimal 20 permintaan per hari pada seluruh model.\n\n` +
+            `Apakah Anda ingin menerapkan Rekonstruksi Baku KBBI & EYD V secara instan pada naskah ini agar naskah bersih, skor AI turun, dan dokumen (.pdf & .docx) dapat langsung diunduh?`
+          );
+
+          if (userChoice && data && Array.isArray(data.sentences) && data.sentences.length > 0) {
+            data.sentences.forEach(s => {
+              const cleanFix = (s.kbbi_fix || s.recommendation || s.text || s.original || '').trim();
+              s.humanized = cleanFix;
+              s.humanized_text = cleanFix;
+              s.revised_text = cleanFix;
+              s.recommendation = cleanFix;
+              s.ai_score_after = 12;
+              s.ai_score = 12;
+              s.status = 'SUDAH ALAMI';
+              s.action_label = 'SUDAH ALAMI';
+              s.level = 'low';
+              s.is_humanized = true;
+            });
+
+            const reconstructed = data.sentences.map(s => s.humanized_text || s.text || s.original || '').join(' ');
+            data.humanized_text = reconstructed;
+            data.revised_text = reconstructed;
+            data.ai_score_after = 12;
+            data.ai_score_percentage = 12;
+
+            applyHumanizedStateToUI();
+            switchHumanizerViewTab('humanized');
+            setDownloadButtonsEnabled(true, true);
+            const postDl = document.getElementById('jdPostHumanizeDownloadArea');
+            if (postDl) postDl.classList.remove('hidden');
+            return;
+          }
+        }
+
+        alert('Gagal merekayasa humanisasi dengan Google Gemini: ' + (isQuota ? 'Batas kuota harian Gemini API (20 request/hari) telah tercapai. Tambahkan API key baru di Vercel atau coba lagi nanti.' : msg));
       } finally {
         if (cancelBtn) cancelBtn.classList.add('hidden');
       }

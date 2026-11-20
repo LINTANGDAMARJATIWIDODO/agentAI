@@ -133,10 +133,10 @@ ${cognitiveGuidance}
 
     let lastError = null;
 
-    for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
-      const currentApiKey = keyPool[keyIdx];
+    for (const model of modelCascade) {
+      for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
+        const currentApiKey = keyPool[keyIdx];
 
-      for (const model of modelCascade) {
         try {
           if (GoogleGenAI) {
             const ai = new GoogleGenAI({ apiKey: currentApiKey, apiVersion: 'v1beta' });
@@ -186,26 +186,13 @@ ${cognitiveGuidance}
         } catch (err) {
           lastError = err;
           const msg = (err.message || String(err)).toLowerCase();
-          console.warn(`[GeminiClient Key #${keyIdx + 1}/${keyPool.length} | Model ${model}]:`, err.message);
+          console.warn(`[GeminiClient Model ${model} | Key #${keyIdx + 1}/${keyPool.length}]:`, err.message);
 
-          const isQuota = msg.includes('429') ||
-            msg.includes('quota') ||
-            msg.includes('resource_exhausted') ||
-            msg.includes('quotafailure') ||
-            err.status === 429 ||
-            err.code === 429 ||
-            (err.error && (err.error.code === 429 || err.error.status === 'RESOURCE_EXHAUSTED'));
-
-          if (isQuota) {
-            console.warn(`[GeminiClient Key #${keyIdx + 1}] Quota exceeded (429), rotating to next key in pool...`);
-            break; // break inner model loop, try next key!
+          if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('not supported')) {
+            break; // skip to next model
           }
 
-          if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('503') || msg.includes('unavailable')) {
-            continue;
-          }
-
-          continue;
+          continue; // try next key for this model
         }
       }
     }

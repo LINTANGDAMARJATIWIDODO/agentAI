@@ -105,15 +105,17 @@ async function callGeminiStructured({ systemInstruction, userPrompt, responseSch
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
     'gemini-3.6-flash',
-    'gemini-3.5-flash'
+    'gemini-3.5-flash',
+    'gemini-flash-latest',
+    'gemini-flash-lite-latest'
   ];
 
   let lastError = null;
 
-  for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
-    const currentApiKey = keyPool[keyIdx];
+  for (const model of models) {
+    for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
+      const currentApiKey = keyPool[keyIdx];
 
-    for (const model of models) {
       try {
         const ai = new GoogleGenAI({ apiKey: currentApiKey, apiVersion: 'v1beta' });
         const response = await ai.models.generateContent({
@@ -145,33 +147,22 @@ async function callGeminiStructured({ systemInstruction, userPrompt, responseSch
       } catch (err) {
         lastError = err;
         const msg = (err.message || String(err)).toLowerCase();
-        console.warn(`[Key #${keyIdx + 1}/${keyPool.length} | Model ${model}]:`, err.message);
+        console.warn(`[Model ${model} | Key #${keyIdx + 1}/${keyPool.length}]:`, err.message);
 
-        // 429 Quota Exceeded / Resource Exhausted: rotate to next key in keyPool!
-        const isQuotaExceeded = msg.includes('429') ||
-          msg.includes('quota') ||
-          msg.includes('resource_exhausted') ||
-          msg.includes('quotafailure') ||
-          err.status === 429 ||
-          err.code === 429 ||
-          (err.error && (err.error.code === 429 || err.error.status === 'RESOURCE_EXHAUSTED'));
-
-        if (isQuotaExceeded) {
-          console.warn(`[Key #${keyIdx + 1}] Quota exceeded (429), rotating to next API key in pool...`);
-          break; // break inner model loop, try next key!
+        // 404 Model Not Found / Not Available: break key loop to proceed to next model immediately
+        if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('not supported')) {
+          console.warn(`[Model ${model}] Not found/supported, skipping to next model...`);
+          break;
         }
 
-        // 404 Model Not Found or 503 High Demand: try next model for current key
-        if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('503') || msg.includes('unavailable')) {
-          continue;
-        }
-
+        // 429 Quota Exceeded / 503 Service Unavailable: continue to try next API key in pool for this model!
         continue;
       }
     }
   }
 
-  throw lastError || new Error('Seluruh kombinasi API Key dan Model dalam pool rotasi gagal memproses permintaan.');
+  const errMsg = lastError?.message || String(lastError);
+  throw new Error(errMsg);
 }
 
 module.exports = async (req, res) => {
@@ -406,9 +397,16 @@ ATURAN REVISI SUBSTANTIF:
   } catch (err) {
     console.error('[/api/humanize critical error]:', err);
     res.statusCode = 500;
+    const rawMsg = err.message || String(err);
+    let userMsg = rawMsg;
+    if (rawMsg.includes('429') || rawMsg.includes('quota') || rawMsg.includes('RESOURCE_EXHAUSTED') || rawMsg.includes('quotafailure')) {
+      userMsg = 'Batas kuota harian Gemini API (20 RPD Free Tier) telah tercapai pada seluruh API Key yang terkonfigurasi. Silakan tambahkan API key baru di Vercel Environment (key2 / key3 / GEMINI_API_KEYS) atau tunggu reset kuota harian Google.';
+    }
     return res.end(JSON.stringify({
       status: 'error',
-      message: 'Gagal memproses humanisasi dengan Google Gemini: ' + (err.message || String(err))
+      is_quota_error: rawMsg.includes('429') || rawMsg.includes('quota') || rawMsg.includes('RESOURCE_EXHAUSTED') || rawMsg.includes('quotafailure'),
+      raw_error: rawMsg,
+      message: userMsg
     }));
   }
 };
