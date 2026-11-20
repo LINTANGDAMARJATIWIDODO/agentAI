@@ -7817,6 +7817,8 @@ ${fullHtml}
         doc.text(`Tingkat Deteksi AI: ${bScore}% (${bScore >= 40 ? 'High Risk' : (bScore >= 20 ? 'Moderate' : 'Low Risk')}) • Audit Forensik & Rekomendasi Standar Baku KBBI (Pedoman EYD V)`, pageWidth / 2, currentY, { align: 'center' });
         currentY += 14;
 
+        const tokensCount = (data && data.total_tokens_used) ? data.total_tokens_used.toLocaleString() + ' Token (Google Gemini 2.5 Flash API)' : ((document.getElementById('jdTokensUsedVal') && document.getElementById('jdTokensUsedVal').textContent) || 'Terverifikasi Google GenAI SDK');
+
         // 2x2 Dynamic Metrics Box
         doc.autoTable({
           startY: currentY,
@@ -7828,7 +7830,7 @@ ${fullHtml}
           body: [
             [
               {
-                content: `■ SKOR PROBABILITAS AI (SEBELUM VS SESUDAH):\n• Skor AI Awal (Naskah Asli): ${bScore}% (${bScore >= 40 ? 'Terdeteksi Sintesis AI / High' : 'Alami / Wajar'})\n• Skor AI Pasca-Humanize: ${aScore}% (Lolos Turnitin & GPTZero / Low Risk)\n• Reduksi Mesin: -${reduction}%\n• Bukti Pemrosesan: ${activeData.total_tokens_used ? activeData.total_tokens_used.toLocaleString() + ' Token (Google Gemini 2.5 Flash API)' : 'Terverifikasi Google GenAI SDK'}`,
+                content: `■ SKOR PROBABILITAS AI (SEBELUM VS SESUDAH):\n• Skor AI Awal (Naskah Asli): ${bScore}% (${bScore >= 40 ? 'Terdeteksi Sintesis AI / High' : 'Alami / Wajar'})\n• Skor AI Pasca-Humanize: ${aScore}% (Lolos Turnitin & GPTZero / Low Risk)\n• Reduksi Mesin: -${reduction}%\n• Bukti Pemrosesan: ${tokensCount}`,
                 styles: { fontStyle: 'normal' }
               },
               {
