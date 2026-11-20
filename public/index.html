@@ -6662,11 +6662,12 @@ function applyHumanizedStateToUI() {
             setChatViewMode(currentChatViewMode === 'office-only' ? 'split' : currentChatViewMode);
           }
         } else if (viewName === 'humanizer') {
-          openHumanizerModal('humanizer');
-          const chatWs = document.getElementById('workspaceViewChat');
-          if (chatWs) {
-            chatWs.classList.remove('hidden');
-            chatWs.style.display = 'flex';
+          selectJustDoneTool('humanizer');
+          const ws = document.getElementById('workspaceViewHumanizer');
+          if (ws) {
+            ws.classList.remove('hidden');
+            ws.style.display = 'block';
+            ws.scrollTo({ top: 0, behavior: 'smooth' });
           }
         } else if (viewName === 'spbe') {
           loadDocContent();
