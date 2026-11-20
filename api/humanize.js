@@ -2,7 +2,7 @@
  * NEXUS AI ENTERPRISE — REAL SUBSTANTIVE PARAPHRASING & AI FORENSIC HUMANIZER
  * =========================================================================
  * 100% Real LLM Rewriting via official Google GenAI SDK (@google/genai)
- * Model: gemini-2.5-flash (with automatic resilient failover to gemini-2.5-flash-lite)
+ * Model: gemini-2.5-flash with automatic resilient failover to gemini-2.5-flash-lite
  * Structured Output: responseSchema JSON with usageMetadata token verification.
  * API Version: v1beta (with Direct REST v1beta failover)
  *
@@ -57,6 +57,77 @@ function segmentSentences(text) {
     .replace(/_NUMDOT_\s*/g, '. ')
     .trim()
   ).filter(s => s.length > 2 && /[a-zA-Z]/.test(s));
+}
+
+async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, responseSchema, temperature = 0.25 }) {
+  const models = [process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  let lastError = null;
+
+  for (const model of models) {
+    // 1. Try SDK with apiVersion: 'v1beta'
+    if (GoogleGenAI) {
+      try {
+        const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
+        const response = await ai.models.generateContent({
+          model: model,
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          config: {
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            responseMimeType: 'application/json',
+            responseSchema: responseSchema,
+            temperature: temperature,
+            maxOutputTokens: 8192
+          }
+        });
+        const reply = response.text || '';
+        if (reply) {
+          const parsed = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+          const usage = response.usageMetadata || {};
+          const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+          return { data: parsed, model_used: model, usage: usage, total_tokens: totalTokens };
+        }
+      } catch (sdkErr) {
+        lastError = sdkErr;
+        console.warn(`[SDK ${model} failed]:`, sdkErr.message);
+      }
+    }
+
+    // 2. Direct REST v1beta failover
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const restRes = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          generationConfig: {
+            temperature: temperature,
+            responseMimeType: 'application/json',
+            maxOutputTokens: 8192
+          }
+        })
+      });
+
+      if (restRes.ok) {
+        const restData = await restRes.json();
+        const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (cand) {
+          const parsed = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+          const usage = restData.usageMetadata || {};
+          const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+          return { data: parsed, model_used: model, usage: usage, total_tokens: totalTokens };
+        }
+      } else {
+        const errBody = await restRes.json().catch(() => ({}));
+        lastError = new Error(errBody.error?.message || ('HTTP ' + restRes.status));
+      }
+    } catch (restErr) {
+      lastError = restErr;
+    }
+  }
+
+  throw lastError || new Error('Gagal memproses dengan Google Gemini API.');
 }
 
 module.exports = async (req, res) => {
@@ -115,7 +186,6 @@ module.exports = async (req, res) => {
     }
 
     const mode = body.mode || 'Formal SPBE & Eksekutif';
-    const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
 
     // -------------------------------------------------------------
     // ACTION: AUDIT FORENSIK (Real AI Authorship Scoring per Batch)
@@ -161,80 +231,21 @@ KRITERIA KALIBRASI KETAT:
         required: ['sentences']
       };
 
-      let parsedResult = null;
-      let totalTokens = 0;
-      let modelUsed = primaryModel;
-
-      // 1. Try SDK with apiVersion: 'v1beta'
-      if (GoogleGenAI) {
-        try {
-          const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
-          const response = await ai.models.generateContent({
-            model: primaryModel,
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            config: {
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-              responseMimeType: 'application/json',
-              responseSchema: auditSchema,
-              temperature: 0.15,
-              maxOutputTokens: 8192
-            }
-          });
-          const reply = response.text || '';
-          if (reply) {
-            parsedResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-            const usage = response.usageMetadata || {};
-            totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-          }
-        } catch (sdkErr) {
-          console.warn(`[SDK audit ${primaryModel} failed]:`, sdkErr.message);
-        }
-      }
-
-      // 2. Direct REST v1beta failover
-      if (!parsedResult) {
-        try {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${primaryModel}:generateContent?key=${apiKey}`;
-          const restRes = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-              generationConfig: {
-                temperature: 0.15,
-                responseMimeType: 'application/json',
-                maxOutputTokens: 8192
-              }
-            })
-          });
-          if (restRes.ok) {
-            const restData = await restRes.json();
-            const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (cand) {
-              parsedResult = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-              const usage = restData.usageMetadata || {};
-              totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-            }
-          } else {
-            const errBody = await restRes.json().catch(() => ({}));
-            throw new Error(errBody.error?.message || ('HTTP ' + restRes.status));
-          }
-        } catch (restErr) {
-          throw restErr;
-        }
-      }
-
-      if (!parsedResult || !Array.isArray(parsedResult.sentences)) {
-        throw new Error('Google Gemini API tidak mengembalikan struktur sentences yang valid.');
-      }
+      const result = await callGeminiStructured({
+        apiKey,
+        systemInstruction: systemPrompt,
+        userPrompt,
+        responseSchema: auditSchema,
+        temperature: 0.15
+      });
 
       res.statusCode = 200;
       return res.end(JSON.stringify({
         status: 'success',
-        model_used: modelUsed,
-        total_tokens_used: totalTokens,
-        sentences: parsedResult.sentences
+        model_used: result.model_used,
+        total_tokens_used: result.total_tokens,
+        usage_metadata: result.usage,
+        sentences: result.data.sentences || []
       }));
     }
 
@@ -299,77 +310,17 @@ Tugas Anda adalah:
       ]
     };
 
-    let parsedData = null;
-    let modelUsed = primaryModel;
-    let totalTokens = 0;
-    let usage = {};
+    const result = await callGeminiStructured({
+      apiKey,
+      systemInstruction: systemInstructionText,
+      userPrompt: userPromptText,
+      responseSchema: schemaConfig,
+      temperature: 0.25
+    });
 
-    // 1. Try SDK with apiVersion: 'v1beta'
-    if (GoogleGenAI) {
-      try {
-        const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
-        const response = await ai.models.generateContent({
-          model: primaryModel,
-          contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
-          config: {
-            systemInstruction: { parts: [{ text: systemInstructionText }] },
-            responseMimeType: 'application/json',
-            responseSchema: schemaConfig,
-            temperature: 0.25,
-            maxOutputTokens: 8192
-          }
-        });
-        const replyText = response.text || '';
-        if (replyText) {
-          parsedData = JSON.parse(replyText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-          usage = response.usageMetadata || {};
-          totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-        }
-      } catch (sdkErr) {
-        console.warn(`[SDK humanize ${primaryModel} failed]:`, sdkErr.message);
-      }
-    }
+    const parsedData = result.data;
 
-    // 2. Direct REST v1beta failover
-    if (!parsedData) {
-      try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${primaryModel}:generateContent?key=${apiKey}`;
-        const restRes = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
-            systemInstruction: { parts: [{ text: systemInstructionText }] },
-            generationConfig: {
-              temperature: 0.25,
-              responseMimeType: 'application/json',
-              maxOutputTokens: 8192
-            }
-          })
-        });
-
-        if (restRes.ok) {
-          const restData = await restRes.json();
-          const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (cand) {
-            parsedData = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-            usage = restData.usageMetadata || {};
-            totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-          }
-        } else {
-          const errBody = await restRes.json().catch(() => ({}));
-          throw new Error(errBody.error?.message || ('HTTP ' + restRes.status));
-        }
-      } catch (restErr) {
-        throw restErr;
-      }
-    }
-
-    if (!parsedData || !Array.isArray(parsedData.sentences)) {
-      throw new Error('Google Gemini API tidak mengembalikan struktur naskah yang valid.');
-    }
-
-    const sentencePairs = parsedData.sentences.map((s, idx) => {
+    const sentencePairs = (parsedData.sentences || []).map((s, idx) => {
       const orig = (s.original_text || sentences[idx] || '').trim();
       const hum = (s.humanized_text || orig).trim();
       const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 65;
@@ -404,9 +355,9 @@ Tugas Anda adalah:
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: 'success',
-      model_used: modelUsed,
-      total_tokens_used: totalTokens,
-      usage_metadata: usage,
+      model_used: result.model_used,
+      total_tokens_used: result.total_tokens,
+      usage_metadata: result.usage,
       mode: mode,
       sentence_count: sentencePairs.length,
       humanized_text: fullHumanizedText,
