@@ -198,7 +198,7 @@ function buildSevenColumnMatrix(sentences, heatmapResults = []) {
         ? `Eliminasi klise sintaksis AI; ${appliedRules.join('; ')}.`
         : 'Eliminasi pola kalimat robotik dan penyesuaian register naskah dinas.';
     } else if (isAiModerate || isLinguisticallyDirty) {
-      status = 'REVISI MINOR';
+      status = 'REVISI STRUKTURAL';
       if (isLinguisticallyDirty) {
         characteristics = 'Pelanggaran ejaan leksikal baku KBBI / kaidah tanda baca EYD V terdeteksi.';
         reason = appliedRules.join('; ');
@@ -229,7 +229,7 @@ function buildSevenColumnMatrix(sentences, heatmapResults = []) {
       revised_text: rec,
       revision_reason: reason,
       action_note: reason,
-      level: status === 'REVISI SUBSTANTIF' ? 'high' : (status === 'REVISI MINOR' ? 'medium' : 'low')
+      level: status === 'REVISI SUBSTANTIF' ? 'high' : (status === 'REVISI STRUKTURAL' ? 'medium' : 'low')
     };
   });
 }
@@ -289,7 +289,7 @@ module.exports = async (req, res) => {
     const sPairs = buildSevenColumnMatrix(sentences, heatmap);
 
     const cntSudahBaik = sPairs.filter(s => s.status === 'SUDAH BAIK').length;
-    const cntMinor = sPairs.filter(s => s.status === 'REVISI MINOR').length;
+    const cntMinor = sPairs.filter(s => s.status === 'REVISI STRUKTURAL').length;
     const cntSubstantif = sPairs.filter(s => s.status === 'REVISI SUBSTANTIF').length;
     const cntVerifikasi = sPairs.filter(s => s.status === 'PERLU VERIFIKASI').length;
 
@@ -407,7 +407,7 @@ module.exports = async (req, res) => {
         total: sPairs.length,
         human: sPairs.filter(s => s.status === 'SUDAH BAIK').length,
         ai: sPairs.filter(s => s.status === 'REVISI SUBSTANTIF').length,
-        mixed: sPairs.filter(s => s.status === 'REVISI MINOR').length
+        mixed: sPairs.filter(s => s.status === 'REVISI STRUKTURAL').length
       },
       entropy: {
         perplexity_index: 21.5,
@@ -464,7 +464,7 @@ module.exports = async (req, res) => {
         total: sPairs.length,
         human: sPairs.filter(s => s.status === 'SUDAH BAIK').length,
         ai: sPairs.filter(s => s.status === 'REVISI SUBSTANTIF').length,
-        mixed: sPairs.filter(s => s.status === 'REVISI MINOR').length
+        mixed: sPairs.filter(s => s.status === 'REVISI STRUKTURAL').length
       },
       downloads: {
         pdf: '/downloads/NEXUS_AI_FORENSIC_AUDIT_REPORT.pdf',

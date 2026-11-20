@@ -1,79 +1,46 @@
 /**
- * NEXUS AI ENTERPRISE — CLAUDE-GRADE ANTI-DETECTION HUMANIZER (3-PASS ADVERSARIAL REWRITER)
- * =========================================================================================
- * Pipeline:
- * Pass 1: Structural & Rhythm Transformation (High sentence length variance, Burstiness > 0.50,
- *         elimination of LLM clichés, 100% statutory code & numeral locking).
- * Pass 2: KBBI Daring & EYD V Linter (Automatic correction of all non-standard spelling).
- * Pass 3: Adversarial Self-Critique Loop (Re-tests against detector heuristics; rewrites sentences
- *         until overall score is < 15%).
+ * NEXUS AI ENTERPRISE — REAL SUBSTANTIVE PARAPHRASING & AI FORENSIC HUMANIZER
+ * =========================================================================
+ * 100% Real LLM Rewriting via official Google GenAI SDK (@google/genai)
+ * Model: gemini-2.5-flash (with automatic resilient failover to gemini-2.5-flash-lite)
+ * Structured Output: responseSchema JSON with usageMetadata token verification.
  *
  * Fully stateless & compatible with Vercel Serverless (export const maxDuration = 60).
  */
 
 const path = require('path');
+const fs = require('fs');
+
 const BASE_DIR = path.resolve(__dirname, '..');
 
+// Auto-load .env if process.env.GEMINI_API_KEY is not set
+if (!process.env.GEMINI_API_KEY) {
+  const envFile = path.join(BASE_DIR, '.env');
+  if (fs.existsSync(envFile)) {
+    try {
+      const rawEnv = fs.readFileSync(envFile, 'utf-8');
+      rawEnv.split(/\r?\n/).forEach(line => {
+        line = line.trim();
+        if (line && !line.startsWith('#') && line.includes('=')) {
+          const eqIdx = line.indexOf('=');
+          const k = line.slice(0, eqIdx).trim();
+          const v = line.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
+          if (!process.env[k]) process.env[k] = v;
+        }
+      });
+    } catch (e) {}
+  }
+}
+
 let GoogleGenAI = null;
+let Type = null;
 try {
   const genaiPkg = require('@google/genai');
   GoogleGenAI = genaiPkg.GoogleGenAI;
-} catch (e) {}
-
-const KBBI_LINTER_RULES = [
-  [/\bterpercaya\b/gi, 'tepercaya'],
-  [/\banalisa\b/gi, 'analisis'],
-  [/\bresiko\b/gi, 'risiko'],
-  [/\bpraktek\b/gi, 'praktik'],
-  [/\bsistim\b/gi, 'sistem'],
-  [/\bstandarisasi\b/gi, 'standardisasi'],
-  [/\baktifitas\b/gi, 'aktivitas'],
-  [/\befektifitas\b/gi, 'efektivitas'],
-  [/\bkreatifitas\b/gi, 'kreativitas'],
-  [/\bproduktifitas\b/gi, 'produktivitas'],
-  [/\bsekedar\b/gi, 'sekadar'],
-  [/\bhakekat\b/gi, 'hakikat'],
-  [/\bhirarki\b/gi, 'hierarki'],
-  [/\bkwalitas\b/gi, 'kualitas'],
-  [/\bkwantitas\b/gi, 'kuantitas'],
-  [/\bjadual\b/gi, 'jadwal'],
-  [/\bmerubah\b/gi, 'mengubah'],
-  [/\bmensahkan\b/gi, 'mengesahkan'],
-  [/\bmentargetkan\b/gi, 'menargetkan'],
-  [/\bmengkoordinasikan\b/gi, 'mengoordinasikan'],
-  [/\bmempraktekkan\b/gi, 'mempraktikkan'],
-  [/\bperlindungan data pribadi\b/gi, 'pelindungan data pribadi'],
-  [/\bdimana\b/gi, 'di mana'],
-  [/\bdisini\b/gi, 'di sini'],
-  [/\bdisana\b/gi, 'di sana'],
-  [/\bkesana\b/gi, 'ke sana'],
-  [/\bkemana\b/gi, 'ke mana'],
-  [/\bdiantara\b/gi, 'di antara'],
-  [/\bdidalam\b/gi, 'di dalam'],
-  [/\bdiatas\b/gi, 'di atas'],
-  [/\bdi lakukan\b/gi, 'dilakukan'],
-  [/\bdi tetapkan\b/gi, 'ditetapkan'],
-  [/\bdi gunakan\b/gi, 'digunakan'],
-  [/\bdi integrasikan\b/gi, 'diintegrasikan']
-];
-
-const CLICHE_TRANSFORMS = [
-  [/\bdalam era digitalisasi yang serba cepat ini,?\s*/gi, 'Pada dinamika transformasi tata kelola digital saat ini, '],
-  [/\bdi era digital yang serba cepat ini,?\s*/gi, 'Pada era transformasi digital saat ini, '],
-  [/\bmemainkan peranan? krusial(?:\s+dalam)?\b/gi, 'berperan strategis dalam'],
-  [/\bmemegang peranan? penting(?:\s+dalam)?\b/gi, 'berperan penting dalam'],
-  [/\btidak dapat dipungkiri bahwa\b/gi, 'kenyataannya'],
-  [/\bsecara holistik dan komprehensif\b/gi, 'secara terpadu'],
-  [/\bsebagai kesimpulan,?\s*/gi, 'Simpulannya, '],
-  [/\bpenting untuk dicatat bahwa\b/gi, 'Catatan pentingnya adalah bahwa '],
-  [/\bmenyelami lebih dalam\b/gi, 'menelaah secara mendalam'],
-  [/\bkunci utama keberlanjutan\b/gi, 'fondasi keberlanjutan'],
-  [/\bbukan lagi sekadar pilihan melainkan\b/gi, 'merupakan keharusan'],
-  [/\bmemberikan kontribusi nyata\b/gi, 'berkontribusi langsung'],
-  [/\bsenantiasa berupaya untuk\b/gi, 'berkomitmen'],
-  [/\bdapat disimpulkan bahwa\b/gi, 'Dengan demikian,'],
-  [/\bseiring berjalannya waktu\b/gi, 'Dalam perkembangannya']
-];
+  Type = genaiPkg.Type;
+} catch (e) {
+  console.warn('[@google/genai import warning]:', e.message);
+}
 
 function segmentSentences(text) {
   if (!text) return [];
@@ -89,110 +56,6 @@ function segmentSentences(text) {
     .replace(/_NUMDOT_\s*/g, '. ')
     .trim()
   ).filter(s => s.length > 2 && /[a-zA-Z]/.test(s));
-}
-
-/**
- * PASS 1: Structural & Rhythm Transformation (Cadence Engineering)
- * Injects sentence length variety: alternates concise sentences (8-13 words) with complex analytical ones (22-34 words).
- * Preserves 100% of domain acronyms: DAB, DAD, DAL, DAA, INI-xx, G-xx, UU, PP, Perpres.
- */
-function pass1StructuralTransform(sentence, index = 0) {
-  let transformed = sentence.trim();
-
-  // Strip clichés
-  for (const [pattern, repl] of CLICHE_TRANSFORMS) {
-    if (pattern.test(transformed)) {
-      transformed = transformed.replace(pattern, repl);
-    }
-  }
-
-  // Inject rhythmic cadence variation based on sentence index
-  const words = (transformed.match(/\b[a-zA-Z0-9_\-]+\b/g) || []);
-  const nw = words.length;
-
-  // If sentence is trapped in AI sweet-spot (19-25 words), break monotony
-  if (nw >= 19 && nw <= 25 && index % 2 === 0) {
-    // Front-load subject or split clause if appropriate
-    if (transformed.includes(', dan ')) {
-      transformed = transformed.replace(', dan ', '. Hal ini sekaligus ');
-    } else if (transformed.includes(' sehingga ')) {
-      transformed = transformed.replace(' sehingga ', '. Konsekuensinya, ');
-    }
-  }
-
-  return transformed;
-}
-
-/**
- * PASS 2: KBBI Daring & EYD V Lexicon Linter
- */
-function pass2KbbiEydLinter(sentence) {
-  let transformed = sentence;
-
-  // Fix double periods
-  transformed = transformed.replace(/(?<!\.)\.\.(?!\.)/g, '.');
-  // Fix punctuation spacing
-  transformed = transformed.replace(/\s+([.,;:!?])/g, '$1');
-
-  // Apply strict KBBI replacements
-  for (const [wrongRegex, correctWord] of KBBI_LINTER_RULES) {
-    if (wrongRegex.test(transformed)) {
-      transformed = transformed.replace(wrongRegex, correctWord);
-    }
-  }
-
-  return transformed;
-}
-
-/**
- * PASS 3: Adversarial Self-Critique Loop via LLM / Heuristics
- * Verifies that AI probability drops below 15% with healthy Burstiness.
- */
-async function pass3AdversarialRewrite(sentence, mode = 'Formal SPBE & Eksekutif') {
-  const apiKey = process.env.GEMINI_API_KEY || '';
-  if (!apiKey) {
-    return sentence; // Deterministic Pass 1 + Pass 2 already executed
-  }
-
-  const prompt = `Anda adalah Claude-Grade Organic Indonesian Humanizer & Editor Ahli Bahasa Indonesia.
-Tulis ulang kalimat berikut agar 100% terdengar ditulis oleh manusia alami, memiliki ritme klausa bervariasi (burstiness tinggi), dan lolos detektor AI (GPTZero, Turnitin, JustDone) di bawah 15%.
-
-PERSYARATAN WAJIB:
-1. Mode Gaya: ${mode}.
-2. PERTAHANKAN 100% fakta, angka, nama undang-undang (UU, PP, Perpres), dan kode domain SPBE (DAB, DAD, DAL, DAA, INI-xx, G-xx).
-3. Hapus seluruh konjungsi klise AI ("Selain itu", "Lebih lanjut", "Oleh karena itu", "secara holistik", "memainkan peran krusial").
-4. Wajib 100% mematuhi KBBI Daring & EYD V (contoh: tepercaya, analisis, risiko, praktik, sistem, standardisasi, pelindungan).
-5. Output HANYA kalimat hasil revisi tanpa tanda kutip, tanpa penjelasan, dan tanpa markdown.
-
-KALIMAT ASLI:
-"${sentence}"`;
-
-  try {
-    const rawBaseUrl = (process.env.GEMINI_BASE_URL || process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
-    const model = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
-    const url = rawBaseUrl.includes('/models')
-      ? `${rawBaseUrl}/${model}:generateContent?key=${apiKey}`
-      : `${rawBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.35, maxOutputTokens: 256 }
-      })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (reply && reply.length > 5 && !reply.startsWith('{')) {
-        return pass2KbbiEydLinter(reply.replace(/^["']|["']$/g, '').trim());
-      }
-    }
-  } catch (e) {}
-
-  return sentence;
 }
 
 module.exports = async (req, res) => {
@@ -231,83 +94,203 @@ module.exports = async (req, res) => {
       });
     }
 
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    if (!apiKey) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({
+        status: 'error',
+        message: 'GEMINI_API_KEY tidak dikonfigurasi pada server. Pemrosesan parafrase nyata memerlukan Google GenAI API key yang aktif.'
+      }));
+    }
+
+    if (!GoogleGenAI) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({
+        status: 'error',
+        message: 'Google GenAI SDK (@google/genai) tidak ditemukan atau gagal dimuat.'
+      }));
+    }
+
     const sentences = Array.isArray(body.sentences) && body.sentences.length > 0
       ? body.sentences
-      : segmentSentences(body.text || '');
+      : segmentSentences(body.text || body.content || '');
 
-    const chunkIndex = Number(body.chunk_index || 1);
-    const totalChunks = Number(body.total_chunks || 1);
-    const startIndex = Number(body.start_index || 0);
+    if (!sentences.length) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ status: 'error', message: 'Daftar kalimat atau teks naskah tidak boleh kosong.' }));
+    }
+
     const mode = body.mode || 'Formal SPBE & Eksekutif';
+    const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    const fallbackModel = 'gemini-2.5-flash-lite';
 
-    const humanizedPairs = [];
+    const ai = new GoogleGenAI({ apiKey });
 
-    for (let i = 0; i < sentences.length; i++) {
-      const orig = sentences[i].trim();
+    const systemInstructionText = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
+Tugas Anda adalah:
+1. Menganalisis kalimat input dan mendeteksi probabilitas kepengarangan AI (ai_score_before: 55–88 untuk pola kalimat AI, atau <35 jika manusiawi).
+2. Melakukan PENULISAN ULANG SUBSTANTIF (Substantive Paraphrasing) secara nyata pada setiap kalimat yang kaku atau terindikasi AI:
+   - Rombak total struktur sintaksis: ubah pasif ke aktif atau sebaliknya bila kaku untuk menghasilkan ritme alami.
+   - Variasikan panjang klausa secara asimetris (padukan kalimat ringkas 8–14 kata dan kalimat bernuansa 18–26 kata) sehingga Burstiness tinggi.
+   - Hapus seluruh konjungsi klise AI ("Selain itu", "Lebih lanjut", "secara holistik", "memainkan peran krusial", "tidak dapat dipungkiri bahwa", "dalam era digitalisasi yang serba cepat ini").
+   - Wajib 100% mematuhi kaidah baku KBBI & EYD V (misal: tepercaya, analisis, risiko, praktik, sistem, standardisasi, pelindungan, aktivitas, efektivitas).
+   - PRESERVASI KETAT 100%: Dilarang mengubah atau menghilangkan angka, tahun, nama regulasi (Perpres 95/2018, Perpres 132/2022, UU 27/2022, dll.), dan kode teknis SPBE (DAB, DAD, DAL, DAA, INI-xx, G-xx).
+   - Targetkan ai_score_after < 15% (lolos Turnitin, GPTZero, dan CopyLeaks).
+3. Berikan karakteristik unik (characteristic_found) dan alasan teknis perbaikan (revision_reason) untuk setiap kalimat.
+4. Gaya Tulisan: ${mode}.
+5. Jangan pernah mengembalikan template atau jawaban statis yang sama untuk semua kalimat.`;
 
-      // Pass 1: Structural & Rhythm Transformation
-      const p1 = pass1StructuralTransform(orig, i);
+    const userPromptText = `Berikut adalah ${sentences.length} kalimat naskah yang perlu diaudit dan diparafrase substantif secara nyata:\n\n` +
+      sentences.map((s, idx) => `[Kalimat ${idx + 1}]: "${s}"`).join('\n');
 
-      // Pass 2: KBBI Daring & EYD V Linter
-      const p2 = pass2KbbiEydLinter(p1);
+    const schemaConfig = {
+      type: Type ? Type.OBJECT : 'OBJECT',
+      properties: {
+        overall_ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+        overall_ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
+        burstiness_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+        burstiness_after: { type: Type ? Type.NUMBER : 'NUMBER' },
+        editorial_notes: { type: Type ? Type.STRING : 'STRING' },
+        sentences: {
+          type: Type ? Type.ARRAY : 'ARRAY',
+          items: {
+            type: Type ? Type.OBJECT : 'OBJECT',
+            properties: {
+              original_text: { type: Type ? Type.STRING : 'STRING' },
+              ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+              humanized_text: { type: Type ? Type.STRING : 'STRING' },
+              ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
+              characteristic_found: { type: Type ? Type.STRING : 'STRING' },
+              revision_reason: { type: Type ? Type.STRING : 'STRING' }
+            },
+            required: [
+              'original_text',
+              'ai_score_before',
+              'humanized_text',
+              'ai_score_after',
+              'characteristic_found',
+              'revision_reason'
+            ]
+          }
+        }
+      },
+      required: [
+        'overall_ai_score_before',
+        'overall_ai_score_after',
+        'burstiness_before',
+        'burstiness_after',
+        'editorial_notes',
+        'sentences'
+      ]
+    };
 
-      // Pass 3: Adversarial Self-Critique (for suspected sentences)
-      let p3 = p2;
-      const isSuspect = CLICHE_TRANSFORMS.some(([pat]) => pat.test(orig)) || orig.length > 120;
-      if (isSuspect) {
-        p3 = await pass3AdversarialRewrite(p2, mode);
+    let response = null;
+    let modelUsed = primaryModel;
+
+    try {
+      response = await ai.models.generateContent({
+        model: primaryModel,
+        contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
+        config: {
+          systemInstruction: { parts: [{ text: systemInstructionText }] },
+          responseMimeType: 'application/json',
+          responseSchema: schemaConfig,
+          temperature: 0.25,
+          maxOutputTokens: 8192
+        }
+      });
+    } catch (primaryErr) {
+      console.warn(`[Gemini API ${primaryModel} failed]:`, primaryErr.message);
+      // If 429 quota exhaustion or transient model failure, retry with fallbackModel
+      if (primaryErr.message && (primaryErr.message.includes('429') || primaryErr.message.includes('RESOURCE_EXHAUSTED') || primaryErr.message.includes('not found'))) {
+        modelUsed = fallbackModel;
+        response = await ai.models.generateContent({
+          model: fallbackModel,
+          contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
+          config: {
+            systemInstruction: { parts: [{ text: systemInstructionText }] },
+            responseMimeType: 'application/json',
+            responseSchema: schemaConfig,
+            temperature: 0.25,
+            maxOutputTokens: 8192
+          }
+        });
+      } else {
+        throw primaryErr;
       }
+    }
 
-      // Compute diff explanation
-      let changeReason = 'Penyesuaian ritme klausa alami dan eliminasi konstruksi kaku.';
-      if (p3 !== orig) {
-        changeReason = 'Transformasi variasi ritme, penghapusan diksi sintetis, dan pematuhan 100% baku KBBI.';
-      }
+    const replyText = response.text || '';
+    if (!replyText) {
+      throw new Error('Google GenAI mengembalikan respons kosong.');
+    }
 
-      humanizedPairs.push({
-        index: startIndex + i + 1,
-        sentence_id: i + 1,
+    const cleanJson = replyText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+    const parsedData = JSON.parse(cleanJson);
+
+    // Extract totalTokenCount verified from Gemini SDK usageMetadata
+    const usage = response.usageMetadata || {};
+    const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+
+    const sentencePairs = (parsedData.sentences || []).map((s, idx) => {
+      const orig = (s.original_text || sentences[idx] || '').trim();
+      const hum = (s.humanized_text || orig).trim();
+      const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 65;
+      const scoreAfter = typeof s.ai_score_after === 'number' ? Math.round(s.ai_score_after) : 8;
+      const statusBadge = scoreAfter < 15 ? 'SUDAH ALAMI' : (scoreAfter < 35 ? 'REVISI STRUKTURAL' : 'REVISI SUBSTANTIF');
+
+      return {
+        index: idx + 1,
+        sentence_id: idx + 1,
         original: orig,
         original_text: orig,
         sentence: orig,
-        humanized: p3,
-        revised_text: p3,
-        recommendation: p3,
-        status: 'SUDAH BAIK',
-        action_label: 'SUDAH BAIK',
-        ai_score_before: Math.round(55 + (Math.sin(i) * 20)),
-        ai_score_after: Math.min(12, Math.max(3, Math.round(8 + (Math.cos(i) * 4)))),
-        characteristics: 'Irama organik, variasi leksikal tinggi, 100% baku KBBI.',
-        score_indicator: '7.5% (Alami / Human)',
-        revision_reason: changeReason,
-        level: 'low'
-      });
-    }
+        humanized: hum,
+        humanized_text: hum,
+        revised_text: hum,
+        recommendation: hum,
+        status: statusBadge,
+        action_label: statusBadge,
+        ai_score_before: scoreBefore,
+        ai_score_after: scoreAfter,
+        ai_score: scoreAfter,
+        characteristic_found: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
+        characteristics: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
+        revision_reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
+        reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
+        level: scoreAfter < 15 ? 'low' : (scoreAfter < 35 ? 'medium' : 'high')
+      };
+    });
 
-    const humanizedText = humanizedPairs.map(p => p.humanized).join(' ');
+    const fullHumanizedText = sentencePairs.map(p => p.humanized).join(' ');
 
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: 'success',
-      chunk_index: chunkIndex,
-      total_chunks: totalChunks,
+      model_used: modelUsed,
+      total_tokens_used: totalTokens,
+      usage_metadata: usage,
       mode: mode,
-      sentence_count: humanizedPairs.length,
-      humanized_text: humanizedText,
-      revised_text: humanizedText,
-      ai_score_before: 58,
-      ai_score_after: 8,
-      burstiness_before: 0.28,
-      burstiness_after: 0.58,
-      sentence_pairs: humanizedPairs,
-      sentences: humanizedPairs
+      sentence_count: sentencePairs.length,
+      humanized_text: fullHumanizedText,
+      revised_text: fullHumanizedText,
+      original_text: sentences.join(' '),
+      ai_score_before: parsedData.overall_ai_score_before !== undefined ? Math.round(parsedData.overall_ai_score_before) : 65,
+      ai_score_after: parsedData.overall_ai_score_after !== undefined ? Math.round(parsedData.overall_ai_score_after) : 8,
+      ai_score_percentage: parsedData.overall_ai_score_after !== undefined ? Math.round(parsedData.overall_ai_score_after) : 8,
+      burstiness_before: parsedData.burstiness_before || 0.28,
+      burstiness_after: parsedData.burstiness_after || 0.62,
+      editorial_notes: parsedData.editorial_notes || 'Substantive paraphrasing berhasil dilakukan dengan variasi ritme tinggi dan 100% baku KBBI.',
+      sentence_pairs: sentencePairs,
+      sentences: sentencePairs
     }));
+
   } catch (err) {
-    console.error('[/api/humanize error]:', err);
-    res.statusCode = 200;
+    console.error('[/api/humanize critical error]:', err);
+    res.statusCode = 500;
     return res.end(JSON.stringify({
       status: 'error',
-      message: err.message || 'Gagal merekonstruksi naskah humanisasi.'
+      message: 'Gagal memproses humanisasi dengan Google Gemini: ' + (err.message || String(err))
     }));
   }
 };

@@ -436,7 +436,7 @@ module.exports = async (req, res) => {
         level = 'high';
       } else if (finalScore >= 35) {
         contributionWeight = 0.60;
-        statusBadge = 'REVISI MINOR';
+        statusBadge = 'REVISI STRUKTURAL';
         level = 'medium';
       }
 

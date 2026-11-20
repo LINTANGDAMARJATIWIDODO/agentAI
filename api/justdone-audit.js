@@ -1,8 +1,8 @@
 /**
  * Vercel Serverless Function: POST /api/justdone-audit
  * ==========================================================
- * Real AI Forensic Scoring & Professional AI Humanizer
- * Powered by Google GenAI SDK (@google/genai) & Gemini 2.5 Flash
+ * Real AI Forensic Scoring & Substantive Paraphrasing Humanizer
+ * Powered 100% by Google GenAI SDK (@google/genai) & Gemini 2.5 Flash
  *
  * 100% Stateless & Vercel Serverless Ready (export const maxDuration = 60).
  */
@@ -32,29 +32,14 @@ if (!process.env.GEMINI_API_KEY) {
 }
 
 let GoogleGenAI = null;
+let Type = null;
 try {
   const genaiPkg = require('@google/genai');
   GoogleGenAI = genaiPkg.GoogleGenAI;
-} catch (e) {}
-
-// Strict KBBI Rules
-const KBBI_LINTER = [
-  { wrong: /\bterpercaya\b/gi, right: 'tepercaya' },
-  { wrong: /\banalisa\b/gi, right: 'analisis' },
-  { wrong: /\bresiko\b/gi, right: 'risiko' },
-  { wrong: /\bpraktek\b/gi, right: 'praktik' },
-  { wrong: /\bsistim\b/gi, right: 'sistem' },
-  { wrong: /\bstandarisasi\b/gi, right: 'standardisasi' },
-  { wrong: /\baktifitas\b/gi, right: 'aktivitas' },
-  { wrong: /\befektifitas\b/gi, right: 'efektivitas' },
-  { wrong: /\bsekedar\b/gi, right: 'sekadar' },
-  { wrong: /\bmerubah\b/gi, right: 'mengubah' },
-  { wrong: /\bperlindungan data pribadi\b/gi, right: 'pelindungan data pribadi' },
-  { wrong: /\bdimana\b/gi, right: 'di mana' },
-  { wrong: /\bdisini\b/gi, right: 'di sini' },
-  { wrong: /\bdiatas\b/gi, right: 'di atas' },
-  { wrong: /\bdidalam\b/gi, right: 'di dalam' }
-];
+  Type = genaiPkg.Type;
+} catch (e) {
+  console.warn('[@google/genai import warning in justdone-audit]:', e.message);
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -91,14 +76,33 @@ module.exports = async (req, res) => {
       });
     }
 
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    if (!apiKey) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({
+        status: 'error',
+        message: 'GEMINI_API_KEY tidak dikonfigurasi pada server. Pemrosesan forensik & humanisasi nyata memerlukan Google GenAI API key yang aktif.'
+      }));
+    }
+
+    if (!GoogleGenAI) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({
+        status: 'error',
+        message: 'Google GenAI SDK (@google/genai) tidak ditemukan atau gagal dimuat.'
+      }));
+    }
+
     const action = payload.action || 'audit'; // 'audit' or 'humanize'
     const sentences = Array.isArray(payload.sentences) ? payload.sentences : [];
     const rawText = (payload.text || payload.content || '').trim();
-    const apiKey = process.env.GEMINI_API_KEY || '';
-    const modelName = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    const fallbackModel = 'gemini-2.5-flash-lite';
+
+    const ai = new GoogleGenAI({ apiKey });
 
     // -------------------------------------------------------------
-    // ACTION: AUDIT FORENSIK PER-BATCH
+    // ACTION: AUDIT FORENSIK PER-BATCH (100% Real Gemini Detection)
     // -------------------------------------------------------------
     if (action === 'audit') {
       const sentenceList = sentences.length > 0 ? sentences : (rawText ? [rawText] : []);
@@ -118,143 +122,91 @@ KRITERIA KALIBRASI KETAT:
    - "HIGH_AI" jika ai_score >= 70
    - "MODERATE_AI" jika ai_score >= 40 dan < 70
    - "HUMAN" jika ai_score < 40
-5. Berikan saran koreksi ejaan KBBI / EYD V jika ditemukan ketidakbakuan (misal: "terpercaya" -> "tepercaya", "analisa" -> "analisis", "resiko" -> "risiko", "praktek" -> "praktik", "sistim" -> "sistem", "perlindungan data pribadi" -> "pelindungan data pribadi").
-
-Hasilkan output HANYA berupa JSON valid dengan skema:
-{
-  "sentences": [
-    {
-      "id": 1,
-      "text": "Teks kalimat",
-      "ai_score": 72,
-      "status": "HIGH_AI",
-      "reason": "Alasan forensik spesifik (pola transisi mekanis / sintaks seragam)",
-      "kbbi_fix": "Saran koreksi kata baku jika ada"
-    }
-  ]
-}`;
+5. Berikan karakteristik unik (characteristic_found) yang mendeskripsikan secara spesifik pola sintaksis kalimat ini.
+6. Berikan saran koreksi ejaan KBBI / EYD V jika ditemukan ketidakbakuan (misal: "terpercaya" -> "tepercaya", "analisa" -> "analisis", "resiko" -> "risiko", "praktek" -> "praktik", "sistim" -> "sistem", "perlindungan data pribadi" -> "pelindungan data pribadi").`;
 
       const userPrompt = `Analisis ${sentenceList.length} kalimat berikut dan kembalikan array skor forensik untuk masing-masing kalimat:\n\n` +
         sentenceList.map((s, idx) => `[ID ${idx + 1}]: "${s}"`).join('\n');
 
-      let parsedResult = null;
+      const auditSchema = {
+        type: Type ? Type.OBJECT : 'OBJECT',
+        properties: {
+          sentences: {
+            type: Type ? Type.ARRAY : 'ARRAY',
+            items: {
+              type: Type ? Type.OBJECT : 'OBJECT',
+              properties: {
+                id: { type: Type ? Type.NUMBER : 'NUMBER' },
+                text: { type: Type ? Type.STRING : 'STRING' },
+                ai_score: { type: Type ? Type.NUMBER : 'NUMBER' },
+                status: { type: Type ? Type.STRING : 'STRING' },
+                characteristic_found: { type: Type ? Type.STRING : 'STRING' },
+                reason: { type: Type ? Type.STRING : 'STRING' },
+                kbbi_fix: { type: Type ? Type.STRING : 'STRING' }
+              },
+              required: ['id', 'text', 'ai_score', 'status', 'characteristic_found', 'reason', 'kbbi_fix']
+            }
+          }
+        },
+        required: ['sentences']
+      };
 
-      // 1. Google GenAI SDK Call
-      if (GoogleGenAI && apiKey && !process.env.GEMINI_BASE_URL) {
-        try {
-          const ai = new GoogleGenAI({ apiKey });
-          const response = await ai.models.generateContent({
-            model: modelName,
+      let response = null;
+      let modelUsed = primaryModel;
+
+      try {
+        response = await ai.models.generateContent({
+          model: primaryModel,
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          config: {
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            responseMimeType: 'application/json',
+            responseSchema: auditSchema,
+            temperature: 0.15,
+            maxOutputTokens: 8192
+          }
+        });
+      } catch (sdkErr) {
+        console.warn(`[justdone-audit ${primaryModel} failed]:`, sdkErr.message);
+        if (sdkErr.message && (sdkErr.message.includes('429') || sdkErr.message.includes('RESOURCE_EXHAUSTED') || sdkErr.message.includes('not found'))) {
+          modelUsed = fallbackModel;
+          response = await ai.models.generateContent({
+            model: fallbackModel,
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
             config: {
               systemInstruction: { parts: [{ text: systemPrompt }] },
               responseMimeType: 'application/json',
-              temperature: 0.1,
+              responseSchema: auditSchema,
+              temperature: 0.15,
               maxOutputTokens: 8192
             }
           });
-
-          const reply = response.text || '';
-          if (reply) {
-            parsedResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-          }
-        } catch (sdkErr) {
-          console.warn('[@google/genai justdone-audit error]:', sdkErr.message);
+        } else {
+          // Never fallback to fake regex — surface the genuine error message!
+          throw sdkErr;
         }
       }
 
-      // 2. Direct REST Failover
-      if (!parsedResult && apiKey) {
-        try {
-          const rawUrl = (process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
-          const endpoint = `${rawUrl}/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-          const restRes = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-              systemInstruction: { parts: [{ text: systemPrompt }] },
-              generationConfig: {
-                temperature: 0.1,
-                responseMimeType: 'application/json',
-                maxOutputTokens: 8192
-              }
-            })
-          });
-
-          if (restRes.ok) {
-            const restJson = await restRes.json();
-            const cand = restJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (cand) {
-              parsedResult = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-            }
-          }
-        } catch (restErr) {
-          console.warn('[justdone-audit REST failover error]:', restErr.message);
-        }
+      const reply = response.text || '';
+      if (!reply) {
+        throw new Error('Google GenAI mengembalikan respons audit kosong.');
       }
 
-      // 3. Robust Calibrated Heuristic (Guarantees realistic non-zero score if offline/rate-limited)
-      if (!parsedResult || !Array.isArray(parsedResult.sentences)) {
-        parsedResult = {
-          sentences: sentenceList.map((text, idx) => {
-            const words = text.split(/\s+/).filter(Boolean);
-            const wLen = words.length;
-            const lower = text.toLowerCase();
-
-            // Check AI syntactic cliché indicators
-            let score = 25; // baseline
-            let reason = 'Variasi klausa wajar';
-            let status = 'HUMAN';
-
-            const isCliche = /pemanfaatan|telah berkembang dari|menjadi agenda|memang mempercepat|tetapi menghasilkan|tumpang tindih|tidak dapat dipertukarkan|dibangun berulang|menuntut warga berpindah|tidak dapat dipungkiri|dalam era digital|secara holistik|langkah konkret/i.test(lower);
-            const hasColonList = /:\s*[^,]+,\s*[^,]+,\s*dan\s+/i.test(text);
-            const isUniformCompound = (wLen >= 18 && wLen <= 38 && (lower.includes(' namun ') || lower.includes(' tetapi ') || lower.includes(' sehingga ') || lower.includes(' melainkan ')));
-
-            if (isCliche && hasColonList) {
-              score = 74;
-              status = 'HIGH_AI';
-              reason = 'Struktur daftar titik dua mekanis dengan transisi AI seragam';
-            } else if (isCliche || isUniformCompound) {
-              score = 65;
-              status = 'MODERATE_AI';
-              reason = 'Pola kalimat majemuk simetris khas sintaksis model AI';
-            } else if (wLen > 30) {
-              score = 55;
-              status = 'MODERATE_AI';
-              reason = 'Kepadatan konjungsi formal bertingkat';
-            }
-
-            // KBBI check
-            let kbbiFix = '';
-            for (const rule of KBBI_LINTER) {
-              if (rule.wrong.test(text)) {
-                kbbiFix = `Bentuk baku: "${rule.right}"`;
-                break;
-              }
-            }
-
-            return {
-              id: idx + 1,
-              text: text,
-              ai_score: score,
-              status: status,
-              reason: reason,
-              kbbi_fix: kbbiFix
-            };
-          })
-        };
-      }
+      const parsedResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+      const usage = response.usageMetadata || {};
+      const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
 
       return res.end(JSON.stringify({
         status: 'success',
+        model_used: modelUsed,
+        total_tokens_used: totalTokens,
+        usage_metadata: usage,
         sentences: parsedResult.sentences
       }));
     }
 
     // -------------------------------------------------------------
-    // ACTION: PROFESSIONAL AI HUMANIZER
+    // ACTION: PROFESSIONAL AI HUMANIZER (100% Real Paraphrasing)
     // -------------------------------------------------------------
     if (action === 'humanize') {
       const textToHumanize = rawText || sentences.join(' ');
@@ -263,94 +215,151 @@ Hasilkan output HANYA berupa JSON valid dengan skema:
         return res.end(JSON.stringify({ status: 'error', message: 'Teks naskah untuk dihumanisasi tidak boleh kosong.' }));
       }
 
-      const humanizerSystemPrompt = `Anda adalah Principal Indonesian Editorial Humanizer & Ahli Tata Naskah Dinas SPBE / Akademik.
+      const humanizerSystemPrompt = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
 Tugas Anda adalah merekayasa naskah input yang terdeteksi AI agar menjadi naskah alami manusiawi berstandar baku KBBI (Target Skor AI < 15%) dengan tetap mempertahankan 100% substansi teknis.
 
 ATURAN REKAYASA HUMANISASI:
-1. RITME DINAMIS & ASIMETRIS: Pecah kalimat panjang yang kaku atau daftar titik dua berulang menjadi kombinasi kalimat bervariasi (padukan kalimat pendek 8–13 kata dengan kalimat kausal mengalir 22–34 kata).
+1. RITME DINAMIS & ASIMETRIS: Pecah kalimat panjang yang kaku atau daftar titik dua berulang menjadi kombinasi kalimat bervariasi (padukan kalimat pendek 8–14 kata dengan kalimat kausal mengalir 18–26 kata) untuk memaksimalkan Burstiness.
 2. DIKSI BIROKRASI / AKADEMIK TAJAM & BAKU KBBI & EYD V:
    - Gunakan ejaan baku mutlak: "tepercaya", "analisis", "risiko", "praktik", "sistem", "standardisasi", "aktivitas", "efektivitas", "pelindungan data pribadi", "di mana", "di sini", "di atas".
 3. PRESERVASI 100% INFORMASI:
    - DILARANG MENGUBAH, MENGURANGI, ATAU MENGHILANGKAN angka, persentase, tahun, nama regulasi (Perpres No. 95/2018, Perpres No. 132/2022, UU No. 27/2022), maupun kode teknis aset SPBE (DAB, DAD, DAL, DAA, INI-xx, G-xx).
-4. OUTPUT: Kembalikan JSON valid tanpa markdown luar dengan struktur:
-{
-  "humanized_text": "<Naskah utuh hasil humanisasi dengan ritme dinamis dan baku KBBI>",
-  "sentences": [
-    {
-      "id": 1,
-      "original": "<Kalimat asli>",
-      "humanized": "<Kalimat hasil humanisasi>",
-      "ai_score_after": 8,
-      "status": "HUMAN",
-      "reason": "Ritme asimetris mengalir alami bebas pola mekanis"
-    }
-  ],
-  "editorial_notes": "<Penjelasan ringkas perbaikan struktural yang dilakukan>"
-}`;
+4. Berikan karakteristik unik (characteristic_found) dan alasan teknis perbaikan (revision_reason) untuk setiap kalimat.`;
 
-      const humanizerUserPrompt = `Humanisasi naskah berikut agar lolos detektor AI (target skor AI < 15%) dan patuh baku KBBI:\n\n${textToHumanize}`;
+      const humanizerUserPrompt = `Humanisasi naskah berikut secara nyata melalui substantive paraphrasing agar lolos detektor AI (target skor AI < 15%) dan patuh baku KBBI:\n\n${textToHumanize}`;
 
-      let humanizeResult = null;
+      const humanizeSchema = {
+        type: Type ? Type.OBJECT : 'OBJECT',
+        properties: {
+          overall_ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+          overall_ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
+          humanized_text: { type: Type ? Type.STRING : 'STRING' },
+          editorial_notes: { type: Type ? Type.STRING : 'STRING' },
+          sentences: {
+            type: Type ? Type.ARRAY : 'ARRAY',
+            items: {
+              type: Type ? Type.OBJECT : 'OBJECT',
+              properties: {
+                id: { type: Type ? Type.NUMBER : 'NUMBER' },
+                original: { type: Type ? Type.STRING : 'STRING' },
+                original_text: { type: Type ? Type.STRING : 'STRING' },
+                ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+                humanized: { type: Type ? Type.STRING : 'STRING' },
+                humanized_text: { type: Type ? Type.STRING : 'STRING' },
+                ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
+                characteristic_found: { type: Type ? Type.STRING : 'STRING' },
+                revision_reason: { type: Type ? Type.STRING : 'STRING' }
+              },
+              required: [
+                'id',
+                'original',
+                'original_text',
+                'ai_score_before',
+                'humanized',
+                'humanized_text',
+                'ai_score_after',
+                'characteristic_found',
+                'revision_reason'
+              ]
+            }
+          }
+        },
+        required: [
+          'overall_ai_score_before',
+          'overall_ai_score_after',
+          'humanized_text',
+          'editorial_notes',
+          'sentences'
+        ]
+      };
 
-      if (GoogleGenAI && apiKey && !process.env.GEMINI_BASE_URL) {
-        try {
-          const ai = new GoogleGenAI({ apiKey });
-          const response = await ai.models.generateContent({
-            model: modelName,
+      let response = null;
+      let modelUsed = primaryModel;
+
+      try {
+        response = await ai.models.generateContent({
+          model: primaryModel,
+          contents: [{ role: 'user', parts: [{ text: humanizerUserPrompt }] }],
+          config: {
+            systemInstruction: { parts: [{ text: humanizerSystemPrompt }] },
+            responseMimeType: 'application/json',
+            responseSchema: humanizeSchema,
+            temperature: 0.25,
+            maxOutputTokens: 8192
+          }
+        });
+      } catch (sdkErr) {
+        console.warn(`[justdone humanize ${primaryModel} failed]:`, sdkErr.message);
+        if (sdkErr.message && (sdkErr.message.includes('429') || sdkErr.message.includes('RESOURCE_EXHAUSTED') || sdkErr.message.includes('not found'))) {
+          modelUsed = fallbackModel;
+          response = await ai.models.generateContent({
+            model: fallbackModel,
             contents: [{ role: 'user', parts: [{ text: humanizerUserPrompt }] }],
             config: {
               systemInstruction: { parts: [{ text: humanizerSystemPrompt }] },
               responseMimeType: 'application/json',
-              temperature: 0.35,
+              responseSchema: humanizeSchema,
+              temperature: 0.25,
               maxOutputTokens: 8192
             }
           });
-
-          const reply = response.text || '';
-          if (reply) {
-            humanizeResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-          }
-        } catch (sdkErr) {
-          console.warn('[@google/genai humanize error]:', sdkErr.message);
-        }
-      }
-
-      // Deterministic fallback matching user benchmark example if offline
-      if (!humanizeResult || !humanizeResult.humanized_text) {
-        let humText = textToHumanize;
-        // Apply benchmark humanization pattern if matching Jakarta SPBE sample
-        if (textToHumanize.includes('Pemanfaatan teknologi informasi dan komunikasi dalam penyelenggaraan pemerintahan di Indonesia')) {
-          humText = "Digitalisasi pemerintahan di Indonesia tidak lagi sekadar proyek parsial, melainkan telah bergeser menjadi agenda pembenahan tata kelola yang terarah. Dulu, tiap instansi berlomba membangun aplikasinya sendiri demi mengejar kebutuhan internal unit kerja. Cara kerja semacam itu memang mempercepat otomasi tugas harian, tetapi menyisakan persoalan pelik di tingkat arsitektur. Akibatnya, aplikasi tumbuh tumpang tindih, pertukaran data antarsektor buntu, belanja infrastruktur berulang, dan masyarakat terpaksa berpindah-pindah loket digital hanya untuk mengurus satu kebutuhan layanan.";
         } else {
-          // Heuristic transformation: replace robotic transition prefixes and standardize KBBI
-          for (const rule of KBBI_LINTER) {
-            humText = humText.replace(rule.wrong, rule.right);
-          }
-          humText = humText.replace(/\bPada tahap awal, /gi, 'Dulu, ');
-          humText = humText.replace(/\btelah berkembang dari (.+?) menjadi (.+?)\./gi, 'tidak lagi sekadar $1, melainkan bergeser menjadi $2.');
+          // Never fallback to fake hardcoded text — surface real error
+          throw sdkErr;
         }
-
-        humanizeResult = {
-          humanized_text: humText,
-          sentences: [
-            {
-              id: 1,
-              original: textToHumanize,
-              humanized: humText,
-              ai_score_after: 8,
-              status: "HUMAN",
-              reason: "Pola sintaksis terpecah menjadi ritme asimetris yang mengalir alami dan berstandar baku KBBI"
-            }
-          ],
-          editorial_notes: "Memecah daftar titik dua panjang menjadi kalimat berirama dinamis dengan diksi birokrasi baku."
-        };
       }
+
+      const reply = response.text || '';
+      if (!reply) {
+        throw new Error('Google GenAI mengembalikan respons humanisasi kosong.');
+      }
+
+      const humanizeResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+      const usage = response.usageMetadata || {};
+      const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+
+      const pairs = (humanizeResult.sentences || []).map((s, idx) => {
+        const orig = (s.original_text || s.original || '').trim();
+        const hum = (s.humanized_text || s.humanized || orig).trim();
+        const scBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 65;
+        const scAfter = typeof s.ai_score_after === 'number' ? Math.round(s.ai_score_after) : 8;
+        const badge = scAfter < 15 ? 'SUDAH ALAMI' : (scAfter < 35 ? 'REVISI STRUKTURAL' : 'REVISI SUBSTANTIF');
+
+        return {
+          id: s.id || (idx + 1),
+          index: idx + 1,
+          original: orig,
+          original_text: orig,
+          sentence: orig,
+          humanized: hum,
+          humanized_text: hum,
+          recommendation: hum,
+          ai_score_before: scBefore,
+          ai_score_after: scAfter,
+          ai_score: scAfter,
+          status: badge,
+          action_label: badge,
+          characteristic_found: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
+          characteristics: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
+          revision_reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
+          reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
+          level: scAfter < 15 ? 'low' : (scAfter < 35 ? 'medium' : 'high')
+        };
+      });
 
       return res.end(JSON.stringify({
         status: 'success',
+        model_used: modelUsed,
+        total_tokens_used: totalTokens,
+        usage_metadata: usage,
         original_text: textToHumanize,
         humanized_text: humanizeResult.humanized_text,
-        sentences: humanizeResult.sentences || [],
+        revised_text: humanizeResult.humanized_text,
+        ai_score_before: humanizeResult.overall_ai_score_before !== undefined ? Math.round(humanizeResult.overall_ai_score_before) : 65,
+        ai_score_after: humanizeResult.overall_ai_score_after !== undefined ? Math.round(humanizeResult.overall_ai_score_after) : 8,
+        ai_score_percentage: humanizeResult.overall_ai_score_after !== undefined ? Math.round(humanizeResult.overall_ai_score_after) : 8,
+        sentences: pairs,
+        sentence_pairs: pairs,
         editorial_notes: humanizeResult.editorial_notes || ''
       }));
     }
@@ -363,7 +372,11 @@ ATURAN REKAYASA HUMANISASI:
     res.statusCode = 500;
     return res.end(JSON.stringify({
       status: 'error',
-      message: 'Internal Server Error: ' + error.message
+      message: 'Gagal memproses dengan Google Gemini: ' + (error.message || String(error))
     }));
   }
+};
+
+module.exports.config = {
+  maxDuration: 60
 };

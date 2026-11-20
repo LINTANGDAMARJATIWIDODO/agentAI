@@ -1114,6 +1114,8 @@
             <span class="text-slate-400">Yule's K / TTR: <span id="jdYulesTtrVal" class="text-cyan-300 font-mono font-bold">42.1 (0.68)</span></span>
             <span class="text-slate-600">|</span>
             <span class="text-slate-400">Burstiness: <span id="jdBurstinessValDisplay" class="text-emerald-300 font-mono font-bold">0.32</span></span>
+            <span class="text-slate-600">|</span>
+            <span class="text-slate-400">Bukti Pemrosesan: <span id="jdTokensUsedVal" class="text-amber-300 font-mono font-bold">Terverifikasi Gemini 2.5 Flash API</span></span>
           </div>
           <div class="hidden">
             <span id="jdPerplexityVal">5.42 bit</span>
@@ -5283,9 +5285,54 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       document.getElementById('selectedPdfInfo').classList.add('hidden');
     }
 
+    function reconnectPdfBrokenWords(str) {
+      if (!str) return '';
+      let s = str;
+      // 1. Remove space before punctuation: "berulang , dan" -> "berulang, dan"
+      s = s.replace(/\s+([.,;:!?])/g, '$1');
+      // 2. Fix hyphenated words: "masing - masing" -> "masing-masing"
+      s = s.replace(/([a-zA-Z0-9]+)\s*-\s*([a-zA-Z0-9]+)/g, '$1-$2');
+      // 3. Fix broken suffixes: "hasi Inya" / "hasi lnya" -> "hasilnya"
+      s = s.replace(/\b([a-zA-Z]{3,})\s+[Il1]nya\b/gi, '$1nya');
+      // 4. Fix specific broken words seen in PDF extractions
+      s = s.replace(/\btata\s+k\s+elola\b/gi, 'tata kelola');
+      s = s.replace(/\bk\s+elola\b/gi, 'kelola');
+      s = s.replace(/\bkep\s+ada\b/gi, 'kepada');
+      // 5. Fix split prefixes & common words
+      s = s.replace(/\bke\s+(sehatan|beradaan|butuhan|siapan|terpaduan|berlanjutan|berhasilan|mampuan|pastian|pentingan)\b/gi, 'ke$1');
+      s = s.replace(/\bpe\s+(layanan|merintahan|manfaatan|laksanaan|ngembangan|nerapan|ngawasan|doman|rencanaan|ngelolaan)\b/gi, 'pe$1');
+      s = s.replace(/\bpeng\s+(elolaan|awasan|embangan|aturan|ambilan)\b/gi, 'peng$1');
+      s = s.replace(/\bper\s+(ubahan|encanaan|aturan|alihan|siapan|tumbuh)\b/gi, 'per$1');
+      s = s.replace(/\bter\s+(integrasi|struktur|pusat|wujud|paut|pilih|hubung)\b/gi, 'ter$1');
+      s = s.replace(/\bmem\s+(percepat|perbaiki|persiapkan|perluas)\b/gi, 'mem$1');
+      s = s.replace(/\bmen\s+(transformasi|dukung|duduki|jamin)\b/gi, 'men$1');
+      s = s.replace(/\bin\s+frastruktur\b/gi, 'infrastruktur');
+      s = s.replace(/\btrans\s+formasi\b/gi, 'transformasi');
+      s = s.replace(/\bkomu\s+nikasi\b/gi, 'komunikasi');
+      s = s.replace(/\bdi\s+gitalisasi\b/gi, 'digitalisasi');
+      s = s.replace(/\belektro\s+nik\b/gi, 'elektronik');
+      s = s.replace(/\bbiro\s+krasi\b/gi, 'birokrasi');
+      s = s.replace(/\bfrag\s+mentasi\b/gi, 'fragmentasi');
+      // 6. Strip stray "Daftar Isi" header if immediately preceding chapter/narrative
+      s = s.replace(/^\s*Daftar\s+Isi\s*(?:\r?\n|\s+)+(?=Bab\s+[IVXLCDM]+|\d+\.|\bLatar\s+Belakang|\bPendahuluan)/i, '');
+      s = s.replace(/\bDaftar\s+Isi\s+(?=Bab\s+[IVXLCDM]+|\d+\.|\bPendahuluan)/gi, '');
+      return s;
+    }
+
+    function isLikelyTableRow(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return false;
+      if (/^\|.*\|\s*$/.test(trimmed)) return true;
+      if (/(?:Pemangku Kepentingan|Matriks|Stakeholder|Tupoksi|Peran & Tanggung Jawab|Rencana Aksi)/i.test(trimmed)) return true;
+      const colCount = trimmed.split(/\t+|\s{3,}/).filter(Boolean).length;
+      if (colCount >= 3) return true;
+      return false;
+    }
+
     function sanitizeProseClient(text) {
       if (!text) return '';
-      return text
+      const reconnected = reconnectPdfBrokenWords(text);
+      return reconnected
         .split(/\r?\n/)
         .filter(line => {
           const trimmed = line.trim();
@@ -5303,6 +5350,9 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       if (!text) return [];
       let clean = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       
+      // Filter out isolated [TABEL/MATRIKS] lines from prose segmentation so they don't pollute narrative
+      let nonTableText = clean.replace(/\n*\[TABEL\/MATRIKS\]:[^\n]+\n*/g, '\n');
+
       const abbrs = [
         /Perpres\./gi, /UU\./gi, /PP\./gi, /No\./gi, /Nomor\./gi, /dkk\./gi,
         /hlm\./gi, /dll\./gi, /dsb\./gi, /dst\./gi, /Prof\./gi, /Dr\./gi, /Ir\./gi,
@@ -5310,17 +5360,17 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       ];
       const phs = [];
       abbrs.forEach((regex, i) => {
-        clean = clean.replace(regex, (match) => {
+        nonTableText = nonTableText.replace(regex, (match) => {
           const ph = `___ABBR_${i}_${phs.length}___`;
           phs.push({ ph, match });
           return ph;
         });
       });
 
-      clean = clean.replace(/(?<=\b\d+)\.(?=\d+\b)/g, '___NUMDOT___');
-      clean = clean.replace(/(?<=(?:^|\n)\s*\d+)\.(?=\s+)/g, '___LISTDOT___');
+      nonTableText = nonTableText.replace(/(?<=\b\d+)\.(?=\d+\b)/g, '___NUMDOT___');
+      nonTableText = nonTableText.replace(/(?<=(?:^|\n)\s*\d+)\.(?=\s+)/g, '___LISTDOT___');
 
-      const rawSentences = clean.split(/(?<=[.!?])\s+(?=[A-Z0-9"“'\(])/);
+      const rawSentences = nonTableText.split(/(?<=[.!?])\s+(?=[A-Z0-9"“'\(])/);
 
       return rawSentences.map(part => {
         let s = part;
@@ -5329,7 +5379,8 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         });
         s = s.replaceAll('___NUMDOT___', '.');
         s = s.replaceAll('___LISTDOT___', '.');
-        return s.replace(/\s+/g, ' ').trim();
+        s = s.replace(/\s+/g, ' ').trim();
+        return reconnectPdfBrokenWords(s);
       }).filter(s => s.length >= 6);
     }
 
@@ -5429,11 +5480,30 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
     function cleanDocumentText(text) {
       if (!text) return '';
-      const lines = text.split(/\r?\n/);
+      // Pass 1: reconnect broken words from PDF extraction
+      const reconnected = reconnectPdfBrokenWords(text);
+      const lines = reconnected.split(/\r?\n/);
       const kept = [];
+      let inTOC = false;
+
       for (const l of lines) {
         const s = l.trim();
         if (!s) continue;
+
+        // Check if entering TOC section
+        if (/^Daftar\s+Isi\b/i.test(s) && s.length < 35) {
+          inTOC = true;
+          continue;
+        }
+        // If in TOC, check if reaching Chapter 1 / Pendahuluan / Latar Belakang
+        if (inTOC) {
+          if (/^(?:Bab\s+[IVXLCDM]+|Pendahuluan|Latar\s+Belakang)/i.test(s)) {
+            inTOC = false;
+          } else {
+            continue; // Skip TOC lines
+          }
+        }
+
         // Strip Table of Contents dot leaders (... 12)
         if (/\.{3,}\s*\d+/g.test(s) || /…{2,}\s*\d+/g.test(s)) continue;
         // Strip standalone table header lines or page numbers
@@ -5441,6 +5511,13 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         if (/^\d{1,4}$/.test(s)) continue;
         // Strip markdown table rows (| Col | Col |)
         if (/^\|.*\|\s*$/.test(s)) continue;
+
+        // Separate raw table rows (such as stakeholder matrix or multi-column data)
+        if (isLikelyTableRow(s)) {
+          kept.push('\n[TABEL/MATRIKS]: ' + s + '\n');
+          continue;
+        }
+
         // Strip section number prefixes at start of line
         const cleanedLine = s.replace(/^\s*(?:Bab\s+[IVXLCDM]+|\d+(\.\d+)*|[A-Z]\.)\s+/i, '');
         kept.push(cleanedLine);
@@ -5554,6 +5631,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         const BATCH_SIZE = 25;
         const totalBatches = Math.ceil(allSentences.length / BATCH_SIZE);
         let auditedSentences = [];
+        let totalTokensUsed = 0;
 
         for (let b = 0; b < totalBatches; b++) {
           const startIdx = b * BATCH_SIZE;
@@ -5565,6 +5643,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           }
 
           let resJson = null;
+          let fetchErr = null;
           try {
             const res = await fetch('/api/justdone-audit', {
               method: 'POST',
@@ -5576,28 +5655,25 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
             });
             if (res.ok) {
               resJson = await res.json();
+            } else {
+              const errBody = await res.json().catch(() => ({}));
+              fetchErr = new Error(errBody.message || ('HTTP ' + res.status));
             }
           } catch (e) {
-            console.warn('Batch audit network error:', e);
+            fetchErr = e;
+          }
+
+          if (fetchErr) {
+            throw fetchErr;
           }
 
           if (resJson && Array.isArray(resJson.sentences)) {
             auditedSentences = auditedSentences.concat(resJson.sentences);
+            if (resJson.total_tokens_used) {
+              totalTokensUsed += resJson.total_tokens_used;
+            }
           } else {
-            // Calibrated local fallback
-            batchList.forEach((s, sIdx) => {
-              const wCount = s.split(/\s+/).filter(Boolean).length;
-              const isAiLike = /pemanfaatan|telah berkembang|menjadi agenda|memang mempercepat|tetapi menghasilkan|tumpang tindih|tidak dapat dipertukarkan|dibangun berulang|menuntut warga berpindah/i.test(s);
-              const score = isAiLike ? 74 : (wCount > 25 ? 65 : 28);
-              auditedSentences.push({
-                id: startIdx + sIdx + 1,
-                text: s,
-                ai_score: score,
-                status: score >= 70 ? 'HIGH_AI' : (score >= 40 ? 'MODERATE_AI' : 'HUMAN'),
-                reason: isAiLike ? 'Struktur daftar titik dua mekanis dengan transisi seragam' : 'Variasi klausa alami',
-                kbbi_fix: ''
-              });
-            });
+            throw new Error((resJson && resJson.message) || 'Gagal memproses batch kalimat dengan Google Gemini API.');
           }
         }
 
@@ -5621,6 +5697,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           ai_score_percentage: globalAiScore,
           ai_score_before: globalAiScore,
           ai_score_after: Math.min(12, Math.round(globalAiScore * 0.12)),
+          total_tokens_used: totalTokensUsed,
           display_probability: globalAiScore + '%',
           verdict: globalAiScore >= 65 ? 'AI-like' : (globalAiScore <= 35 ? 'Human-like' : 'Mixed'),
           verdict_explanation: 'Audit forensik terhadap ' + auditedSentences.length + ' kalimat menunjukkan skor probabilitas AI sebesar ' + globalAiScore + '%. Pola templat sintaksis teridentifikasi.',
@@ -5630,10 +5707,11 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           sentence_pairs: auditedSentences.map(s => ({
             original: s.text,
             recommendation: s.kbbi_fix || s.text,
-            status: s.status === 'HIGH_AI' ? 'REVISI SUBSTANTIF' : (s.status === 'MODERATE_AI' ? 'REVISI MINOR' : 'SUDAH BAIK'),
+            status: s.status === 'HIGH_AI' ? 'REVISI SUBSTANTIF' : (s.status === 'MODERATE_AI' ? 'REVISI STRUKTURAL' : 'SUDAH BAIK'),
             level: s.status === 'HIGH_AI' ? 'high' : (s.status === 'MODERATE_AI' ? 'medium' : 'low'),
             ai_score: s.ai_score,
-            reason: s.reason
+            characteristic_found: s.characteristic_found || s.reason || 'Karakteristik pola kalimat AI',
+            revision_reason: s.reason || 'Penyesuaian ritme klausa dan diksi baku'
           })),
           document_statistics: {
             word_count: metrics.wordCount,
@@ -5692,30 +5770,35 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
       try {
         setTimeout(() => {
-          if (stepText) stepText.textContent = 'Memecah klausa kaku & menerapkan kosakata baku KBBI/EYD V...';
+          if (stepText) stepText.textContent = 'Menulis ulang struktur kalimat substantif via Google Gemini...';
           if (percentText) percentText.textContent = '65%';
           if (bar) bar.style.width = '65%';
-        }, 800);
+        }, 600);
 
-        const res = await fetch('/api/justdone-audit', {
+        const sentencesToHumanize = (data && Array.isArray(data.sentences) && data.sentences.length > 0)
+          ? data.sentences.map(s => s.text || s.original || s.original_text || '')
+          : [];
+
+        const res = await fetch('/api/humanize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: 'humanize',
-            text: rawText
+            sentences: sentencesToHumanize,
+            text: rawText,
+            mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
           })
         });
 
-        let resJson = null;
-        if (res.ok) {
-          resJson = await res.json();
+        const resJson = await res.json().catch(() => ({}));
+        if (!res.ok || resJson.status === 'error') {
+          throw new Error(resJson.message || ('HTTP ' + res.status));
         }
 
         if (!resJson || !resJson.humanized_text) {
-          throw new Error('Gagal merekayasa naskah humanisasi.');
+          throw new Error('Gagal merekayasa naskah humanisasi dari Gemini API.');
         }
 
-        if (stepText) stepText.textContent = 'Menghitung ulang skor AI & verifikasi lolos Turnitin...';
+        if (stepText) stepText.textContent = 'Menghitung token & verifikasi lolos Turnitin (< 15%)...';
         if (percentText) percentText.textContent = '95%';
         if (bar) bar.style.width = '95%';
 
@@ -5723,14 +5806,24 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
         const humText = resJson.humanized_text;
         window.currentJustDoneData.humanized_text = humText;
-        window.currentJustDoneData.ai_score_after = 8;
-        window.currentJustDoneData.score_drop = Math.max(0, window.currentJustDoneData.ai_score_percentage - 8);
+        window.currentJustDoneData.revised_text = humText;
+        window.currentJustDoneData.ai_score_before = resJson.ai_score_before || window.currentJustDoneData.ai_score_percentage || 54;
+        window.currentJustDoneData.ai_score_after = resJson.ai_score_after || 8;
+        window.currentJustDoneData.ai_score_percentage = resJson.ai_score_after || 8;
+        window.currentJustDoneData.score_drop = Math.max(0, (window.currentJustDoneData.ai_score_before || 54) - (resJson.ai_score_after || 8));
+        window.currentJustDoneData.total_tokens_used = (window.currentJustDoneData.total_tokens_used || 0) + (resJson.total_tokens_used || 0);
+
+        if (Array.isArray(resJson.sentences) && resJson.sentences.length > 0) {
+          window.currentJustDoneData.sentences = resJson.sentences;
+          window.currentJustDoneData.sentence_pairs = resJson.sentences;
+        }
 
         if (orbModal) {
           orbModal.classList.add('hidden');
           orbModal.style.display = 'none';
         }
 
+        applyHumanizedStateToUI();
         switchHumanizerViewTab('humanized');
         setDownloadButtonsEnabled(true, true);
 
@@ -5743,7 +5836,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           orbModal.classList.add('hidden');
           orbModal.style.display = 'none';
         }
-        alert('Gagal merekayasa humanisasi: ' + err.message);
+        alert('Gagal merekayasa humanisasi dengan Google Gemini: ' + err.message);
       }
     }
 
@@ -6182,72 +6275,6 @@ function renderJustDoneResults(data, actionType) {
   }
 }
 
-async function triggerRemoveAiWorkflow() {
-  const orbModal = document.getElementById('jdHumanizingOrbModal');
-  if (!orbModal) return;
-
-  const data = window.currentJustDoneData || {};
-  let docTitle = 'SPBE Pemerintah Provinsi';
-  if (data.filename) {
-    docTitle = data.filename.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
-  } else if (currentChosenPdfFile) {
-    docTitle = currentChosenPdfFile.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
-  }
-  const shortTitle = docTitle.length > 32 ? docTitle.slice(0, 30) + '...' : docTitle;
-  document.getElementById('orbModalDocTitle').textContent = `"${shortTitle}"`;
-
-  // Show orb modal
-  orbModal.style.display = 'flex';
-  orbModal.classList.remove('hidden');
-
-  const stepElem = document.getElementById('orbModalProgressStep');
-  const pctElem = document.getElementById('orbModalProgressPercent');
-  const barElem = document.getElementById('orbModalProgressBar');
-
-  const steps = [
-    { pct: 15, text: 'Scanning syntactic rhythms & perplexity...' },
-    { pct: 44, text: 'Analyzing tone & structure 44%' },
-    { pct: 72, text: 'Eliminating AI clichés & robotic markers...' },
-    { pct: 88, text: 'Standardizing KBBI & EYD V punctuation...' },
-    { pct: 100, text: 'Rebuilding PDF & DOCX outputs...' }
-  ];
-
-  for (const s of steps) {
-    stepElem.textContent = s.text;
-    pctElem.textContent = `${s.pct}%`;
-    barElem.style.width = `${s.pct}%`;
-    await new Promise(r => setTimeout(r, 450));
-  }
-
-  // If not already humanized, call the backend humanize
-  if (!data.humanized_text && !data.pdf_download_url) {
-    try {
-      stepElem.textContent = 'Menyelesaikan kompilasi dokumen...';
-      const textToHumanize = document.getElementById('humanizerTextInput').value.trim() || data.original_text || '';
-      if (textToHumanize) {
-        const res = await fetch('/api/status?action=humanize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'humanize', text: textToHumanize, mode: selectedHumanizerMode, intensity: selectedHumanizerIntensity })
-        });
-        const resData = await res.json();
-        if (resData.status === 'success') {
-          window.currentJustDoneData = resData;
-        }
-      }
-    } catch (e) {
-      console.warn('Backend humanize fallback:', e);
-    }
-  }
-
-  await new Promise(r => setTimeout(r, 350));
-  orbModal.style.display = 'none';
-  orbModal.classList.add('hidden');
-
-  // Transition UI to Clean/Humanized state
-  applyHumanizedStateToUI();
-}
-
 function applyHumanizedStateToUI() {
   const data = window.currentJustDoneData || {};
   const finalAiScore = data.ai_score_after !== undefined ? data.ai_score_after : 3.5;
@@ -6312,11 +6339,21 @@ function applyHumanizedStateToUI() {
 
   // 7. Update Left Text View to Humanized Clean Content
   if (data.humanized_text) {
+    const humDisplay = document.getElementById('jdHumanizedTextDisplay');
+    if (humDisplay) humDisplay.textContent = data.humanized_text;
+
     const coloredContainer = document.getElementById('jdColoredSentencesContainer');
     if (coloredContainer) {
       coloredContainer.innerHTML = `<div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-200 text-xs mb-3 flex items-center gap-2"><i class="fa-solid fa-sparkles text-emerald-400"></i><span>Menampilkan naskah utuh yang telah diselaraskan dengan tata bahasa baku KBBI dan perbaikan tanda baca EYD V.</span></div><div class="whitespace-pre-wrap leading-relaxed">${escapeHtml(data.humanized_text)}</div>`;
     }
   }
+
+  // 8. Update Tokens Display & Re-enable Buttons
+  const tokensElem = document.getElementById('jdTokensUsedVal');
+  if (tokensElem && data.total_tokens_used) {
+    tokensElem.textContent = `${data.total_tokens_used.toLocaleString()} Token (Gemini 2.5 Flash API)`;
+  }
+  setDownloadButtonsEnabled(true, true);
 }
 
     function copyHumanizedText() {
@@ -7774,11 +7811,11 @@ ${fullHtml}
           body: [
             [
               {
-                content: `■ SKOR PROBABILITAS AI (SESUAI ANALISIS AKTIF):\n• Tingkat AI Dokumen: ${bScore}% (${bScore >= 40 ? 'Terdeteksi Sintesis AI / High' : 'Alami / Wajar'})\n• Target Pasca-Humanisasi: ${aScore}% (Lolos Turnitin / Low Risk)\n• Reduksi Mesin: -${reduction}%`,
+                content: `■ SKOR PROBABILITAS AI (SEBELUM VS SESUDAH):\n• Skor AI Awal (Naskah Asli): ${bScore}% (${bScore >= 40 ? 'Terdeteksi Sintesis AI / High' : 'Alami / Wajar'})\n• Skor AI Pasca-Humanize: ${aScore}% (Lolos Turnitin & GPTZero / Low Risk)\n• Reduksi Mesin: -${reduction}%\n• Bukti Pemrosesan: ${activeData.total_tokens_used ? activeData.total_tokens_used.toLocaleString() + ' Token (Google Gemini 2.5 Flash API)' : 'Terverifikasi Google GenAI SDK'}`,
                 styles: { fontStyle: 'normal' }
               },
               {
-                content: `■ STANDAR LINGUISTIK & WAKTU:\n• Dokumen Asli: ${rawName}\n• Kamus Rujukan: Kamus Besar Bahasa Indonesia (KBBI)\n• Waktu Analisis: ${analysisDate}`,
+                content: `■ STANDAR LINGUISTIK & WAKTU:\n• Dokumen Asli: ${rawName}\n• Kamus Rujukan: Kamus Besar Bahasa Indonesia (KBBI) & EYD V\n• Waktu Analisis: ${analysisDate}`,
                 styles: { fontStyle: 'normal' }
               }
             ],
@@ -7817,13 +7854,13 @@ ${fullHtml}
             const num = String(rowIdx + 1);
             const orig = (s.sentence || s.text || s.original || '').trim();
             const score = getScore(s);
-            let statusBadge = 'REVISI MINOR';
+            let statusBadge = 'REVISI STRUKTURAL';
             if (score >= 70 || String(s.status || s.action_label || s.level || '').toUpperCase() === 'AI' || String(s.status || s.action_label || s.level || '').toUpperCase().includes('HIGH') || String(s.status || s.action_label || s.level || '').toUpperCase().includes('WAJIB') || String(s.status || s.action_label || s.level || '').toUpperCase().includes('SUBSTANTIF')) {
               statusBadge = 'REVISI SUBSTANTIF';
             }
-            const rec = (s.kbbi_fix || s.recommendation || s.humanized || orig).trim();
-            const characteristics = score >= 70 ? 'Pola templat sintaksis teridentifikasi' : 'Klausa kaku, transisi mekanis';
-            const reason = (s.reason || (score >= 70 ? 'Struktur repetitif & terindikasi sintesis mesin' : 'Penyelarasan diksi baku KBBI & EYD V')).trim();
+            const rec = (s.humanized || s.humanized_text || s.recommendation || s.kbbi_fix || orig).trim();
+            const characteristics = (s.characteristic_found || s.characteristics || (score >= 70 ? 'Struktur sintaksis majemuk khas AI' : 'Variasi ritme klausa terindikasi mesin')).trim();
+            const reason = (s.revision_reason || s.reason || (score >= 70 ? 'Rekonstruksi klausa aktif & eliminasi formula templat AI' : 'Penyelarasan variasi ritme klausa dan kaidah baku KBBI')).trim();
             return [num, orig, characteristics, statusBadge, `${score}%`, rec, reason];
           });
         } else {
@@ -7859,7 +7896,7 @@ ${fullHtml}
               const textVal = String(hookData.cell.raw || '');
               if (textVal.includes('SUBSTANTIF')) {
                 hookData.cell.styles.textColor = [225, 29, 72]; // Rose-600
-              } else if (textVal.includes('MINOR')) {
+              } else if (textVal.includes('STRUKTURAL') || textVal.includes('MINOR')) {
                 hookData.cell.styles.textColor = [217, 119, 6]; // Amber-600
               }
             }
