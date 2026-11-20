@@ -63,7 +63,9 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
   const models = [
     process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
-    'gemini-2.0-flash'
+    'gemini-2.0-flash',
+    'gemini-flash-latest',
+    'gemini-3.5-flash'
   ].filter((m, i, arr) => arr.indexOf(m) === i);
 
   let lastError = null;
@@ -95,7 +97,7 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
         lastError = sdkErr;
         const msg = sdkErr.message || '';
         console.warn(`[SDK ${model} failed]:`, msg);
-        if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('404')) {
+        if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('404') || msg.includes('no longer available')) {
           continue;
         }
       }
@@ -131,6 +133,7 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
         const errBody = await restRes.json().catch(() => ({}));
         lastError = new Error(errBody.error?.message || ('HTTP ' + restRes.status));
         console.warn(`[REST ${model} failed]: HTTP ${restRes.status}`, lastError.message);
+        continue;
       }
     } catch (restErr) {
       lastError = restErr;
