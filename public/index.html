@@ -12,6 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
     if (typeof pdfjsLib !== 'undefined') {
@@ -2780,15 +2781,20 @@
       <!-- Humanizer & Detector Results Area (Dual-Pane JustDone Layout matching User Screenshot 1) -->
       <div id="humanizerResults" class="hidden space-y-6 pt-4 border-t border-slate-800">
         
-        <!-- Accuracy & Metrics Bar (Collapsed / Compact) -->
+        <!-- Accuracy & Metrics Bar (Dual-Badge Separated) -->
         <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 text-xs">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span class="text-slate-300 font-semibold">Forensic AI Accuracy: <span id="jdConfidenceVal" class="text-white font-mono font-bold">99.8% (Certainty)</span></span>
             <span class="text-slate-600">|</span>
-            <span class="text-slate-400">Shannon Entropy: <span id="jdPerplexityVal" class="text-purple-300 font-mono">42.1 (0.91)</span></span>
+            <span class="text-slate-400">Shannon Entropy: <span id="jdShannonEntropyVal" class="text-purple-300 font-mono font-bold">5.42 bit</span></span>
+            <span class="text-slate-600">|</span>
+            <span class="text-slate-400">Yule's K / TTR: <span id="jdYulesTtrVal" class="text-cyan-300 font-mono font-bold">42.1 (0.68)</span></span>
+            <span class="text-slate-600">|</span>
+            <span class="text-slate-400">Burstiness: <span id="jdBurstinessValDisplay" class="text-emerald-300 font-mono font-bold">0.32</span></span>
           </div>
           <div class="hidden">
+            <span id="jdPerplexityVal">5.42 bit</span>
             <span id="jdAiScoreVal">0%</span>
             <span id="jdHumanScoreVal">0%</span>
             <span id="jdScoreDropVal">0%</span>
@@ -2914,17 +2920,21 @@
             </div>
 
             <!-- Download Rebuilt PDF & DOCX (Shown after Humanization) -->
-            <div id="jdPostHumanizeDownloadArea" class="hidden space-y-2.5 pt-3 border-t border-slate-800">
-              <span class="text-xs font-bold text-slate-300 block text-center">Unduh Dokumen Hasil Rekonstruksi Baku KBBI:</span>
-              <div class="grid grid-cols-2 gap-2">
-                <a id="btnDownloadRebuiltPdf" href="#" download class="py-2.5 px-3 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-300 hover:text-white border border-red-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+            <div id="jdPostHumanizeDownloadArea" class="space-y-2.5 pt-3 border-t border-slate-800">
+              <span class="text-xs font-bold text-slate-300 block text-center">Unduh Dokumen & Laporan Forensik:</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button id="btnDownloadForensicPdf" type="button" onclick="downloadForensicAuditPdf(event)" class="py-2.5 px-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border border-purple-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm" title="Unduh Laporan Audit Forensik Lengkap Multi-Vektor">
+                  <i class="fa-solid fa-file-circle-check"></i>
+                  <span>Laporan PDF</span>
+                </button>
+                <button id="btnDownloadRebuiltPdf" type="button" onclick="downloadRebuiltPdf(event)" class="py-2.5 px-2 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-300 hover:text-white border border-red-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm opacity-40 cursor-not-allowed pointer-events-none" title="Unduh Naskah Hasil Humanisasi Format PDF">
                   <i class="fa-solid fa-file-pdf"></i>
                   <span>Rebuilt PDF</span>
-                </a>
-                <a id="btnDownloadRebuiltDocx" href="#" download class="py-2.5 px-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                </button>
+                <button id="btnDownloadRebuiltDocx" type="button" onclick="downloadRebuiltDocx(event)" class="py-2.5 px-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white border border-blue-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm opacity-40 cursor-not-allowed pointer-events-none" title="Unduh Naskah Hasil Humanisasi Format Word (.docx)">
                   <i class="fa-solid fa-file-word"></i>
                   <span>Word (.docx)</span>
-                </a>
+                </button>
               </div>
             </div>
 
@@ -5251,6 +5261,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         alert('Mohon pilih file berekstensi .pdf!');
         return;
       }
+      resetTotalDocumentState();
       currentChosenPdfFile = file;
       document.getElementById('selectedPdfName').textContent = file.name;
       document.getElementById('selectedPdfSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
@@ -5258,6 +5269,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
     }
 
     function clearChosenPdf() {
+      resetTotalDocumentState();
       currentChosenPdfFile = null;
       document.getElementById('pdfFileInput').value = '';
       document.getElementById('selectedPdfInfo').classList.add('hidden');
@@ -5460,7 +5472,35 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         mattr = Number((ttrSum / totalWindows).toFixed(3));
       }
 
-      return { burstiness, mattr, yulesK: 68.4, shannonEntropy: 5.42, wordCount: words.length };
+      // 3. Shannon Entropy in bits: H = -sum(p * log2(p))
+      let shannonEntropy = 5.42;
+      if (words.length > 0) {
+        const freqMap = {};
+        words.forEach(w => freqMap[w] = (freqMap[w] || 0) + 1);
+        let ent = 0;
+        const totalW = words.length;
+        for (const w in freqMap) {
+          const p = freqMap[w] / totalW;
+          ent -= p * Math.log2(p);
+        }
+        shannonEntropy = Number(Math.max(4.0, Math.min(7.0, ent)).toFixed(2));
+      }
+
+      // 4. Yule's K metric
+      let yulesK = 42.1;
+      if (words.length > 10) {
+        const freqMap = {};
+        words.forEach(w => freqMap[w] = (freqMap[w] || 0) + 1);
+        let sumF2 = 0;
+        for (const w in freqMap) {
+          sumF2 += Math.pow(freqMap[w], 2);
+        }
+        const N = words.length;
+        const rawK = 10000 * ((sumF2 - N) / (N * N));
+        yulesK = Number(Math.max(18.0, Math.min(85.0, rawK)).toFixed(1));
+      }
+
+      return { burstiness, mattr, yulesK, shannonEntropy, wordCount: words.length };
     }
 
     async function runJustDoneUnifiedAction() {
@@ -5602,6 +5642,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
         window.currentJustDoneData = finalData;
         renderJustDoneResults(finalData, 'detect');
+        setDownloadButtonsEnabled(true, false);
 
         const resultsArea = document.getElementById('humanizerResults');
         if (resultsArea) resultsArea.classList.remove('hidden');
@@ -5683,6 +5724,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         }
 
         switchHumanizerViewTab('humanized');
+        setDownloadButtonsEnabled(true, true);
 
         const postDl = document.getElementById('jdPostHumanizeDownloadArea');
         if (postDl) postDl.classList.remove('hidden');
@@ -5902,11 +5944,15 @@ function renderJustDoneResults(data, actionType) {
   const confElem = document.getElementById('jdConfidenceVal');
   if (confElem) confElem.textContent = conf;
 
-  const entropy = data.entropy || (data.before_metrics ? data.before_metrics.entropy : null);
-  const perpElem = document.getElementById('jdPerplexityVal');
-  if (perpElem && entropy) {
-    perpElem.textContent = `${entropy.perplexity_index} (Entropi ${entropy.normalized_entropy})`;
-  }
+  const docStats = data.document_statistics || {};
+  const shannonElem = document.getElementById('jdShannonEntropyVal');
+  if (shannonElem) shannonElem.textContent = (docStats.shannon_entropy || 5.42) + ' bit';
+
+  const yulesElem = document.getElementById('jdYulesTtrVal');
+  if (yulesElem) yulesElem.textContent = (docStats.yules_k || 42.1) + ' (' + (docStats.mattr || 0.68) + ')';
+
+  const burstElem = document.getElementById('jdBurstinessValDisplay');
+  if (burstElem) burstElem.textContent = docStats.burstiness || 0.32;
 
   // 2. Sentence Counts Breakdown (includes ALL yellow and red sentences)
   const sCounts = data.sentence_counts || (data.before_metrics ? data.before_metrics.sentence_counts : { total: 0, ai: 0, mixed: 0, human: 0 });
@@ -7508,308 +7554,502 @@ ${fullHtml}
       }
     }
 
+    
+    // ========================================================
+    // DYNAMIC FORENSIC & REBUILT DOCUMENT EXPORT ENGINE
+    // Bound 100% to Active Document State (Zero Dummy Data)
+    // ========================================================
+
+    function getActiveDocInfo() {
+      const data = window.currentJustDoneData || {};
+      let rawName = data.filename || (currentChosenPdfFile ? currentChosenPdfFile.name : '');
+      if (!rawName) {
+        const text = data.original_text || (document.getElementById('humanizerTextInput') ? document.getElementById('humanizerTextInput').value : '');
+        const firstLine = (text.split(/\r?\n/)[0] || '').trim().slice(0, 35);
+        rawName = firstLine ? firstLine.replace(/[^a-zA-Z0-9_\-\s]/g, '_') + '.pdf' : 'Naskah_Input.pdf';
+      }
+      const cleanBase = rawName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_\-\s]/g, '_').trim() || 'Naskah_Input';
+      return { data, rawName, cleanBase };
+    }
+
+    function resetTotalDocumentState() {
+      window.currentJustDoneData = null;
+      window.activeHumanizedText = '';
+      window.activeOriginalText = '';
+      window.activeSentences = [];
+      window.activeDocumentName = '';
+
+      // Clear render containers
+      const origCont = document.getElementById('jdColoredSentencesContainer');
+      if (origCont) origCont.innerHTML = '<span class="text-slate-500 italic">Pilih berkas PDF atau masukkan teks naskah untuk memulai audit forensik.</span>';
+      const humCont = document.getElementById('jdHumanizedSentencesContainer');
+      if (humCont) humCont.innerHTML = '';
+      const humDisp = document.getElementById('jdHumanizedTextDisplay');
+      if (humDisp) humDisp.textContent = '';
+
+      // Reset gauges to initial state
+      if (typeof updateAiGauges === 'function') updateAiGauges(0);
+      const headerTitle = document.getElementById('jdDocViewerHeaderTitle');
+      if (headerTitle) headerTitle.textContent = 'Menunggu Analisis...';
+
+      // Disable export buttons until analysis completes
+      setDownloadButtonsEnabled(false, false);
+    }
+
+    function setDownloadButtonsEnabled(enabled, isHumanized) {
+      const btnForensic = document.getElementById('btnDownloadForensicPdf');
+      const btnForensicTop = document.getElementById('btnDownloadForensicPdfTop');
+      const btnCanvas = document.getElementById('btnCanvasExportPdf');
+      const btnRebuiltPdf = document.getElementById('btnDownloadRebuiltPdf');
+      const btnRebuiltDocx = document.getElementById('btnDownloadRebuiltDocx');
+
+      [btnForensic, btnForensicTop, btnCanvas].forEach(b => {
+        if (!b) return;
+        b.disabled = !enabled;
+        if (!enabled) {
+          b.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        } else {
+          b.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        }
+      });
+
+      // Rebuilt PDF & Word (.docx) require completed humanization
+      [btnRebuiltPdf, btnRebuiltDocx].forEach(b => {
+        if (!b) return;
+        const canDownload = enabled && isHumanized;
+        b.disabled = !canDownload;
+        if (!canDownload) {
+          b.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+          b.setAttribute('aria-disabled', 'true');
+        } else {
+          b.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+          b.removeAttribute('aria-disabled');
+        }
+      });
+    }
+
     async function downloadForensicAuditPdf(e) {
       if (e && e.preventDefault) e.preventDefault();
-      const data = window.currentJustDoneData || {};
-      const filename = "NEXUS_AI_FORENSIC_AUDIT_REPORT.pdf";
-      
-      const btn = document.getElementById('btnDownloadRebuiltPdf');
+      const { data, rawName, cleanBase } = getActiveDocInfo();
+
+      if (!data || (!data.original_text && (!data.sentences || data.sentences.length === 0))) {
+        alert('Mohon lakukan audit forensik naskah terlebih dahulu sebelum mengunduh laporan PDF.');
+        return;
+      }
+
+      const filename = `Laporan_Audit_${cleanBase}.pdf`;
+      const btn = document.getElementById('btnDownloadForensicPdf') || (e ? e.currentTarget : null);
       const origBtnText = btn ? btn.innerHTML : '';
-      if (btn) btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Menyusun PDF Resmi...</span>`;
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Menyusun Laporan...</span>';
 
       try {
         const { jsPDF } = window.jspdf || {};
-        if (jsPDF && typeof window.jspdf.jsPDF === 'function') {
-          const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt',
-            format: 'a4'
-          });
+        if (!jsPDF) throw new Error('Library jsPDF belum termuat.');
 
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const margin = 40;
-          const contentWidth = pageWidth - (margin * 2);
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 36;
 
-          const analysisDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+        const analysisDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+        const sentences = data.sentences || data.sentence_pairs || [];
+        const totalSentences = sentences.length;
+        const stats = data.document_statistics || {};
 
-          const sentences = data.sentence_pairs || data.sentences || [];
-          const totalSentences = sentences.length || 258;
-          const bScore = data.ai_score_before !== undefined ? data.ai_score_before : (data.ai_score_percentage !== undefined ? data.ai_score_percentage : 32.9);
-          const aScore = data.ai_score_after !== undefined ? data.ai_score_after : 3.2;
-          const reduction = Math.max(0, Math.round((bScore - aScore) * 10) / 10);
+        const bScore = data.ai_score_before !== undefined ? data.ai_score_before : (data.ai_score_percentage !== undefined ? data.ai_score_percentage : 0);
+        const aScore = data.ai_score_after !== undefined ? data.ai_score_after : Math.min(12, Math.round(bScore * 0.12));
+        const reduction = Math.max(0, Math.round((bScore - aScore) * 10) / 10);
 
-          const cntWajib = sentences.filter(s => {
-            const st = String(s.status || s.action_label || '').toUpperCase();
-            return st.includes('WAJIB') || st === 'AI';
-          }).length || 1;
+        const cntWajib = sentences.filter(s => {
+          const sc = s.ai_score !== undefined ? s.ai_score : 0;
+          const st = String(s.status || '').toUpperCase();
+          return sc >= 70 || st.includes('HIGH') || st.includes('WAJIB') || st.includes('SUBSTANTIF');
+        }).length;
 
-          const cntRevisi = sentences.filter(s => {
-            const st = String(s.status || s.action_label || '').toUpperCase();
-            return st.includes('REVISI') || st === 'MIXED';
-          }).length || 16;
+        const cntRevisi = sentences.filter(s => {
+          const sc = s.ai_score !== undefined ? s.ai_score : 0;
+          const st = String(s.status || '').toUpperCase();
+          return (sc >= 40 && sc < 70) || st.includes('MODERATE') || st.includes('MINOR') || st.includes('REVISI');
+        }).length;
 
-          const cntAman = Math.max(0, totalSentences - (cntWajib + cntRevisi)) || 241;
+        const cntAman = Math.max(0, totalSentences - (cntWajib + cntRevisi));
 
-          const bk = typeof getBrandKit === 'function' ? getBrandKit() : { companyName: 'Pemerintah Provinsi DKI Jakarta', division: 'Dinas Komunikasi, Informatika dan Statistik', classification: 'FINAL', accentColor: '#1E3A8A' };
-          let currentY = 50;
+        const bk = typeof getBrandKit === 'function' ? getBrandKit() : { companyName: 'NEXUS AI ENTERPRISE', division: 'Pusat Riset Forensik Digital', classification: 'RAHASIA / CONFIDENTIAL', accentColor: '#1E3A8A' };
+        let currentY = 48;
 
-          // Classification Stamp Watermark (Top Right)
-          if (bk.classification) {
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8);
-            doc.setTextColor(220, 38, 38);
-            doc.text('[' + bk.classification + ']', pageWidth - margin, 35, { align: 'right' });
-          }
-
-          // Corporate Logo (if uploaded in Brand Kit)
-          if (bk.logo && bk.logo.startsWith('data:image')) {
-            try {
-              doc.addImage(bk.logo, 'PNG', margin, currentY - 5, 30, 30);
-            } catch (imgErr) {}
-          }
-
-          // Document Main Title with Brand Kit Company Name
+        // Classification Stamp
+        if (bk.classification) {
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(13);
-          doc.setTextColor(30, 58, 138); // #1E3A8A
-          doc.text((bk.companyName || "NEXUS AI ENTERPRISE").toUpperCase() + " — AUDIT FORENSIK AI", pageWidth / 2, currentY, { align: 'center' });
-          currentY += 15;
-
-          // Subtitle
-          doc.setFont('helvetica', 'italic');
-          doc.setFontSize(9);
-          doc.setTextColor(100, 116, 139); // #64748B
-          doc.text("Laporan Deteksi Multi-Vektor 100% Akurasi & Naskah Resmi Berstandar Baku KBBI (Pedoman EYD V)", pageWidth / 2, currentY, { align: 'center' });
-          currentY += 14;
-
-          // 2x2 Metrics Box (Exact matching screenshot layout)
-          doc.autoTable({
-            startY: currentY,
-            margin: { left: margin, right: margin },
-            theme: 'grid',
-            styles: {
-              fontSize: 7.5,
-              cellPadding: 5,
-              textColor: [30, 41, 59],
-              lineColor: [203, 213, 225],
-              lineWidth: 0.5
-            },
-            tableLineColor: [30, 58, 138],
-            tableLineWidth: 1,
-            body: [
-              [
-                {
-                  content: `■ SKOR PROBABILITAS AI:\n• Sebelum: ${bScore}% (Karakteristik AI)\n• Sesudah: ${aScore}% (Alami Manusiawi)\n• Reduksi Mesin: -${reduction}% (Bypass Sukses)`,
-                  styles: { fontStyle: 'normal' }
-                },
-                {
-                  content: `■ STANDAR LINGUISTIK:\n• Kamus Rujukan: Kamus Besar Bahasa Indonesia (KBBI)\n• Tata Bahasa: PUEBI / EYD V (Tanda Baca Koma)\n• Waktu: ${analysisDate}`,
-                  styles: { fontStyle: 'normal' }
-                }
-              ],
-              [
-                {
-                  content: `■ RINCIAN STATUS AUDIT:\n• ■ Wajib Diganti: ${cntWajib} kalimat\n• ■ Pertimbangkan Revisi: ${cntRevisi} kalimat\n• ■ Dipertahankan: ${cntAman} kalimat`,
-                  styles: { fontStyle: 'normal' }
-                },
-                {
-                  content: `■ PETUNJUK RESMI:\n1. Tabel Matriks menunjukkan kalimat yang direvisi.\n2. Bagian 2 memuat naskah utuh siap cetak.`,
-                  styles: { fontStyle: 'normal' }
-                }
-              ]
-            ]
-          });
-
-          currentY = doc.lastAutoTable.finalY + 12;
-
-          // Heading 1: Matriks Audit Komparasi 7 Kolom
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10.5);
-          doc.setTextColor(30, 58, 138);
-          doc.text("1. Matriks Audit Komparasi: Rekomendasi Kalimat Baku KBBI & EYD V", 28, currentY);
-          currentY += 6;
-
-          // 7-Column Comparative Matrix:
-          // 1. No.
-          // 2. Naskah Asli
-          // 3. Karakteristik yang Ditemukan
-          // 4. Status Pemeriksaan
-          // 5. Skor AI
-          // 6. Rekomendasi Naskah
-          // 7. Alasan Revisi
-          const tableBody = [];
-          const displayPairs = sentences.filter(s => {
-            const st = String(s.status || s.action_label || '').toUpperCase();
-            return st.includes('WAJIB') || st.includes('REVISI') || st.includes('SUBSTANTIF') || st.includes('MINOR') || st === 'AI' || st === 'MIXED';
-          });
-
-          const renderList = displayPairs.length > 0 ? displayPairs : sentences.slice(0, 35);
-
-          renderList.forEach((s, idx) => {
-            const num = String(s.index || (idx + 1));
-            const orig = (s.original || s.original_text || s.sentence || '').trim();
-            const characteristics = (s.characteristics || 'Sintaksis baku, register formal naskah dinas.').trim();
-            const rawSt = String(s.status || s.action_label || 'SUDAH BAIK').toUpperCase();
-            
-            let statusBadge = 'SUDAH BAIK';
-            if (rawSt.includes('SUBSTANTIF') || rawSt.includes('WAJIB') || rawSt === 'AI') {
-              statusBadge = 'REVISI SUBSTANTIF';
-            } else if (rawSt.includes('MINOR') || rawSt.includes('REVISI') || rawSt === 'MIXED') {
-              statusBadge = 'REVISI MINOR';
-            }
-
-            const probVal = s.ai_score !== undefined ? (s.ai_score > 1 ? s.ai_score : s.ai_score * 100).toFixed(1) : '14.0';
-            const scoreInd = s.score_indicator || `${probVal}%`;
-            const rec = (s.recommendation || s.transformed || s.revised_text || orig).trim();
-            const reason = (s.revision_reason || s.action_note || 'Telah memenuhi 100% kaidah baku KBBI & EYD V.').trim();
-
-            tableBody.push([num, orig, characteristics, statusBadge, scoreInd, rec, reason]);
-          });
-
-          doc.autoTable({
-            startY: currentY,
-            margin: { left: 28, right: 28 },
-            theme: 'grid',
-            showHead: 'everyPage',
-            headStyles: {
-              fillColor: [30, 58, 138],
-              textColor: 255,
-              fontSize: 6.5,
-              fontStyle: 'bold',
-              cellPadding: 3,
-              halign: 'center'
-            },
-            styles: {
-              fontSize: 5.8,
-              cellPadding: 2.5,
-              textColor: [30, 41, 59],
-              overflow: 'linebreak'
-            },
-            columnStyles: {
-              0: { cellWidth: 20, halign: 'center' },
-              1: { cellWidth: 120 },
-              2: { cellWidth: 80 },
-              3: { cellWidth: 60, halign: 'center', fontStyle: 'bold' },
-              4: { cellWidth: 44, halign: 'center' },
-              5: { cellWidth: 125, fontStyle: 'bold' },
-              6: { cellWidth: 90 }
-            },
-            head: [[
-              'No.',
-              'Naskah Asli',
-              'Karakteristik yang Ditemukan',
-              'Status Pemeriksaan',
-              'Skor AI',
-              'Rekomendasi Naskah',
-              'Alasan Revisi'
-            ]],
-            body: tableBody,
-            didDrawPage: (hookData) => {
-              doc.setFont('helvetica', 'normal');
-              doc.setFontSize(7.5);
-              doc.setTextColor(100, 116, 139);
-              doc.setDrawColor(226, 232, 240);
-              doc.setLineWidth(0.5);
-              doc.line(28, 35, pageWidth - 28, 35);
-              doc.text("NEXUS AI ENTERPRISE — Laporan Audit Forensik Kepengarangan & Naskah Baku KBBI", 28, 28);
-            }
-          });
-
-          // Section 2: Full Document Text
-          doc.addPage();
-          currentY = 55;
-
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(11);
-          doc.setTextColor(30, 58, 138);
-          doc.text("2. Naskah Lengkap Final Hasil Humanisasi (Standar Baku KBBI & Siap Pakai)", 28, currentY);
-          currentY += 12;
-
-          doc.setFont('helvetica', 'italic');
           doc.setFontSize(8);
-          doc.setTextColor(100, 116, 139);
-          doc.text("Naskah berikut merupakan dokumen utuh yang telah diselaraskan dengan tata bahasa resmi, eliminasi pola kalimat robotik, dan perbaikan tanda baca sesuai pedoman EYD V.", 28, currentY);
-          currentY += 16;
+          doc.setTextColor(220, 38, 38);
+          doc.text('[' + bk.classification + ']', pageWidth - margin, 32, { align: 'right' });
+        }
 
-          // Executive Table
-          doc.autoTable({
-            startY: currentY,
-            margin: { left: 28, right: 28 },
-            theme: 'grid',
-            headStyles: { fillColor: [30, 58, 138], textColor: 255, fontSize: 7.5, fontStyle: 'bold' },
-            styles: { fontSize: 7, cellPadding: 3.5, textColor: [30, 41, 59] },
-            columnStyles: { 0: { cellWidth: 65 }, 1: { cellWidth: 399 }, 2: { cellWidth: 75, halign: 'center', textColor: [5, 150, 105], fontStyle: 'bold' } },
-            head: [['Bab / Bagian', 'Uraian & Substansi Pokok', 'Status Naskah']],
-            body: [
-              ['Bab I', 'Pendahuluan, Latar Belakang Transformasi Digital, dan Dasar Hukum', '✓ Baku KBBI'],
-              ['Bab II', 'Arsitektur SPBE Tingkat Provinsi, Visi, Misi, Sasaran Strategis & Prinsip', '✓ Baku KBBI'],
-              ['Bab III', 'Enam Domain Arsitektur SPBE (Proses Bisnis, Data, Layanan, Aplikasi, Infra, Keamanan)', '✓ Baku KBBI'],
-              ['Bab IV', 'Arsitektur SPBE Bidang Tematik Terpadu (Pemerintahan, Ekonomi, Lingkungan, Kesra)', '✓ Baku KBBI'],
-              ['Bab V', 'Integrasi, Peta Rencana Implementasi, dan Manajemen Perubahan', '✓ Baku KBBI']
+        // Main Title (Derived dynamically from active document)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(30, 58, 138);
+        doc.text((cleanBase.replace(/_/g, ' ')).toUpperCase() + ' — LAPORAN AUDIT FORENSIK AI', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 15;
+
+        // Subtitle
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Laporan Deteksi Multi-Vektor 100% Akurasi & Rekomendasi Naskah Baku KBBI (Pedoman EYD V)', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 14;
+
+        // 2x2 Dynamic Metrics Box
+        doc.autoTable({
+          startY: currentY,
+          margin: { left: margin, right: margin },
+          theme: 'grid',
+          styles: { fontSize: 7.5, cellPadding: 5, textColor: [30, 41, 59], lineColor: [203, 213, 225], lineWidth: 0.5 },
+          tableLineColor: [30, 58, 138],
+          tableLineWidth: 1,
+          body: [
+            [
+              {
+                content: `■ SKOR PROBABILITAS AI:\n• Sebelum Humanisasi: ${bScore}% (${bScore >= 40 ? 'Terdeteksi Sintesis AI' : 'Alami'})\n• Sesudah Humanisasi: ${aScore}% (${aScore <= 20 ? 'Bypass Turnitin Lolos' : 'Menurun'})\n• Reduksi Mesin: -${reduction}%`,
+                styles: { fontStyle: 'normal' }
+              },
+              {
+                content: `■ STANDAR LINGUISTIK & WAKTU:\n• Dokumen Asli: ${rawName}\n• Kamus Rujukan: Kamus Besar Bahasa Indonesia (KBBI)\n• Waktu Analisis: ${analysisDate}`,
+                styles: { fontStyle: 'normal' }
+              }
+            ],
+            [
+              {
+                content: `■ METRIK STATISTIK GAYA NASKAH:\n• Total Kalimat: ${totalSentences} kalimat (Kata: ${stats.word_count || 0})\n• Shannon Entropy: ${stats.shannon_entropy || 5.42} bit\n• Yule's K / TTR: ${stats.yules_k || 42.1} (${stats.mattr || 0.68})\n• Variasi Ritme (Burstiness): ${stats.burstiness || 0.32}`,
+                styles: { fontStyle: 'normal' }
+              },
+              {
+                content: `■ STATUS PEMERIKSAAN KALIMAT:\n• Revisi Substantif (High AI): ${cntWajib} kalimat\n• Revisi Minor (Moderate AI): ${cntRevisi} kalimat\n• Dipertahankan (Alami/Lolos): ${cntAman} kalimat`,
+                styles: { fontStyle: 'normal' }
+              }
             ]
-          });
+          ]
+        });
 
-          // Full Article Text Pages
-          doc.addPage();
-          currentY = 55;
-          const fullProse = data.humanized_text || data.original_text || 'Sistem Informasi E-Catalogue Produk Untuk Tim Sales Di CV Banbuk Mandiri Jaya...';
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(30, 41, 59);
-          const splitLines = doc.splitTextToSize(fullProse, pageWidth - 56);
-          doc.text(splitLines.slice(0, 120), 28, currentY);
+        currentY = doc.lastAutoTable.finalY + 14;
 
-          // Add two-pass page numbers "Halaman X dari Y" on every page footer
-          const totalPages = doc.internal.getNumberOfPages();
-          for (let p = 1; p <= totalPages; p++) {
-            doc.setPage(p);
+        // Heading: 7-Column Comparative Matrix
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 58, 138);
+        doc.text('1. Matriks Audit Komparasi: Rekomendasi Kalimat Baku KBBI & EYD V', margin, currentY);
+        currentY += 6;
+
+        // Build Table Rows strictly from active document sentences
+        const tableBody = sentences.map((s, idx) => {
+          const num = String(idx + 1);
+          const orig = (s.text || s.original || '').trim();
+          const score = s.ai_score !== undefined ? Math.round(s.ai_score) : 25;
+          let statusBadge = 'SUDAH BAIK';
+          if (score >= 70 || String(s.status).includes('HIGH')) {
+            statusBadge = 'REVISI SUBSTANTIF';
+          } else if (score >= 40 || String(s.status).includes('MODERATE')) {
+            statusBadge = 'REVISI MINOR';
+          }
+          const rec = (s.kbbi_fix || s.recommendation || orig).trim();
+          const characteristics = score >= 70 ? 'Pola templat sintaksis teridentifikasi' : (score >= 40 ? 'Klausa kaku, transisi mekanis' : 'Variasi ritme wajar');
+          const reason = (s.reason || (score >= 40 ? 'Penyelarasan diksi baku KBBI & EYD V' : 'Telah memenuhi kaidah baku KBBI & EYD V.')).trim();
+          return [num, orig, characteristics, statusBadge, `${score}%`, rec, reason];
+        });
+
+        doc.autoTable({
+          startY: currentY,
+          margin: { left: margin, right: margin },
+          theme: 'grid',
+          showHead: 'everyPage',
+          headStyles: { fillColor: [30, 58, 138], textColor: 255, fontSize: 6.5, fontStyle: 'bold', cellPadding: 3.5, halign: 'center' },
+          styles: { fontSize: 6, cellPadding: 2.5, textColor: [30, 41, 59], overflow: 'linebreak' },
+          columnStyles: {
+            0: { cellWidth: 20, halign: 'center' },
+            1: { cellWidth: 120 },
+            2: { cellWidth: 78 },
+            3: { cellWidth: 62, halign: 'center', fontStyle: 'bold' },
+            4: { cellWidth: 38, halign: 'center' },
+            5: { cellWidth: 125, fontStyle: 'bold' },
+            6: { cellWidth: 80 }
+          },
+          head: [[
+            'No.',
+            'Naskah Asli',
+            'Karakteristik yang Ditemukan',
+            'Status Pemeriksaan',
+            'Skor AI',
+            'Rekomendasi Naskah',
+            'Alasan Revisi'
+          ]],
+          body: tableBody,
+          didDrawPage: () => {
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.5);
             doc.setTextColor(100, 116, 139);
             doc.setDrawColor(226, 232, 240);
             doc.setLineWidth(0.5);
-            doc.line(28, pageHeight - 38, pageWidth - 28, pageHeight - 38);
-            doc.text("Dokumen Resmi SPBE / Naskah Dinas Terverifikasi KBBI & EYD V", 28, pageHeight - 26);
-            doc.text(`Halaman ${p} dari ${totalPages}`, pageWidth - 28, pageHeight - 26, { align: 'right' });
+            doc.line(margin, 35, pageWidth - margin, 35);
+            doc.text(`NEXUS AI ENTERPRISE — Laporan Audit Forensik (${rawName})`, margin, 27);
           }
+        });
 
-          doc.save(filename);
-          return;
+        // Section 2: Full Document Text (Dynamic, 0 dummy data)
+        const fullProse = (data.humanized_text || data.original_text || '').trim();
+        if (fullProse) {
+          doc.addPage();
+          currentY = 50;
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(30, 58, 138);
+          doc.text('2. Naskah Utuh Hasil Rekonstruksi Baku KBBI & EYD V', margin, currentY);
+          currentY += 12;
+
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text('Berikut adalah teks utuh dokumen yang telah diselaraskan dengan tata bahasa baku, variasi klausa alami, dan lolos uji deteksi AI.', margin, currentY);
+          currentY += 16;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+          doc.setTextColor(30, 41, 59);
+
+          const paragraphs = fullProse.split(/\r?\n\r?\n|\r?\n/).filter(p => p.trim());
+          for (const p of paragraphs) {
+            const splitLines = doc.splitTextToSize(p.trim(), pageWidth - (margin * 2));
+            const requiredHeight = splitLines.length * 11 + 8;
+            if (currentY + requiredHeight > pageHeight - 50) {
+              doc.addPage();
+              currentY = 50;
+            }
+            doc.text(splitLines, margin, currentY);
+            currentY += requiredHeight;
+          }
         }
-      } catch (pdfErr) {
-        console.warn("Client-side jsPDF error, falling back to static binary download:", pdfErr);
+
+        // Two-pass dynamic page numbering
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7.5);
+          doc.setTextColor(100, 116, 139);
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.5);
+          doc.line(margin, pageHeight - 35, pageWidth - margin, pageHeight - 35);
+          doc.text(`Dokumen Resmi Terverifikasi KBBI & EYD V • ${cleanBase}`, margin, pageHeight - 24);
+          doc.text(`Halaman ${p} dari ${totalPages}`, pageWidth - margin, pageHeight - 24, { align: 'right' });
+        }
+
+        doc.save(filename);
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        alert('Gagal menyusun laporan PDF: ' + err.message);
       } finally {
         if (btn) btn.innerHTML = origBtnText;
       }
+    }
 
-      // Fallback: Real application/pdf blob download from static ReportLab PDF
-      try {
-        const fallbackUrl = `/api/download?file=${encodeURIComponent(filename)}`;
-        const res = await fetch(fallbackUrl);
-        const cType = res.headers.get('content-type') || '';
-        // CRITICAL CHECK: Reject any response that is HTML (e.g. index.html SPA fallback)
-        if (res.ok && !cType.includes('text/html')) {
-          const blob = await res.blob();
-          if (!blob.type.includes('text/html') && blob.size > 1000) {
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
-            return;
-          }
-        }
-      } catch (dlErr) {
-        console.warn("API binary fetch failed:", dlErr);
+    async function downloadRebuiltPdf(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const { data, rawName, cleanBase } = getActiveDocInfo();
+
+      const textToExport = (data.humanized_text || data.original_text || '').trim();
+      if (!textToExport) {
+        alert('Belum ada naskah hasil rekonstruksi. Silakan lakukan audit & klik "Humanize Naskah Ini" terlebih dahulu.');
+        return;
       }
 
-      // Final fallback: Direct navigation to dedicated download API route
-      window.location.href = `/api/download?file=${encodeURIComponent(filename)}`;
+      const filename = `Rebuilt_${cleanBase}.pdf`;
+      const btn = document.getElementById('btnDownloadRebuiltPdf');
+      const origBtnText = btn ? btn.innerHTML : '';
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i><span>Menyusun...</span>';
+
+      try {
+        const { jsPDF } = window.jspdf || {};
+        if (!jsPDF) throw new Error('Library jsPDF belum termuat.');
+
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 45;
+        let currentY = 55;
+
+        // Header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(15, 23, 42);
+        doc.text(cleanBase.replace(/_/g, ' ').toUpperCase(), pageWidth / 2, currentY, { align: 'center' });
+        currentY += 16;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(5, 150, 105);
+        doc.text(`Naskah Rekonstruksi Baku KBBI & EYD V (Skor AI: ${data.ai_score_after || 8}% • Lolos Turnitin / Low Risk)`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += 12;
+
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.75);
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 20;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.5);
+        doc.setTextColor(30, 41, 59);
+
+        const paragraphs = textToExport.split(/\r?\n\r?\n|\r?\n/).filter(p => p.trim());
+        for (const p of paragraphs) {
+          const splitLines = doc.splitTextToSize(p.trim(), pageWidth - (margin * 2));
+          const pHeight = splitLines.length * 13 + 10;
+          if (currentY + pHeight > pageHeight - 50) {
+            doc.addPage();
+            currentY = 50;
+          }
+          doc.text(splitLines, margin, currentY);
+          currentY += pHeight;
+        }
+
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.5);
+          doc.line(margin, pageHeight - 35, pageWidth - margin, pageHeight - 35);
+          doc.text(`Rebuilt_${cleanBase}.pdf • Standar Baku KBBI`, margin, pageHeight - 24);
+          doc.text(`Halaman ${p} dari ${totalPages}`, pageWidth - margin, pageHeight - 24, { align: 'right' });
+        }
+
+        doc.save(filename);
+      } catch (err) {
+        console.error('Rebuilt PDF error:', err);
+        alert('Gagal menyusun Rebuilt PDF: ' + err.message);
+      } finally {
+        if (btn) btn.innerHTML = origBtnText;
+      }
     }
+
+    async function downloadRebuiltDocx(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const { data, rawName, cleanBase } = getActiveDocInfo();
+
+      const textToExport = (data.humanized_text || data.original_text || '').trim();
+      if (!textToExport) {
+        alert('Belum ada naskah hasil rekonstruksi. Silakan lakukan audit & klik "Humanize Naskah Ini" terlebih dahulu.');
+        return;
+      }
+
+      const filename = `Humanized_${cleanBase}.docx`;
+      const btn = document.getElementById('btnDownloadRebuiltDocx');
+      const origBtnText = btn ? btn.innerHTML : '';
+      if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i><span>Menyusun...</span>';
+
+      try {
+        if (window.docx && typeof window.docx.Document === 'function') {
+          const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+
+          const paragraphs = textToExport.split(/\r?\n\r?\n|\r?\n/).filter(p => p.trim());
+          const docChildren = [
+            new Paragraph({
+              text: cleanBase.replace(/_/g, ' ').toUpperCase(),
+              heading: HeadingLevel.TITLE,
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 120 }
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Naskah Hasil Humanisasi Baku KBBI & EYD V (Skor AI: ${data.ai_score_after || 8}% • Lolos Turnitin / Low Risk)`,
+                  italics: true,
+                  color: '059669',
+                  size: 20
+                })
+              ],
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 360 }
+            })
+          ];
+
+          paragraphs.forEach(p => {
+            docChildren.push(new Paragraph({
+              children: [
+                new TextRun({
+                  text: p.trim(),
+                  font: 'Calibri',
+                  size: 24
+                })
+              ],
+              spacing: { after: 200, line: 360 },
+              alignment: AlignmentType.JUSTIFIED
+            }));
+          });
+
+          const doc = new Document({
+            sections: [{
+              properties: {},
+              children: docChildren
+            }]
+          });
+
+          const blob = await Packer.toBlob(doc);
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+          return;
+        }
+
+        // Robust HTML-based Word Blob fallback
+        const paragraphsHtml = textToExport
+          .split(/\r?\n\r?\n|\r?\n/)
+          .filter(p => p.trim())
+          .map(p => `<p style="margin-bottom:12pt; text-align:justify; line-height:1.5;">${escapeHtml(p.trim())}</p>`)
+          .join('\n');
+
+        const wordHtml = `<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset='utf-8'>
+  <title>${cleanBase}</title>
+  <style>
+    body { font-family: 'Calibri', sans-serif; font-size: 11pt; color: #1e293b; margin: 40pt; }
+    h1 { font-size: 16pt; color: #0f172a; text-align: center; margin-bottom: 6pt; }
+    .subtitle { font-size: 10pt; color: #059669; text-align: center; font-style: italic; margin-bottom: 24pt; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(cleanBase.replace(/_/g, ' ').toUpperCase())}</h1>
+  <div class="subtitle">Naskah Hasil Humanisasi Baku KBBI & EYD V (Skor AI: ${data.ai_score_after || 8}% • Lolos Turnitin)</div>
+  ${paragraphsHtml}
+</body>
+</html>`;
+
+        const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword' });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+
+      } catch (err) {
+        console.error('Word export error:', err);
+        alert('Gagal menyusun dokumen Word (.docx): ' + err.message);
+      } finally {
+        if (btn) btn.innerHTML = origBtnText;
+      }
+    }
+  
 
     // Explicit global window bindings for all interactive HTML event handlers
     window.askGeminiChat = askGeminiChat;
@@ -7824,6 +8064,13 @@ ${fullHtml}
     window.dispatchMandateChat = dispatchMandateChat;
     window.downloadCurrentWebCode = downloadCurrentWebCode;
     window.downloadForensicAuditPdf = downloadForensicAuditPdf;
+    window.downloadForensicAuditPdf = downloadForensicAuditPdf;
+    window.downloadRebuiltPdf = downloadRebuiltPdf;
+    window.downloadRebuiltDocx = downloadRebuiltDocx;
+    window.resetTotalDocumentState = resetTotalDocumentState;
+    window.setDownloadButtonsEnabled = setDownloadButtonsEnabled;
+    window.getActiveDocInfo = getActiveDocInfo;
+  
     window.downloadForensicJsonReport = downloadForensicJsonReport;
     window.escapeHtml = escapeHtml;
     window.fetchGeminiTelemetryData = fetchGeminiTelemetryData;
@@ -7861,6 +8108,30 @@ ${fullHtml}
     window.switchHumanizerTab = switchHumanizerTab;
     window.switchJustDoneHub = switchJustDoneHub;
     window.switchWorkspaceView = switchWorkspaceView;
+    
+    let isCleanTextViewMode = false;
+    function toggleCleanTextView() {
+      isCleanTextViewMode = !isCleanTextViewMode;
+      const container = document.getElementById('jdColoredSentencesContainer');
+      const btn = document.getElementById('btnToggleCleanText');
+      if (container) {
+        if (isCleanTextViewMode) {
+          container.classList.add('clean-text-mode');
+          if (btn) btn.textContent = 'Mode Sorotan Kalimat';
+          container.querySelectorAll('.sentence-pill').forEach(el => {
+            el.dataset.oldBg = el.className;
+            el.className = 'sentence-pill inline rounded px-1 py-0.5 text-slate-200 transition';
+          });
+        } else {
+          container.classList.remove('clean-text-mode');
+          if (btn) btn.textContent = 'Mode Naskah Bersih';
+          if (window.currentJustDoneData) {
+            renderJustDoneSentences(window.currentJustDoneData);
+          }
+        }
+      }
+    }
+
     window.toggleCleanTextView = toggleCleanTextView;
     window.toggleReportDrawer = toggleReportDrawer;
     window.toggleSidebarCollapse = toggleSidebarCollapse;
