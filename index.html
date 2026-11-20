@@ -5645,7 +5645,7 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           let resJson = null;
           let fetchErr = null;
           try {
-            const res = await fetch('/api/justdone-audit', {
+            let res = await fetch('/api/justdone-audit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -5653,8 +5653,25 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
                 sentences: batchList
               })
             });
-            if (res.ok) {
+            const cType = res.headers.get('content-type') || '';
+            if (res.ok && cType.includes('application/json')) {
               resJson = await res.json();
+            } else if (!cType.includes('application/json')) {
+              // Failover to /api/humanize
+              const fallbackRes = await fetch('/api/humanize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'audit',
+                  sentences: batchList
+                })
+              });
+              if (fallbackRes.ok) {
+                resJson = await fallbackRes.json();
+              } else {
+                const errBody = await fallbackRes.json().catch(() => ({}));
+                fetchErr = new Error(errBody.message || ('HTTP ' + fallbackRes.status));
+              }
             } else {
               const errBody = await res.json().catch(() => ({}));
               fetchErr = new Error(errBody.message || ('HTTP ' + res.status));

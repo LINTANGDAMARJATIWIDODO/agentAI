@@ -4,6 +4,7 @@
  * 100% Real LLM Rewriting via official Google GenAI SDK (@google/genai)
  * Model: gemini-2.5-flash (with automatic resilient failover to gemini-2.5-flash-lite)
  * Structured Output: responseSchema JSON with usageMetadata token verification.
+ * API Version: v1beta (with Direct REST v1beta failover)
  *
  * Fully stateless & compatible with Vercel Serverless (export const maxDuration = 60).
  */
@@ -103,14 +104,7 @@ module.exports = async (req, res) => {
       }));
     }
 
-    if (!GoogleGenAI) {
-      res.statusCode = 500;
-      return res.end(JSON.stringify({
-        status: 'error',
-        message: 'Google GenAI SDK (@google/genai) tidak ditemukan atau gagal dimuat.'
-      }));
-    }
-
+    const action = body.action || 'humanize';
     const sentences = Array.isArray(body.sentences) && body.sentences.length > 0
       ? body.sentences
       : segmentSentences(body.text || body.content || '');
@@ -124,8 +118,130 @@ module.exports = async (req, res) => {
     const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
     const fallbackModel = 'gemini-2.5-flash-lite';
 
-    const ai = new GoogleGenAI({ apiKey });
+    // -------------------------------------------------------------
+    // ACTION: AUDIT FORENSIK (Real AI Authorship Scoring per Batch)
+    // -------------------------------------------------------------
+    if (action === 'audit' || action === 'detect') {
+      const systemPrompt = `Anda adalah Spesialis Audit Forensik Kepengarangan Teks AI Bahasa Indonesia kelas dunia.
+Tugas Anda adalah menganalisis setiap kalimat dan menentukan apakah kalimat tersebut ditulis oleh Model Bahasa (AI) atau Manusia.
 
+KRITERIA KALIBRASI KETAT:
+1. Kalimat yang menggunakan pola templat kaku, struktur majemuk simetris/seragam, transisi robotik ("Pemanfaatan ... telah berkembang dari ... menjadi ...", "Pendekatan tersebut memang ... tetapi menghasilkan ...", "tidak dapat dipungkiri bahwa", "dalam era digital", enumerasi titik dua mekanis) WAJIB diberi ai_score ANTARA 55 SAMPAI 90 (HIGH_AI atau MODERATE_AI).
+2. Kalimat yang memiliki ritme dinamis alami, variasi klausa tak terduga, atau struktur manusiawi diberi ai_score < 30 (HUMAN).
+3. Kalimat transisi campuran atau formal standar diberi ai_score 35-65 (MODERATE_AI).
+4. Status WAJIB bernilai:
+   - "HIGH_AI" jika ai_score >= 70
+   - "MODERATE_AI" jika ai_score >= 40 dan < 70
+   - "HUMAN" jika ai_score < 40
+5. Berikan karakteristik unik (characteristic_found) yang mendeskripsikan secara spesifik pola sintaksis kalimat ini.
+6. Berikan saran koreksi ejaan KBBI / EYD V jika ditemukan ketidakbakuan (misal: "terpercaya" -> "tepercaya", "analisa" -> "analisis", "resiko" -> "risiko", "praktek" -> "praktik", "sistim" -> "sistem", "perlindungan data pribadi" -> "pelindungan data pribadi").`;
+
+      const userPrompt = `Analisis ${sentences.length} kalimat berikut dan kembalikan array skor forensik untuk masing-masing kalimat:\n\n` +
+        sentences.map((s, idx) => `[ID ${idx + 1}]: "${s}"`).join('\n');
+
+      const auditSchema = {
+        type: Type ? Type.OBJECT : 'OBJECT',
+        properties: {
+          sentences: {
+            type: Type ? Type.ARRAY : 'ARRAY',
+            items: {
+              type: Type ? Type.OBJECT : 'OBJECT',
+              properties: {
+                id: { type: Type ? Type.NUMBER : 'NUMBER' },
+                text: { type: Type ? Type.STRING : 'STRING' },
+                ai_score: { type: Type ? Type.NUMBER : 'NUMBER' },
+                status: { type: Type ? Type.STRING : 'STRING' },
+                characteristic_found: { type: Type ? Type.STRING : 'STRING' },
+                reason: { type: Type ? Type.STRING : 'STRING' },
+                kbbi_fix: { type: Type ? Type.STRING : 'STRING' }
+              },
+              required: ['id', 'text', 'ai_score', 'status', 'characteristic_found', 'reason', 'kbbi_fix']
+            }
+          }
+        },
+        required: ['sentences']
+      };
+
+      let parsedResult = null;
+      let totalTokens = 0;
+      let modelUsed = primaryModel;
+
+      // 1. Try SDK with apiVersion v1beta
+      if (GoogleGenAI) {
+        try {
+          const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
+          const response = await ai.models.generateContent({
+            model: primaryModel,
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            config: {
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              responseMimeType: 'application/json',
+              responseSchema: auditSchema,
+              temperature: 0.15,
+              maxOutputTokens: 8192
+            }
+          });
+          const reply = response.text || '';
+          if (reply) {
+            parsedResult = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+            const usage = response.usageMetadata || {};
+            totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+          }
+        } catch (sdkErr) {
+          console.warn(`[SDK audit ${primaryModel} failed]:`, sdkErr.message);
+        }
+      }
+
+      // 2. Direct REST v1beta failover
+      if (!parsedResult) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${primaryModel}:generateContent?key=${apiKey}`;
+          const restRes = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              generationConfig: {
+                temperature: 0.15,
+                responseMimeType: 'application/json',
+                maxOutputTokens: 8192
+              }
+            })
+          });
+          if (restRes.ok) {
+            const restData = await restRes.json();
+            const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (cand) {
+              parsedResult = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+              const usage = restData.usageMetadata || {};
+              totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+            }
+          } else {
+            const errBody = await restRes.json().catch(() => ({}));
+            throw new Error(errBody.error?.message || ('HTTP ' + restRes.status));
+          }
+        } catch (restErr) {
+          throw restErr;
+        }
+      }
+
+      if (!parsedResult || !Array.isArray(parsedResult.sentences)) {
+        throw new Error('Google Gemini API tidak mengembalikan struktur sentences yang valid.');
+      }
+
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        status: 'success',
+        model_used: modelUsed,
+        total_tokens_used: totalTokens,
+        sentences: parsedResult.sentences
+      }));
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: PROFESSIONAL SUBSTANTIVE PARAPHRASING (Humanizer)
+    // -------------------------------------------------------------
     const systemInstructionText = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
 Tugas Anda adalah:
 1. Menganalisis kalimat input dan mendeteksi probabilitas kepengarangan AI (ai_score_before: 55–88 untuk pola kalimat AI, atau <35 jika manusiawi).
@@ -184,28 +300,17 @@ Tugas Anda adalah:
       ]
     };
 
-    let response = null;
+    let parsedData = null;
     let modelUsed = primaryModel;
+    let totalTokens = 0;
+    let usage = {};
 
-    try {
-      response = await ai.models.generateContent({
-        model: primaryModel,
-        contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
-        config: {
-          systemInstruction: { parts: [{ text: systemInstructionText }] },
-          responseMimeType: 'application/json',
-          responseSchema: schemaConfig,
-          temperature: 0.25,
-          maxOutputTokens: 8192
-        }
-      });
-    } catch (primaryErr) {
-      console.warn(`[Gemini API ${primaryModel} failed]:`, primaryErr.message);
-      // If 429 quota exhaustion or transient model failure, retry with fallbackModel
-      if (primaryErr.message && (primaryErr.message.includes('429') || primaryErr.message.includes('RESOURCE_EXHAUSTED') || primaryErr.message.includes('not found'))) {
-        modelUsed = fallbackModel;
-        response = await ai.models.generateContent({
-          model: fallbackModel,
+    // 1. SDK with apiVersion v1beta
+    if (GoogleGenAI) {
+      try {
+        const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
+        const response = await ai.models.generateContent({
+          model: primaryModel,
           contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
           config: {
             systemInstruction: { parts: [{ text: systemInstructionText }] },
@@ -215,24 +320,57 @@ Tugas Anda adalah:
             maxOutputTokens: 8192
           }
         });
-      } else {
-        throw primaryErr;
+        const replyText = response.text || '';
+        if (replyText) {
+          parsedData = JSON.parse(replyText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+          usage = response.usageMetadata || {};
+          totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+        }
+      } catch (sdkErr) {
+        console.warn(`[SDK humanize ${primaryModel} failed]:`, sdkErr.message);
       }
     }
 
-    const replyText = response.text || '';
-    if (!replyText) {
-      throw new Error('Google GenAI mengembalikan respons kosong.');
+    // 2. Direct REST v1beta failover
+    if (!parsedData) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${primaryModel}:generateContent?key=${apiKey}`;
+        const restRes = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: userPromptText }] }],
+            systemInstruction: { parts: [{ text: systemInstructionText }] },
+            generationConfig: {
+              temperature: 0.25,
+              responseMimeType: 'application/json',
+              maxOutputTokens: 8192
+            }
+          })
+        });
+
+        if (restRes.ok) {
+          const restData = await restRes.json();
+          const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (cand) {
+            parsedData = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+            usage = restData.usageMetadata || {};
+            totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
+          }
+        } else {
+          const errBody = await restRes.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || ('HTTP ' + restRes.status));
+        }
+      } catch (restErr) {
+        throw restErr;
+      }
     }
 
-    const cleanJson = replyText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-    const parsedData = JSON.parse(cleanJson);
+    if (!parsedData || !Array.isArray(parsedData.sentences)) {
+      throw new Error('Google Gemini API tidak mengembalikan struktur naskah yang valid.');
+    }
 
-    // Extract totalTokenCount verified from Gemini SDK usageMetadata
-    const usage = response.usageMetadata || {};
-    const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-
-    const sentencePairs = (parsedData.sentences || []).map((s, idx) => {
+    const sentencePairs = parsedData.sentences.map((s, idx) => {
       const orig = (s.original_text || sentences[idx] || '').trim();
       const hum = (s.humanized_text || orig).trim();
       const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 65;
