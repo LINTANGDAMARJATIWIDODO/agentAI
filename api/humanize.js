@@ -2,9 +2,10 @@
  * NEXUS AI ENTERPRISE — REAL SUBSTANTIVE PARAPHRASING & AI FORENSIC HUMANIZER
  * =========================================================================
  * 100% Real LLM Rewriting via official Google GenAI SDK (@google/genai)
- * Model: gemini-2.5-flash with automatic resilient failover to gemini-2.5-flash-lite
+ * Multi-Key Rotation Pool: process.env.key2 -> key3 -> GEMINI_API_KEYS -> GEMINI_API_KEY
+ * Cascading Models: gemini-2.5-flash -> gemini-2.5-flash-lite -> gemini-3.6-flash -> gemini-3.5-flash
  * Structured Output: responseSchema JSON with usageMetadata token verification.
- * API Version: v1beta (with Direct REST v1beta failover)
+ * API Version: v1beta
  *
  * Fully stateless & compatible with Vercel Serverless (export const maxDuration = 60).
  */
@@ -14,8 +15,8 @@ const fs = require('fs');
 
 const BASE_DIR = path.resolve(__dirname, '..');
 
-// Auto-load .env if process.env.GEMINI_API_KEY is not set
-if (!process.env.GEMINI_API_KEY) {
+// Auto-load .env if process.env.GEMINI_API_KEY or key2 is not set
+if (!process.env.GEMINI_API_KEY || !process.env.key2) {
   const envFile = path.join(BASE_DIR, '.env');
   if (fs.existsSync(envFile)) {
     try {
@@ -43,6 +44,37 @@ try {
   console.warn('[@google/genai import warning]:', e.message);
 }
 
+let getApiKeyPool;
+try {
+  getApiKeyPool = require('../services/gemini/apiKeyPool').getApiKeyPool;
+} catch (e) {
+  getApiKeyPool = function() {
+    const keys = [];
+    const k2 = (process.env.key2 || process.env.KEY2 || '').trim().replace(/^['"]|['"]$/g, '');
+    if (k2) keys.push(k2);
+    const k3 = (process.env.key3 || process.env.KEY3 || '').trim().replace(/^['"]|['"]$/g, '');
+    if (k3) keys.push(k3);
+    ['key4', 'KEY4', 'key5', 'KEY5', 'key1', 'KEY1'].forEach(envName => {
+      const val = (process.env[envName] || '').trim().replace(/^['"]|['"]$/g, '');
+      if (val) keys.push(val);
+    });
+    const keysStr = process.env.GEMINI_API_KEYS || process.env.gemini_api_keys || '';
+    if (keysStr) {
+      keysStr.split(',').forEach(k => {
+        const trimmed = k.trim().replace(/^['"]|['"]$/g, '');
+        if (trimmed) keys.push(trimmed);
+      });
+    }
+    const kSingle = (process.env.GEMINI_API_KEY || process.env.gemini_api_key || '').trim().replace(/^['"]|['"]$/g, '');
+    if (kSingle) keys.push(kSingle);
+    const uniqueKeys = [];
+    keys.forEach(k => {
+      if (k && !uniqueKeys.includes(k)) uniqueKeys.push(k);
+    });
+    return uniqueKeys;
+  };
+}
+
 function segmentSentences(text) {
   if (!text) return [];
   const cleaned = text
@@ -59,22 +91,31 @@ function segmentSentences(text) {
   ).filter(s => s.length > 2 && /[a-zA-Z]/.test(s));
 }
 
-async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, responseSchema, temperature = 0.25 }) {
+async function callGeminiStructured({ systemInstruction, userPrompt, responseSchema, temperature = 0.25 }) {
+  if (!GoogleGenAI) {
+    throw new Error('@google/genai SDK tidak tersedia pada server runtime.');
+  }
+
+  const keyPool = getApiKeyPool();
+  if (!keyPool.length) {
+    throw new Error('Tidak ada API Key Gemini yang terkonfigurasi pada server (key2, key3, GEMINI_API_KEYS, GEMINI_API_KEY).');
+  }
+
   const models = [
-    process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash',
+    'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
-    'gemini-2.0-flash',
-    'gemini-flash-latest',
+    'gemini-3.6-flash',
     'gemini-3.5-flash'
-  ].filter((m, i, arr) => arr.indexOf(m) === i);
+  ];
 
   let lastError = null;
 
-  for (const model of models) {
-    // 1. Try SDK with apiVersion: 'v1beta'
-    if (GoogleGenAI) {
+  for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
+    const currentApiKey = keyPool[keyIdx];
+
+    for (const model of models) {
       try {
-        const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
+        const ai = new GoogleGenAI({ apiKey: currentApiKey, apiVersion: 'v1beta' });
         const response = await ai.models.generateContent({
           model: model,
           contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -86,61 +127,51 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
             maxOutputTokens: 8192
           }
         });
+
         const reply = response.text || '';
         if (reply) {
           const parsed = JSON.parse(reply.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
           const usage = response.usageMetadata || {};
           const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-          return { data: parsed, model_used: model, usage: usage, total_tokens: totalTokens };
+          return {
+            data: parsed,
+            model_used: model,
+            key_index: keyIdx + 1,
+            total_keys: keyPool.length,
+            usage: usage,
+            total_tokens: totalTokens
+          };
         }
-      } catch (sdkErr) {
-        lastError = sdkErr;
-        const msg = sdkErr.message || '';
-        console.warn(`[SDK ${model} failed]:`, msg);
-        if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('404') || msg.includes('no longer available')) {
+      } catch (err) {
+        lastError = err;
+        const msg = (err.message || String(err)).toLowerCase();
+        console.warn(`[Key #${keyIdx + 1}/${keyPool.length} | Model ${model}]:`, err.message);
+
+        // 429 Quota Exceeded / Resource Exhausted: rotate to next key in keyPool!
+        const isQuotaExceeded = msg.includes('429') ||
+          msg.includes('quota') ||
+          msg.includes('resource_exhausted') ||
+          msg.includes('quotafailure') ||
+          err.status === 429 ||
+          err.code === 429 ||
+          (err.error && (err.error.code === 429 || err.error.status === 'RESOURCE_EXHAUSTED'));
+
+        if (isQuotaExceeded) {
+          console.warn(`[Key #${keyIdx + 1}] Quota exceeded (429), rotating to next API key in pool...`);
+          break; // break inner model loop, try next key!
+        }
+
+        // 404 Model Not Found or 503 High Demand: try next model for current key
+        if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('503') || msg.includes('unavailable')) {
           continue;
         }
-      }
-    }
 
-    // 2. Direct REST v1beta failover
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const restRes = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          generationConfig: {
-            temperature: temperature,
-            responseMimeType: 'application/json',
-            maxOutputTokens: 8192
-          }
-        })
-      });
-
-      if (restRes.ok) {
-        const restData = await restRes.json();
-        const cand = restData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (cand) {
-          const parsed = JSON.parse(cand.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-          const usage = restData.usageMetadata || {};
-          const totalTokens = usage.totalTokenCount || ((usage.promptTokenCount || 0) + (usage.candidatesTokenCount || 0)) || 0;
-          return { data: parsed, model_used: model, usage: usage, total_tokens: totalTokens };
-        }
-      } else {
-        const errBody = await restRes.json().catch(() => ({}));
-        lastError = new Error(errBody.error?.message || ('HTTP ' + restRes.status));
-        console.warn(`[REST ${model} failed]: HTTP ${restRes.status}`, lastError.message);
         continue;
       }
-    } catch (restErr) {
-      lastError = restErr;
     }
   }
 
-  throw lastError || new Error('Gagal memproses dengan Google Gemini API.');
+  throw lastError || new Error('Seluruh kombinasi API Key dan Model dalam pool rotasi gagal memproses permintaan.');
 }
 
 module.exports = async (req, res) => {
@@ -179,31 +210,22 @@ module.exports = async (req, res) => {
       });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || '';
-    if (!apiKey) {
-      res.statusCode = 500;
-      return res.end(JSON.stringify({
-        status: 'error',
-        message: 'GEMINI_API_KEY tidak dikonfigurasi pada server. Pemrosesan parafrase nyata memerlukan Google GenAI API key yang aktif.'
-      }));
-    }
-
     const action = body.action || 'humanize';
-    const sentences = Array.isArray(body.sentences) && body.sentences.length > 0
-      ? body.sentences
-      : segmentSentences(body.text || body.content || '');
-
-    if (!sentences.length) {
-      res.statusCode = 400;
-      return res.end(JSON.stringify({ status: 'error', message: 'Daftar kalimat atau teks naskah tidak boleh kosong.' }));
-    }
-
     const mode = body.mode || 'Formal SPBE & Eksekutif';
 
     // -------------------------------------------------------------
     // ACTION: AUDIT FORENSIK (Real AI Authorship Scoring per Batch)
     // -------------------------------------------------------------
     if (action === 'audit' || action === 'detect') {
+      const sentences = Array.isArray(body.sentences) && body.sentences.length > 0
+        ? body.sentences
+        : segmentSentences(body.text || body.content || '');
+
+      if (!sentences.length) {
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ status: 'error', message: 'Daftar kalimat atau teks naskah tidak boleh kosong.' }));
+      }
+
       const systemPrompt = `Anda adalah Spesialis Audit Forensik Kepengarangan Teks AI Bahasa Indonesia kelas dunia.
 Tugas Anda adalah menganalisis batch kalimat dan menentukan tingkat probabilitas kepengarangan AI.
 
@@ -241,7 +263,6 @@ INSTRUKSI PENGHEMATAN WAKTU & TOKEN (ULTRA-FAST):
       };
 
       const result = await callGeminiStructured({
-        apiKey,
         systemInstruction: systemPrompt,
         userPrompt,
         responseSchema: auditSchema,
@@ -257,6 +278,7 @@ INSTRUKSI PENGHEMATAN WAKTU & TOKEN (ULTRA-FAST):
       return res.end(JSON.stringify({
         status: 'success',
         model_used: result.model_used,
+        key_index: result.key_index,
         total_tokens_used: result.total_tokens,
         usage_metadata: result.usage,
         batch_ai_score: batchAiScore,
@@ -268,135 +290,117 @@ INSTRUKSI PENGHEMATAN WAKTU & TOKEN (ULTRA-FAST):
     }
 
     // -------------------------------------------------------------
-    // ACTION: PROFESSIONAL SUBSTANTIVE PARAPHRASING (Humanizer)
+    // ACTION: HIGH-COMPRESSION REAL SUBSTANTIVE PARAPHRASING (Remove AI)
     // -------------------------------------------------------------
-    const systemInstructionText = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
-Tugas Anda adalah:
-1. Melakukan PENULISAN ULANG SUBSTANTIF (Substantive Paraphrasing) secara nyata pada seluruh naskah yang diberikan agar ritmenya bervariasi alami (Burstiness tinggi) dan 100% baku KBBI & EYD V.
-   - Rombak total struktur sintaksis: ubah pasif ke aktif atau sebaliknya bila kaku untuk menghasilkan ritme alami.
-   - Variasikan panjang klausa secara asimetris (padukan kalimat ringkas 8–14 kata dan kalimat bernuansa 18–26 kata).
-   - Hapus seluruh konjungsi klise AI ("Selain itu", "Lebih lanjut", "secara holistik", "memainkan peran krusial", "tidak dapat dipungkiri bahwa").
-   - Wajib 100% mematuhi kaidah baku KBBI & EYD V (misal: tepercaya, analisis, risiko, praktik, sistem, standardisasi, pelindungan, aktivitas, efektivitas).
-   - PRESERVASI KETAT 100%: Dilarang mengubah atau menghilangkan angka, tahun, nama regulasi (Perpres 95/2018, Perpres 132/2022, UU 27/2022, dll.), dan kode teknis SPBE (DAB, DAD, DAL, DAA, INI-xx, G-xx).
-   - Targetkan ai_score_after < 15% (lolos Turnitin, GPTZero, dan CopyLeaks).
-2. INSTRUKSI EFISIENSI OUTPUT TOKEN (ULTRA-FAST):
-   - Wajib kembalikan "humanized_full_text" yang memuat SELURUH paragraf batch yang sudah direkonstruksi utuh menjadi alami dan baku KBBI.
-   - Pada array "flagged_sentences", HANYA kembalikan kalimat yang awalnya terdeteksi AI (ai_score_before >= 40, maksimal 10 kalimat per batch). Jangan masukkan kalimat yang dari awal sudah alami agar tidak membuang token.
-   - Sertakan original_text, ai_score_before, humanized_text, ai_score_after (< 15), characteristic_found, dan revision_reason.
-3. Gaya Tulisan: ${mode}.
-4. Jangan pernah mengembalikan template atau jawaban statis.`;
+    let flaggedItems = Array.isArray(body.flagged_items) && body.flagged_items.length > 0
+      ? body.flagged_items
+      : (Array.isArray(body.flagged_sentences) && body.flagged_sentences.length > 0 ? body.flagged_sentences : []);
 
-    const userPromptText = `Berikut adalah ${sentences.length} kalimat naskah batch. Rekonstruksi utuh seluruh teks naskah ke dalam humanized_full_text dan HANYA kembalikan kalimat yang terindikasi AI (ai_score_before >= 40, maksimal 10 kalimat) ke dalam flagged_sentences:\n\n` +
-      sentences.map((s, idx) => `[Kalimat ${idx + 1}]: "${s}"`).join('\n');
+    // Fallback if client passed raw sentences array
+    if (!flaggedItems.length && Array.isArray(body.sentences) && body.sentences.length > 0) {
+      flaggedItems = body.sentences.map((s, idx) => {
+        if (typeof s === 'object' && s !== null) {
+          return { id: s.id || idx + 1, text: s.text || s.original || s.sentence || '' };
+        }
+        return { id: idx + 1, text: String(s) };
+      });
+    }
+
+    if (!flaggedItems.length && (body.text || body.content)) {
+      const segs = segmentSentences(body.text || body.content || '');
+      flaggedItems = segs.map((s, idx) => ({ id: idx + 1, text: s }));
+    }
+
+    if (!flaggedItems.length) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ status: 'error', message: 'Daftar kalimat terindikasi AI tidak boleh kosong.' }));
+    }
+
+    const systemInstructionText = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
+Tugas Anda adalah melakukan PENULISAN ULANG SUBSTANTIF (Substantive Paraphrasing) secara nyata HANYA pada daftar kalimat yang terindikasi AI berikut.
+
+ATURAN REVISI SUBSTANTIF:
+1. Rombak struktur sintaksis: ubah pasif ke aktif atau variasikan ritme agar alami manusiawi (Burstiness tinggi).
+2. Hapus konjungsi dan formula klise robotik AI ("Selain itu", "Lebih lanjut", "secara holistik", "memainkan peran krusial", "tidak dapat dipungkiri bahwa", "dalam era digital").
+3. 100% Wajib mematuhi kaidah baku KBBI & EYD V (contoh: tepercaya, analisis, risiko, praktik, sistem, standardisasi, pelindungan, aktivitas, efektivitas).
+4. PRESERVASI KETAT 100%: Dilarang mengubah angka, tahun, nama regulasi (Perpres 95/2018, UU 27/2022, dll.), dan kode teknis SPBE (DAB, DAD, DAL, DAA).
+5. Targetkan ai_score_after < 15% (lolos Turnitin & GPTZero).
+6. Kembalikan array JSON "items" berisi objek persis:
+   - id: nomor ID kalimat yang sama dengan input
+   - humanized_text: kalimat hasil parafrase substantif alami dan baku KBBI
+   - ai_score_after: angka probabilitas AI setelah revisi (wajib < 15)
+   - revision_reason: alasan teknis perbaikan singkat
+7. Gaya Tulisan: ${mode}.`;
+
+    const userPromptText = `Tulis ulang ${flaggedItems.length} kalimat terindikasi AI berikut menjadi alami, baku KBBI, dan lolos detektor AI:\n\n` +
+      flaggedItems.map(item => `[ID ${item.id}]: "${item.text}"`).join('\n');
 
     const schemaConfig = {
       type: Type ? Type.OBJECT : 'OBJECT',
       properties: {
-        overall_ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
-        overall_ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
-        burstiness_before: { type: Type ? Type.NUMBER : 'NUMBER' },
-        burstiness_after: { type: Type ? Type.NUMBER : 'NUMBER' },
-        editorial_notes: { type: Type ? Type.STRING : 'STRING' },
-        humanized_full_text: { type: Type ? Type.STRING : 'STRING' },
-        flagged_sentences: {
+        items: {
           type: Type ? Type.ARRAY : 'ARRAY',
           items: {
             type: Type ? Type.OBJECT : 'OBJECT',
             properties: {
-              original_text: { type: Type ? Type.STRING : 'STRING' },
-              ai_score_before: { type: Type ? Type.NUMBER : 'NUMBER' },
+              id: { type: Type ? Type.NUMBER : 'NUMBER' },
               humanized_text: { type: Type ? Type.STRING : 'STRING' },
               ai_score_after: { type: Type ? Type.NUMBER : 'NUMBER' },
-              characteristic_found: { type: Type ? Type.STRING : 'STRING' },
               revision_reason: { type: Type ? Type.STRING : 'STRING' }
             },
-            required: [
-              'original_text',
-              'ai_score_before',
-              'humanized_text',
-              'ai_score_after',
-              'characteristic_found',
-              'revision_reason'
-            ]
+            required: ['id', 'humanized_text', 'ai_score_after', 'revision_reason']
           }
         }
       },
-      required: [
-        'overall_ai_score_before',
-        'overall_ai_score_after',
-        'burstiness_before',
-        'burstiness_after',
-        'editorial_notes',
-        'humanized_full_text',
-        'flagged_sentences'
-      ]
+      required: ['items']
     };
 
     const result = await callGeminiStructured({
-      apiKey,
       systemInstruction: systemInstructionText,
       userPrompt: userPromptText,
       responseSchema: schemaConfig,
       temperature: 0.25
     });
 
-    const parsedData = result.data;
-    const fullHumanizedText = (parsedData.humanized_full_text || '').trim();
-    const flaggedItems = parsedData.flagged_sentences || parsedData.sentences || [];
+    const parsedItems = (result.data && result.data.items) || [];
 
-    const sentencePairs = flaggedItems.map((s, idx) => {
-      const orig = (s.original_text || '').trim();
-      const hum = (s.humanized_text || orig).trim();
-      const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 75;
-      const scoreAfter = typeof s.ai_score_after === 'number' ? Math.round(s.ai_score_after) : 8;
-      const statusBadge = scoreAfter < 15 ? 'SUDAH ALAMI' : (scoreAfter < 35 ? 'REVISI STRUKTURAL' : 'REVISI SUBSTANTIF');
-
+    const revisedItems = parsedItems.map((item, idx) => {
+      const origItem = flaggedItems.find(f => f.id === item.id) || flaggedItems[idx] || {};
+      const scoreAfter = typeof item.ai_score_after === 'number' ? Math.round(item.ai_score_after) : 8;
       return {
-        index: idx + 1,
-        sentence_id: idx + 1,
-        original: orig,
-        original_text: orig,
-        sentence: orig,
-        humanized: hum,
-        humanized_text: hum,
-        revised_text: hum,
-        recommendation: hum,
-        status: statusBadge,
-        action_label: statusBadge,
-        ai_score_before: scoreBefore,
+        id: item.id || (idx + 1),
+        sentence_id: item.id || (idx + 1),
+        original_text: origItem.text || '',
+        original: origItem.text || '',
+        sentence: origItem.text || '',
+        humanized_text: item.humanized_text || origItem.text || '',
+        humanized: item.humanized_text || origItem.text || '',
+        revised_text: item.humanized_text || origItem.text || '',
+        recommendation: item.humanized_text || origItem.text || '',
         ai_score_after: scoreAfter,
         ai_score: scoreAfter,
-        characteristic_found: s.characteristic_found || 'Pola sintaksis terdeteksi',
-        characteristics: s.characteristic_found || 'Pola sintaksis terdeteksi',
-        revision_reason: s.revision_reason || 'Rekonstruksi klausa dan penyelarasan diksi baku KBBI',
-        reason: s.revision_reason || 'Rekonstruksi klausa dan penyelarasan diksi baku KBBI',
-        level: scoreAfter < 15 ? 'low' : (scoreAfter < 35 ? 'medium' : 'high')
+        status: 'SUDAH ALAMI',
+        action_label: 'SUDAH ALAMI',
+        level: 'low',
+        revision_reason: item.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan kaidah baku KBBI',
+        reason: item.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan kaidah baku KBBI',
+        characteristic_found: 'Struktur klausa alami dan dinamis'
       };
     });
-
-    const finalHumanizedText = fullHumanizedText || sentencePairs.map(p => p.humanized).join(' ');
 
     res.statusCode = 200;
     return res.end(JSON.stringify({
       status: 'success',
       model_used: result.model_used,
+      key_index: result.key_index,
       total_tokens_used: result.total_tokens,
       usage_metadata: result.usage,
       mode: mode,
-      sentence_count: sentencePairs.length,
-      humanized_text: finalHumanizedText,
-      humanized_full_text: finalHumanizedText,
-      revised_text: finalHumanizedText,
-      original_text: sentences.join(' '),
-      ai_score_before: parsedData.overall_ai_score_before !== undefined ? Math.round(parsedData.overall_ai_score_before) : 65,
-      ai_score_after: parsedData.overall_ai_score_after !== undefined ? Math.round(parsedData.overall_ai_score_after) : 8,
-      ai_score_percentage: parsedData.overall_ai_score_after !== undefined ? Math.round(parsedData.overall_ai_score_after) : 8,
-      burstiness_before: parsedData.burstiness_before || 0.28,
-      burstiness_after: parsedData.burstiness_after || 0.62,
-      editorial_notes: parsedData.editorial_notes || 'Substantive paraphrasing berhasil dilakukan dengan variasi ritme tinggi dan 100% baku KBBI.',
-      flagged_sentences: sentencePairs,
-      sentence_pairs: sentencePairs,
-      sentences: sentencePairs
+      items: revisedItems,
+      flagged_sentences: revisedItems,
+      sentences: revisedItems,
+      sentence_pairs: revisedItems,
+      revised_count: revisedItems.length
     }));
 
   } catch (err) {

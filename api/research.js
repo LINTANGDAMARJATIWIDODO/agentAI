@@ -84,7 +84,9 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({ status: 'error', message: 'Topik riset wajib diisi.' }));
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || '';
+const { getApiKeyPool } = require('../services/gemini/apiKeyPool');
+    const keyPool = getApiKeyPool();
+    const apiKey = keyPool[0] || process.env.GEMINI_API_KEY || '';
     const modelName = GeminiClient.resolveModel(cognitive_brain);
 
     // ==========================================================

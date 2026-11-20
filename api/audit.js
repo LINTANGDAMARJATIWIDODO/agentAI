@@ -260,17 +260,18 @@ function evaluateLayer1Stylometrics(sentence, prevSentences = [], globalBurstine
   };
 }
 
+const { getApiKeyPool } = require('../services/gemini/apiKeyPool');
+
 /**
  * LAYER 2: Google GenAI Forensic Per-Sentence Batch Classifier (Weight: 65%)
  * Evaluates semantic perplexity, clause uniformity, and predictive syntax per batch (20-25 sentences).
  */
 async function evaluateLayer2GenAiBatch(sentencesChunk) {
-  const apiKey = process.env.GEMINI_API_KEY || '';
-  if (!apiKey || sentencesChunk.length === 0) {
-    // Graceful offline fallback: layer 2 mirrors calibrated layer 1 heuristics
+  const keyPool = getApiKeyPool();
+  if (!keyPool.length || sentencesChunk.length === 0) {
     return sentencesChunk.map((s, i) => ({
       sentence_id: i + 1,
-      ai_probability: null, // trigger fallback
+      ai_probability: null,
       label: 'HUMAN',
       reason: 'Mode Heuristik Lapis 1',
       kbbi_issues: []
@@ -301,35 +302,43 @@ Format output WAJIB JSON murni tanpa markdown:
   ]
 }`;
 
-  try {
-    const rawBaseUrl = (process.env.GEMINI_BASE_URL || process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
-    const model = process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
-    const url = rawBaseUrl.includes('/models')
-      ? `${rawBaseUrl}/${model}:generateContent?key=${apiKey}`
-      : `${rawBaseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const models = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.5-flash'];
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.1,
-          responseMimeType: "application/json"
+  for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
+    const currentApiKey = keyPool[keyIdx];
+
+    for (const model of models) {
+      try {
+        if (GoogleGenAI) {
+          const ai = new GoogleGenAI({ apiKey: currentApiKey, apiVersion: 'v1beta' });
+          const response = await ai.models.generateContent({
+            model: model,
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            config: {
+              responseMimeType: 'application/json',
+              temperature: 0.1,
+              maxOutputTokens: 4096
+            }
+          });
+
+          const rawText = response.text || '';
+          if (rawText) {
+            const parsed = JSON.parse(rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
+            if (Array.isArray(parsed.sentences) && parsed.sentences.length > 0) {
+              return parsed.sentences;
+            }
+          }
         }
-      })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-      const parsed = JSON.parse(rawText.replace(/```json/g, '').replace(/```/g, '').trim());
-      if (Array.isArray(parsed.sentences) && parsed.sentences.length > 0) {
-        return parsed.sentences;
+      } catch (err) {
+        const msg = (err.message || String(err)).toLowerCase();
+        if (msg.includes('429') || msg.includes('quota') || msg.includes('resource_exhausted') || msg.includes('quotafailure') || err.status === 429 || err.code === 429) {
+          break; // break model loop, switch to next key in pool
+        }
+        if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('503') || msg.includes('unavailable')) {
+          continue;
+        }
       }
     }
-  } catch (err) {
-    console.warn('[GenAI Layer 2 Audit notice]:', err.message);
   }
 
   return [];

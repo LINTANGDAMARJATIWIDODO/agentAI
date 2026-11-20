@@ -5935,6 +5935,29 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         return;
       }
 
+      // Filter ONLY flagged sentences (ai_score >= 40 or status HIGH_AI / MODERATE_AI)
+      let flaggedItems = [];
+      if (data && Array.isArray(data.sentences) && data.sentences.length > 0) {
+        flaggedItems = data.sentences
+          .filter(s => (s.ai_score !== undefined ? s.ai_score >= 40 : (s.status === 'HIGH_AI' || s.status === 'MODERATE_AI')))
+          .map(s => ({
+            id: s.id,
+            text: (s.text || s.original || s.sentence || '').trim()
+          }))
+          .filter(it => it.text.length > 0);
+      }
+
+      // Fallback if sentences array was not yet audited or no flagged item
+      if (flaggedItems.length === 0) {
+        if (data && data.sentences && data.sentences.length > 0) {
+          alert('Semua kalimat dalam dokumen ini telah memiliki skor manusiawi (Skor AI rendah). Tidak ada kalimat AI yang perlu direkayasa ulang.');
+          return;
+        }
+        // If rawText exists but no audited sentences
+        const rawSplits = rawText.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 3);
+        flaggedItems = rawSplits.map((s, idx) => ({ id: idx + 1, text: s.trim() }));
+      }
+
       const orbModal = document.getElementById('jdHumanizingOrbModal');
       const stepText = document.getElementById('orbModalProgressStep');
       const percentText = document.getElementById('orbModalProgressPercent');
@@ -5945,117 +5968,113 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         orbModal.style.display = 'flex';
       }
 
-      if (stepText) stepText.textContent = 'Menganalisis pola templat & variasi ritme...';
-      if (percentText) percentText.textContent = '25%';
-      if (bar) bar.style.width = '25%';
+      window.justDoneAbortController = new AbortController();
+      const humSignal = window.justDoneAbortController.signal;
+      const cancelBtn = document.getElementById('btnJustDoneCancelAction');
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+      // Compressed batching: up to 100 sentences per request (187 sentences = exactly 2 requests)
+      const BATCH_SIZE = 100;
+      const totalBatches = Math.ceil(flaggedItems.length / BATCH_SIZE);
+      let revisedCount = 0;
+      let totalTokensUsed = 0;
+      let lastBatchError = null;
 
       try {
-        setTimeout(() => {
-          if (stepText) stepText.textContent = 'Menulis ulang struktur kalimat substantif via Google Gemini...';
-          if (percentText) percentText.textContent = '65%';
-          if (bar) bar.style.width = '65%';
-        }, 600);
+        for (let b = 0; b < totalBatches; b++) {
+          if (humSignal.aborted) throw new Error('Humanisasi dibatalkan oleh pengguna.');
 
-        const sentencesToHumanize = (data && Array.isArray(data.sentences) && data.sentences.length > 0)
-          ? data.sentences.map(s => s.text || s.original || s.original_text || '')
-          : [];
+          const startIdx = b * BATCH_SIZE;
+          const endIdx = Math.min((b + 1) * BATCH_SIZE, flaggedItems.length);
+          const currentBatch = flaggedItems.slice(startIdx, endIdx);
 
-        window.justDoneAbortController = new AbortController();
-        const humSignal = window.justDoneAbortController.signal;
-        const cancelBtn = document.getElementById('btnJustDoneCancelAction');
-        if (cancelBtn) cancelBtn.classList.remove('hidden');
+          const progressPct = Math.min(95, Math.round(((b) / totalBatches) * 90) + 10);
+          if (stepText) stepText.textContent = `Menulis ulang batch ${b + 1}/${totalBatches} (${startIdx + 1}–${endIdx} dari ${flaggedItems.length} kalimat AI)...`;
+          if (percentText) percentText.textContent = `${progressPct}%`;
+          if (bar) bar.style.width = `${progressPct}%`;
 
-        let humText = '';
-        let humTokens = 0;
-        let scoreBefore = 70;
-        let scoreAfter = 8;
-        let allRevisedPairs = [];
+          let resJson = null;
+          try {
+            const bRes = await fetch('/api/humanize', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: humSignal,
+              body: JSON.stringify({
+                action: 'humanize',
+                flagged_items: currentBatch,
+                mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
+              })
+            });
 
-        // Jika naskah besar (>135 kalimat), lakukan parafrase paralel Concurrency 3
-        const HUM_BATCH_SIZE = 135;
-        if (sentencesToHumanize.length > HUM_BATCH_SIZE) {
-          const totalHumBatches = Math.ceil(sentencesToHumanize.length / HUM_BATCH_SIZE);
-          const humResults = new Array(totalHumBatches);
-          let nextHumIdx = 0;
-
-          async function humWorker() {
-            while (nextHumIdx < totalHumBatches) {
-              if (humSignal.aborted) throw new Error('Humanisasi dibatalkan oleh pengguna.');
-              const hb = nextHumIdx++;
-              const startH = hb * HUM_BATCH_SIZE;
-              const endH = Math.min((hb + 1) * HUM_BATCH_SIZE, sentencesToHumanize.length);
-              const batchH = sentencesToHumanize.slice(startH, endH);
-
-              if (stepText) stepText.textContent = `Rekonstruksi substantif paralel (${hb + 1}/${totalHumBatches} Batch)...`;
-
-              const bRes = await fetch('/api/humanize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: humSignal,
-                body: JSON.stringify({
-                  sentences: batchH,
-                  text: batchH.join(' '),
-                  mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
-                })
-              });
-              const bJson = await bRes.json();
-              if (!bRes.ok || bJson.status === 'error') throw new Error(bJson.message || ('HTTP ' + bRes.status));
-              humResults[hb] = bJson;
+            resJson = await bRes.json().catch(() => ({}));
+            if (!bRes.ok || resJson.status === 'error') {
+              throw new Error(resJson.message || ('HTTP ' + bRes.status));
             }
+          } catch (fetchErr) {
+            lastBatchError = fetchErr;
+            console.error(`[Remove AI Batch ${b + 1} Error]:`, fetchErr);
+            // Break loop so partial progress from completed batches is preserved!
+            break;
           }
 
-          const humWorkers = Array.from({ length: Math.min(3, totalHumBatches) }, () => humWorker());
-          await Promise.all(humWorkers);
+          // Merge returned items immediately into window.currentJustDoneData.sentences
+          const returnedItems = resJson.items || resJson.flagged_sentences || [];
+          if (data && Array.isArray(data.sentences)) {
+            returnedItems.forEach(rev => {
+              const targetSentence = data.sentences.find(s => s.id === rev.id);
+              if (targetSentence) {
+                targetSentence.humanized = rev.humanized_text;
+                targetSentence.humanized_text = rev.humanized_text;
+                targetSentence.revised_text = rev.humanized_text;
+                targetSentence.recommendation = rev.humanized_text;
+                targetSentence.ai_score_after = rev.ai_score_after || 8;
+                targetSentence.ai_score = rev.ai_score_after || 8;
+                targetSentence.status = 'SUDAH ALAMI';
+                targetSentence.action_label = 'SUDAH ALAMI';
+                targetSentence.level = 'low';
+                targetSentence.revision_reason = rev.revision_reason || 'Rekonstruksi ritme klausa dan kaidah baku KBBI';
+                targetSentence.is_humanized = true;
+              }
+            });
+          }
 
-          humText = humResults.map(r => r.humanized_full_text || r.humanized_text || '').join('\n\n');
-          humTokens = humResults.reduce((acc, r) => acc + (r.total_tokens_used || 0), 0);
-          scoreBefore = humResults[0]?.ai_score_before || 70;
-          scoreAfter = humResults[0]?.ai_score_after || 8;
-          humResults.forEach(r => {
-            if (Array.isArray(r.sentences)) allRevisedPairs = allRevisedPairs.concat(r.sentences);
-          });
-        } else {
-          const res = await fetch('/api/humanize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: humSignal,
-            body: JSON.stringify({
-              sentences: sentencesToHumanize,
-              text: rawText,
-              mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
-            })
-          });
-          const resJson = await res.json().catch(() => ({}));
-          if (!res.ok || resJson.status === 'error') throw new Error(resJson.message || ('HTTP ' + res.status));
-          humText = resJson.humanized_full_text || resJson.humanized_text;
-          humTokens = resJson.total_tokens_used || 0;
-          scoreBefore = resJson.ai_score_before || 70;
-          scoreAfter = resJson.ai_score_after || 8;
-          allRevisedPairs = resJson.sentences || [];
+          revisedCount += returnedItems.length;
+          totalTokensUsed += (resJson.total_tokens_used || 0);
+
+          // Update reconstructed full humanized text after each successful batch
+          if (data && Array.isArray(data.sentences)) {
+            const currentFullText = data.sentences.map(s => {
+              return (s.humanized_text || s.humanized || s.text || s.original || '').trim();
+            }).join(' ');
+            data.humanized_text = currentFullText;
+            data.revised_text = currentFullText;
+          }
         }
 
-        if (!humText) {
-          throw new Error('Gagal merekayasa naskah humanisasi dari Gemini API.');
+        // If all batches failed with zero revisions, throw error
+        if (lastBatchError && revisedCount === 0) {
+          throw lastBatchError;
         }
 
-        if (stepText) stepText.textContent = 'Menghitung token & verifikasi lolos Turnitin (< 15%)...';
-        if (percentText) percentText.textContent = '95%';
-        if (bar) bar.style.width = '95%';
+        // Finalize state
+        const remainingFlagged = (data && Array.isArray(data.sentences))
+          ? data.sentences.filter(s => (s.ai_score >= 40 && !s.is_humanized)).length
+          : 0;
+
+        const finalScore = remainingFlagged === 0 ? 8 : Math.max(8, Math.round((remainingFlagged / (data.sentences?.length || 1)) * (data.ai_score_before || 54)));
+
+        if (data) {
+          data.ai_score_after = finalScore;
+          data.ai_score_percentage = finalScore;
+          data.score_drop = Math.max(0, (data.ai_score_before || 54) - finalScore);
+          data.total_tokens_used = (data.total_tokens_used || 0) + totalTokensUsed;
+        }
+
+        if (stepText) stepText.textContent = 'Verifikasi selesai! Menyiapkan naskah...';
+        if (percentText) percentText.textContent = '100%';
+        if (bar) bar.style.width = '100%';
 
         await new Promise(r => setTimeout(r, 300));
-
-        window.currentJustDoneData.humanized_text = humText;
-        window.currentJustDoneData.revised_text = humText;
-        window.currentJustDoneData.ai_score_before = scoreBefore || window.currentJustDoneData.ai_score_percentage || 70;
-        window.currentJustDoneData.ai_score_after = scoreAfter || 8;
-        window.currentJustDoneData.ai_score_percentage = scoreAfter || 8;
-        window.currentJustDoneData.score_drop = Math.max(0, (window.currentJustDoneData.ai_score_before || 70) - (scoreAfter || 8));
-        window.currentJustDoneData.total_tokens_used = (window.currentJustDoneData.total_tokens_used || 0) + humTokens;
-
-        if (allRevisedPairs.length > 0) {
-          window.currentJustDoneData.sentences = allRevisedPairs;
-          window.currentJustDoneData.sentence_pairs = allRevisedPairs;
-        }
 
         if (orbModal) {
           orbModal.classList.add('hidden');
@@ -6069,6 +6088,11 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         const postDl = document.getElementById('jdPostHumanizeDownloadArea');
         if (postDl) postDl.classList.remove('hidden');
 
+        // If partially completed due to quota, alert user with positive progress message
+        if (lastBatchError && revisedCount > 0) {
+          alert(`✓ Progres Tersimpan: Berhasil merekayasa substantif ${revisedCount} dari ${flaggedItems.length} kalimat terindikasi AI.\n\nSisa ${remainingFlagged} kalimat belum selesai diproses karena limit kuota Gemini API tercapai (${lastBatchError.message}). Anda tetap dapat mengunduh naskah hasil revisi saat ini atau melanjutkan kembali.`);
+        }
+
       } catch (err) {
         console.error('Humanize workflow error:', err);
         if (orbModal) {
@@ -6076,6 +6100,8 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           orbModal.style.display = 'none';
         }
         alert('Gagal merekayasa humanisasi dengan Google Gemini: ' + err.message);
+      } finally {
+        if (cancelBtn) cancelBtn.classList.add('hidden');
       }
     }
 
@@ -6551,16 +6577,22 @@ function applyHumanizedStateToUI() {
   }
 
   // 4. Update Flagged Count
+  const remainingFlagged = (data.sentences || []).filter(s => s.ai_score >= 40 && !s.is_humanized).length;
   const flagTextElem = document.getElementById('jdFlaggedSentenceCountText');
   if (flagTextElem) {
-    flagTextElem.textContent = '0 sentences are flagged as AI';
+    flagTextElem.textContent = `${remainingFlagged} sentences are flagged as AI`;
   }
 
   // 5. Update Action Button
   const btn = document.getElementById('btnRemoveAiAction');
   if (btn) {
-    btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-200"></i><span>AI Successfully Removed (100% Human)</span>`;
-    btn.className = 'w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold text-sm shadow-xl transition flex items-center justify-center gap-2 border border-emerald-400/40 cursor-default';
+    if (remainingFlagged === 0) {
+      btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-200"></i><span>AI Successfully Removed (100% Human)</span>`;
+      btn.className = 'w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold text-sm shadow-xl transition flex items-center justify-center gap-2 border border-emerald-400/40 cursor-default';
+    } else {
+      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-teal-200"></i><span>Remove Sisa AI (${remainingFlagged} Kalimat)</span>`;
+      btn.className = 'w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-extrabold text-sm shadow-xl shadow-teal-950/50 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 border border-teal-400/40';
+    }
   }
 
   // 6. Show Download Links

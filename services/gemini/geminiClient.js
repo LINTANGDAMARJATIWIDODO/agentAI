@@ -2,43 +2,28 @@
  * NEXUS AI ENTERPRISE — GOOGLE GEMINI CLIENT (NODE.JS)
  * ====================================================
  * Unified, enterprise-grade Gemini integration with:
- * 1. Official @google/genai SDK + Native REST Failover
- * 2. General-Purpose AI Assistant (ChatGPT/Claude/Gemini Grade across all 12 knowledge domains)
- * 3. Deep Specialized SPBE & Indonesian Regulatory Intelligence
- * 4. Multi-Cognitive Brain Routing (Gemini Pro, Gemini Flash, Claude-Style, GPT-Style)
- * 5. Real-Time Web Grounding (Google Search)
- * 6. Extended Thinking Process & Autonomous Skills Execution
+ * 1. Multi-Key Rotation Pool: key2 -> key3 -> GEMINI_API_KEYS -> GEMINI_API_KEY
+ * 2. Cascading Models: gemini-2.5-flash -> gemini-2.5-flash-lite -> gemini-3.6-flash -> gemini-3.5-flash
+ * 3. Official @google/genai SDK (v1beta) compatible with standard & AQ. keys
+ * 4. General-Purpose AI Assistant (ChatGPT/Claude/Gemini Grade across all knowledge domains)
+ * 5. Deep Specialized SPBE & Indonesian Regulatory Intelligence
+ * 6. Multi-Cognitive Brain Routing (Gemini Pro, Gemini Flash, Claude-Style, GPT-Style)
+ * 7. Real-Time Web Grounding (Google Search)
  */
 
 const path = require('path');
 const fs = require('fs');
+const { getApiKeyPool } = require('./apiKeyPool');
 
 const BASE_DIR = path.resolve(__dirname, '..', '..');
-
-// Auto-load .env
-if (!process.env.GEMINI_API_KEY) {
-  const envFile = path.join(BASE_DIR, '.env');
-  if (fs.existsSync(envFile)) {
-    try {
-      const rawEnv = fs.readFileSync(envFile, 'utf-8');
-      rawEnv.split(/\r?\n/).forEach(line => {
-        line = line.trim();
-        if (line && !line.startsWith('#') && line.includes('=')) {
-          const eqIdx = line.indexOf('=');
-          const k = line.slice(0, eqIdx).trim();
-          const v = line.slice(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '');
-          if (!process.env[k]) process.env[k] = v;
-        }
-      });
-    } catch (e) {}
-  }
-}
 
 let GoogleGenAI = null;
 try {
   const genaiPkg = require('@google/genai');
   GoogleGenAI = genaiPkg.GoogleGenAI;
-} catch (e) {}
+} catch (e) {
+  console.warn('[@google/genai import warning in geminiClient]:', e.message);
+}
 
 class GeminiClient {
   /**
@@ -98,275 +83,134 @@ class GeminiClient {
     }
 
     return `${personaBio}
-
-[IDENTITAS & PERAN UTAMA: GENERAL-PURPOSE AI ASSISTANT]
-NEXUS AI adalah asisten kecerdasan buatan serbaguna kelas dunia (setara ChatGPT, Claude, dan Gemini).
-Anda BUKAN hanya asisten SPBE. Anda BEBAS dan MAMPU berdiskusi mengenai SEGALA TOPIK:
-1. PENGETAHUAN UMUM: Sejarah, sains, geografi, filsafat, budaya, astronomi, dan fenomena dunia.
-2. PENDIDIKAN & AKADEMIK: Matematika, fisika, kimia, biologi, linguistik, statistik, dan materi perkuliahan/sekolah.
-3. PEMROGRAMAN & KODING: Python, JavaScript, TypeScript, React, Next.js, Node.js, PHP, Laravel, Java, C++, Go, Rust, SQL, arsitektur database, debugging, dan integrasi REST/GraphQL API.
-4. SOFTWARE ENGINEERING: Desain sistem mikroservis, cloud computing (AWS, GCP, Vercel, Docker, K8s), keamanan siber (OWASP), dan UI/UX modern.
-5. KECERDASAN BUATAN & DATA: Machine learning, deep learning, NLP, arsitektur LLM, prompt engineering, data engineering, dan visualisasi data.
-6. BISNIS & STRATEGI: Model bisnis, kewirausahaan, pemasaran digital, keuangan, analisis pasar, pitch deck, dan manajemen produk.
-7. PENULISAN & PENYUNTINGAN: Pembuatan artikel, esai, proposal, naskah dinas, dokumen teknis, email profesional, dan penulisan kreatif.
-8. RISET & ANALISIS: Tinjauan literatur, sintesis informasi, perbandingan metodologi, dan perumusan kesimpulan empiris.
-9. ASISTEN HARIAN & PRODUKTIVITAS: Brainstorming ide, penyusunan jadwal, pemecahan masalah praktis, dan perencanaan kegiatan.
-10. TATA KELOLA PEMERINTAHAN & SPBE (LAPISAN KEKEAHLIAN SPESIALIS TERTINGGI):
-    Ketika pengguna menanyakan SPBE, Anda memiliki kepakaran mendalam mengenai Perpres 95/2018, Perpres 132/2022, 6 Domain SPBE (Proses Bisnis, Data & Informasi, Layanan, Aplikasi, Infrastruktur, Keamanan), Integrasi Satu Data, Tata Naskah Dinas Baku KBBI & EYD V, dan kode teknis (DAB, DAD, DAL, DAA, INI-xx, G-xx). SPBE adalah keunggulan spesialisasi Anda, BUKAN batas pengetahuan Anda!
-
-[PANDUAN PEMAHAMAN INTENT & RESPON]:
-- Jawab secara langsung, relevan, cerdas, dan tidak kaku.
-- Jawab singkat dan to-the-point jika pertanyaannya sederhana; berikan penjelasan terstruktur dan mendalam jika pertanyaannya kompleks.
-- Pahami konteks percakapan multi-turn tanpa meminta pengguna mengulang informasi yang sudah ada di riwayat.
-- Dukung bahasa Indonesia (formal baku maupun santai) dan bahasa Inggris.
 ${cognitiveGuidance}
 
-[PROTOKOL PEMBUATAN WEBSITE & KODE WEB]:
-Jika pengguna meminta pembuatan website, landing page, atau aplikasi web:
-1. Hasilkan KODE LENGKAP UTUH dari <!DOCTYPE html> sampai </html> di dalam blok kode \`\`\`html.
-2. Gunakan TailwindCSS CDN dan FontAwesome 6 dengan desain modern, estetik, responsif (mobile/desktop), dan interaktif.
-
-[PROTOKOL VISUAL DIAGRAM & FLOWCHART (MERMAID.JS)]:
-Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, arsitektur sistem, ERD database, mindmap, atau Gantt chart:
-1. Hasilkan diagram menggunakan sintaks Mermaid.js di dalam blok kode \`\`\`mermaid ... \`\`\`.
-2. Selalu gunakan tanda kutip dua untuk teks label node yang mengandung karakter khusus (misal: id["Proses Utama (Aktif)"]).
-3. Jangan sertakan tag HTML di dalam label node.
-4. Diagram akan otomatis di-render oleh Visual Architecture Studio di Split Canvas dengan kontrol interaktif Zoom In, Zoom Out, Reset, dan Ekspor SVG/PNG.`;
+[KAPABILITAS SISTEM & STANDAR TANGGAPAN]
+1. Anda adalah asisten kecerdasan buatan tingkat enterprise yang menguasai seluruh spektrum pengetahuan (pemrograman fullstack, arsitektur sistem, sains data, hukum, manajemen bisnis, dan kebijakan publik).
+2. Jawaban wajib substantif, langsung ke inti permasalahan, dan menyajikan solusi konkret (termasuk kode lengkap jika diminta).
+3. Untuk konteks tata kelola pemerintahan Indonesia, patuhi ketentuan Perpres No. 95/2018 (SPBE), Perpres No. 39/2019 (Satu Data Indonesia), dan UU No. 27/2022 (Pelindungan Data Pribadi).
+4. Gunakan bahasa Indonesia baku, lugas, dan profesional sesuai standar KBBI dan EYD V.
+5. Bila menghasilkan diagram sistem atau alur proses, gunakan format fenced code block \`\`\`mermaid ... \`\`\`.`;
   }
 
   /**
-   * Main Chat Dispatcher: Uses @google/genai SDK when available, with resilient REST failover
-   */
-    /**
-   * Main Chat Dispatcher: Uses official @google/genai SDK (v1beta) with resilient Direct REST failover
+   * Main Chat Dispatcher: Uses official @google/genai SDK (v1beta) with Multi-Key Pool & Model Cascade
    */
   static async chat({ prompt, agent = 'ARKA', tier = 'gemini-2.5-flash', cognitive_brain = 'gemini-2.5-flash', history = [], enable_grounding = false }) {
-    const apiKey = process.env.GEMINI_API_KEY || '';
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY tidak ditemukan di environment server. Pastikan API Key telah diatur di Vercel Environment Variables atau .env.');
+    if (!prompt || !prompt.trim()) {
+      throw new Error('Prompt input tidak boleh kosong.');
+    }
+
+    const keyPool = getApiKeyPool();
+    if (!keyPool.length) {
+      throw new Error('Tidak ada API Key Gemini yang terkonfigurasi pada server (key2, key3, GEMINI_API_KEYS, GEMINI_API_KEY).');
     }
 
     const selectedMode = cognitive_brain || tier || 'gemini-2.5-flash';
-    const modelName = GeminiClient.resolveModel(selectedMode);
+    const primaryModel = GeminiClient.resolveModel(selectedMode);
     const systemPrompt = GeminiClient.buildSystemPrompt(agent, selectedMode);
     const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(prompt);
 
-    // 1. Official @google/genai SDK invocation (using apiVersion v1beta)
-    if (GoogleGenAI && apiKey && !process.env.GEMINI_BASE_URL) {
-      try {
-        const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1beta' } });
-        const contents = [];
-
-        if (Array.isArray(history)) {
-          for (const h of history) {
-            const role = h.role === 'user' ? 'user' : 'model';
-            const content = h.text || h.content || '';
-            if (content) {
-              contents.push({ role, parts: [{ text: content }] });
-            }
-          }
-        }
-        contents.push({ role: 'user', parts: [{ text: prompt }] });
-
-        const config = {
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          temperature: (selectedMode.includes('pro') || selectedMode.includes('claude')) ? 0.3 : 0.7,
-          maxOutputTokens: 8192
-        };
-
-        if (enable_grounding) {
-          config.tools = [{ googleSearch: {} }];
-        }
-
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: contents,
-          config: config
-        });
-
-        const replyText = response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
-        if (replyText) {
-          const usage = response.usageMetadata || {};
-          const totalToks = usage.totalTokenCount || 0;
-          return GeminiClient.formatSuccessResponse({
-            text: replyText,
-            agent,
-            tier: selectedMode,
-            model: modelName,
-            prompt,
-            isWebReq,
-            groundingChunks: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [],
-            searchQueries: response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [],
-            usageMeta: {
-              total_tokens: totalToks,
-              totalTokenCount: totalToks,
-              prompt_tokens: usage.promptTokenCount || 0,
-              promptTokenCount: usage.promptTokenCount || 0,
-              candidates_tokens: usage.candidatesTokenCount || 0,
-              candidatesTokenCount: usage.candidatesTokenCount || 0
-            }
-          });
-        }
-      } catch (sdkErr) {
-        console.warn('[@google/genai SDK notice, falling back to REST]:', sdkErr.message);
-        // Note: We proceed to REST failover below
-      }
-    }
-
-    // 2. Direct REST invocation
-    return await GeminiClient.chatDirectRest({
-      prompt,
-      agent,
-      tier: selectedMode,
-      history,
-      enable_grounding
-    });
-  }
-
-  /**
-   * Resilient Direct REST Invocation
-   */
-  static async chatDirectRest({ prompt, agent = 'ARKA', tier = 'gemini-2.5-flash', history = [], enable_grounding = false }) {
-    const apiKey = process.env.GEMINI_API_KEY || '';
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY belum dikonfigurasikan di environment server.');
-    }
-
-    const isWebReq = /buatkan\s+web|website|landing\s+page|bengkel|portofolio|aplikasi\s+web|buat\s+web|tampilan\s+web/i.test(prompt);
-    const modelName = GeminiClient.resolveModel(tier);
-    const sysPrompt = GeminiClient.buildSystemPrompt(agent, tier);
-
-    const rawBaseUrl = (process.env.GEMINI_BASE_URL || process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
-    const url = rawBaseUrl.includes('/models')
-      ? `${rawBaseUrl}/${modelName}:generateContent?key=${apiKey}`
-      : `${rawBaseUrl}/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const modelCascade = [
+      primaryModel,
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash'
+    ].filter((m, i, arr) => arr.indexOf(m) === i);
 
     const contents = [];
     if (Array.isArray(history)) {
       for (const h of history) {
-        if (h.role && (h.text || h.content)) {
-          contents.push({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.text || h.content }]
-          });
+        const role = h.role === 'user' ? 'user' : 'model';
+        const content = h.text || h.content || '';
+        if (content) {
+          contents.push({ role, parts: [{ text: content }] });
         }
       }
     }
-    contents.push({
-      role: 'user',
-      parts: [{ text: prompt }]
-    });
+    contents.push({ role: 'user', parts: [{ text: prompt }] });
 
-    const body = {
-      contents,
-      systemInstruction: {
-        parts: [{ text: sysPrompt }]
-      },
-      generationConfig: {
-        temperature: (tier.includes('pro') || tier.includes('claude')) ? 0.3 : 0.7,
-        maxOutputTokens: 8192
-      }
-    };
+    let lastError = null;
 
-    if (enable_grounding) {
-      body.tools = [{ googleSearch: {} }];
-    }
+    for (let keyIdx = 0; keyIdx < keyPool.length; keyIdx++) {
+      const currentApiKey = keyPool[keyIdx];
 
-    const controller = new AbortController();
-    const timeoutTimer = setTimeout(() => controller.abort(), 50000);
-
-    let res;
-    let data;
-    try {
-      res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutTimer);
-      data = await res.json();
-    } catch (fetchErr) {
-      clearTimeout(timeoutTimer);
-      throw new Error(`Koneksi ke Google Gemini API gagal: ${fetchErr.message}`);
-    }
-
-    if (!res.ok || !data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      // If primary model hit quota (429) or temporary high demand (503), attempt resilient failover to gemini-2.5-flash-lite then gemini-2.0-flash
-      if ((res.status === 429 || res.status === 503 || data?.error?.status === 'RESOURCE_EXHAUSTED') && modelName !== 'gemini-2.5-flash-lite') {
-        console.warn(`[GEMINI API]: ${modelName} hit quota/high demand (${res.status}), attempting resilient failover to gemini-2.5-flash-lite...`);
-        const fallbackUrl = rawBaseUrl.includes('/models')
-          ? `${rawBaseUrl}/gemini-2.5-flash-lite:generateContent?key=${apiKey}`
-          : `${rawBaseUrl}/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+      for (const model of modelCascade) {
         try {
-          const fallbackRes = await fetch(fallbackUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-          const fallbackData = await fallbackRes.json();
-          if (fallbackRes.ok && fallbackData.candidates?.[0]?.content?.parts?.[0]?.text) {
-            const cand = fallbackData.candidates[0];
-            const fText = cand.content.parts.map(p => p.text).join('');
-            const fGrounding = cand.groundingMetadata?.groundingChunks || [];
-            const fQueries = cand.groundingMetadata?.webSearchQueries || [];
-            const fu = fallbackData.usageMetadata || {};
-            const fToks = fu.totalTokenCount || 0;
-            return GeminiClient.formatSuccessResponse({
-              text: fText,
-              agent,
-              tier: 'gemini-2.5-flash-lite',
-              model: 'gemini-2.5-flash-lite',
-              prompt,
-              isWebReq,
-              groundingChunks: fGrounding,
-              searchQueries: fQueries,
-              usageMeta: {
-                total_tokens: fToks,
-                totalTokenCount: fToks,
-                prompt_tokens: fu.promptTokenCount || 0,
-                promptTokenCount: fu.promptTokenCount || 0,
-                candidates_tokens: fu.candidatesTokenCount || 0,
-                candidatesTokenCount: fu.candidatesTokenCount || 0
-              }
+          if (GoogleGenAI) {
+            const ai = new GoogleGenAI({ apiKey: currentApiKey, apiVersion: 'v1beta' });
+            const configObj = {
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              temperature: (selectedMode.includes('pro') || selectedMode.includes('claude')) ? 0.3 : 0.7,
+              maxOutputTokens: 8192
+            };
+            if (enable_grounding) {
+              configObj.tools = [{ googleSearch: {} }];
+            }
+
+            const response = await ai.models.generateContent({
+              model: model,
+              contents: contents,
+              config: configObj
             });
+
+            const replyText = response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
+            if (replyText) {
+              const cand = response.candidates?.[0] || {};
+              const groundingChunks = cand.groundingMetadata?.groundingChunks || [];
+              const searchQueries = cand.groundingMetadata?.webSearchQueries || [];
+              const usage = response.usageMetadata || {};
+              const totalToks = usage.totalTokenCount || 0;
+
+              return GeminiClient.formatSuccessResponse({
+                text: replyText,
+                agent,
+                tier: selectedMode,
+                model: model,
+                prompt,
+                isWebReq,
+                groundingChunks,
+                searchQueries,
+                usageMeta: {
+                  total_tokens: totalToks,
+                  totalTokenCount: totalToks,
+                  prompt_tokens: usage.promptTokenCount || 0,
+                  promptTokenCount: usage.promptTokenCount || 0,
+                  candidates_tokens: usage.candidatesTokenCount || 0,
+                  candidatesTokenCount: usage.candidatesTokenCount || 0
+                }
+              });
+            }
           }
-        } catch (fbErr) {
-          console.warn('[GEMINI FAILOVER ERR]:', fbErr.message);
+        } catch (err) {
+          lastError = err;
+          const msg = (err.message || String(err)).toLowerCase();
+          console.warn(`[GeminiClient Key #${keyIdx + 1}/${keyPool.length} | Model ${model}]:`, err.message);
+
+          const isQuota = msg.includes('429') ||
+            msg.includes('quota') ||
+            msg.includes('resource_exhausted') ||
+            msg.includes('quotafailure') ||
+            err.status === 429 ||
+            err.code === 429 ||
+            (err.error && (err.error.code === 429 || err.error.status === 'RESOURCE_EXHAUSTED'));
+
+          if (isQuota) {
+            console.warn(`[GeminiClient Key #${keyIdx + 1}] Quota exceeded (429), rotating to next key in pool...`);
+            break; // break inner model loop, try next key!
+          }
+
+          if (msg.includes('404') || msg.includes('not found') || msg.includes('no longer available') || msg.includes('503') || msg.includes('unavailable')) {
+            continue;
+          }
+
+          continue;
         }
       }
-
-      const errMsg = data?.error?.message || `HTTP ${res.status}: Gagal memproses balasan dari model ${modelName}`;
-      throw new Error(`Google Gemini Error (${modelName}): ${errMsg}`);
     }
 
-    const candidate = data.candidates[0];
-    const text = candidate.content.parts.map(p => p.text).join('');
-    const groundingChunks = candidate.groundingMetadata?.groundingChunks || [];
-    const searchQueries = candidate.groundingMetadata?.webSearchQueries || [];
-    const u = data.usageMetadata || {};
-    const totalToks = u.totalTokenCount || 0;
-
-    const usageMeta = {
-      total_tokens: totalToks,
-      totalTokenCount: totalToks,
-      prompt_tokens: u.promptTokenCount || 0,
-      promptTokenCount: u.promptTokenCount || 0,
-      candidates_tokens: u.candidatesTokenCount || 0,
-      candidatesTokenCount: u.candidatesTokenCount || 0
-    };
-
-    return GeminiClient.formatSuccessResponse({
-      text,
-      agent,
-      tier,
-      model: modelName,
-      prompt,
-      isWebReq,
-      groundingChunks,
-      searchQueries,
-      usageMeta
-    });
+    throw lastError || new Error('Seluruh kombinasi API Key dan Model dalam pool rotasi gagal memproses permintaan chat.');
   }
 
   /**

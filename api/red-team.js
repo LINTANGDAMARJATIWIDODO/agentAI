@@ -88,7 +88,9 @@ module.exports = async (req, res) => {
       }));
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || '';
+const { getApiKeyPool } = require('../services/gemini/apiKeyPool');
+    const keyPool = getApiKeyPool();
+    const apiKey = keyPool[0] || process.env.GEMINI_API_KEY || '';
     const modelName = GeminiClient.resolveModel(cognitive_brain);
 
     const systemPrompt = `Anda adalah SEKAR (Chief Compliance & Financial Red-Team Auditor) dan ARKA (Principal Enterprise Architect) di NEXUS AI ENTERPRISE.
