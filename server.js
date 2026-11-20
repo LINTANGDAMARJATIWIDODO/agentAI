@@ -225,10 +225,12 @@ function requestHandler(req, res) {
       try {
         const payload = JSON.parse(body || '{}');
         const GeminiClient = require('./services/gemini/geminiClient');
-        const result = await GeminiClient.chatDirectRest({
+        const chatFn = (GeminiClient.chat || GeminiClient.chatDirectRest || (GeminiClient.default && GeminiClient.default.chat)).bind(GeminiClient);
+        const result = await chatFn({
           prompt: payload.prompt || '',
           agent: payload.agent || 'ARKA',
-          tier: payload.tier || 'flash',
+          tier: payload.tier || payload.cognitive_brain || 'flash',
+          cognitive_brain: payload.cognitive_brain || payload.tier || 'flash',
           history: payload.history || [],
           enable_grounding: payload.enable_grounding || false
         });

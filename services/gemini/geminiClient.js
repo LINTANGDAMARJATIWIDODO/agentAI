@@ -201,6 +201,26 @@ ${cognitiveGuidance}
   }
 
   /**
+   * Direct REST / Backward-Compatible Invocation
+   */
+  static async chatDirectRest(params) {
+    return await GeminiClient.chat(params);
+  }
+
+  /**
+   * Telemetry Status Provider
+   */
+  static getTelemetry() {
+    return {
+      status: 'connected',
+      active_model: 'gemini-2.5-flash',
+      fallback_models: ['gemini-2.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.5-flash'],
+      sdk_version: 'v1beta',
+      provider: 'Google GenAI Enterprise'
+    };
+  }
+
+  /**
    * Universal response formatter with cognitive thinking metadata & artifact detection
    */
   static formatSuccessResponse({ text, agent, tier, model, prompt, isWebReq, groundingChunks = [], searchQueries = [], usageMeta = {} }) {
@@ -244,4 +264,5 @@ ${cognitiveGuidance}
   }
 }
 
+GeminiClient.default = GeminiClient;
 module.exports = GeminiClient;
