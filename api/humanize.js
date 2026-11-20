@@ -60,15 +60,10 @@ function segmentSentences(text) {
 }
 
 async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, responseSchema, temperature = 0.25 }) {
-  const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-3.8-flash';
   const models = [
-    primaryModel,
-    'gemini-3.5-flash',
-    'gemini-3.7-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-flash-latest',
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite'
+    process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash'
   ].filter((m, i, arr) => arr.indexOf(m) === i);
 
   let lastError = null;
@@ -207,26 +202,22 @@ module.exports = async (req, res) => {
     // -------------------------------------------------------------
     if (action === 'audit' || action === 'detect') {
       const systemPrompt = `Anda adalah Spesialis Audit Forensik Kepengarangan Teks AI Bahasa Indonesia kelas dunia.
-Tugas Anda adalah menganalisis setiap kalimat dan menentukan apakah kalimat tersebut ditulis oleh Model Bahasa (AI) atau Manusia.
+Tugas Anda adalah menganalisis batch kalimat dan menentukan tingkat probabilitas kepengarangan AI.
 
-KRITERIA KALIBRASI KETAT:
-1. Kalimat yang menggunakan pola templat kaku, struktur majemuk simetris/seragam, transisi robotik ("Pemanfaatan ... telah berkembang dari ... menjadi ...", "Pendekatan tersebut memang ... tetapi menghasilkan ...", "tidak dapat dipungkiri bahwa", "dalam era digital", enumerasi titik dua mekanis) WAJIB diberi ai_score ANTARA 55 SAMPAI 90 (HIGH_AI atau MODERATE_AI).
-2. Kalimat yang memiliki ritme dinamis alami, variasi klausa tak terduga, atau struktur manusiawi diberi ai_score < 30 (HUMAN).
-3. Kalimat transisi campuran atau formal standar diberi ai_score 35-65 (MODERATE_AI).
-4. Status WAJIB bernilai:
-   - "HIGH_AI" jika ai_score >= 70
-   - "MODERATE_AI" jika ai_score >= 40 dan < 70
-   - "HUMAN" jika ai_score < 40
-5. Berikan karakteristik unik (characteristic_found) yang mendeskripsikan secara spesifik pola sintaksis kalimat ini.
-6. Berikan saran koreksi ejaan KBBI / EYD V jika ditemukan ketidakbakuan (misal: "terpercaya" -> "tepercaya", "analisa" -> "analisis", "resiko" -> "risiko", "praktek" -> "praktik", "sistim" -> "sistem", "perlindungan data pribadi" -> "pelindungan data pribadi").`;
+INSTRUKSI PENGHEMATAN WAKTU & TOKEN (ULTRA-FAST):
+1. Hitung perkiraan persentase skor AI keseluruhan untuk seluruh batch kalimat ini (overall_ai_score: 0-100).
+2. Pada array "flagged_sentences", HANYA cantumkan kalimat yang terindikasi AI (ai_score >= 40, status HIGH_AI atau MODERATE_AI), dengan batas MAKSIMAL 10 kalimat paling terindikasi per batch.
+3. Kalimat yang sudah alami atau berstruktur manusiawi (< 40) DILARANG dimasukkan ke array flagged_sentences agar pemrosesan super cepat.
+4. Pada setiap kalimat flagged, sertakan id (nomor urut [ID X]), text asli, ai_score (>=40), status ("HIGH_AI" jika >=70, "MODERATE_AI" jika 40-69), characteristic_found (alasan sintaksis spesifik), reason (alasan teknis), dan kbbi_fix (perbaikan kata baku KBBI/EYD V).`;
 
-      const userPrompt = `Analisis ${sentences.length} kalimat berikut dan kembalikan array skor forensik untuk masing-masing kalimat:\n\n` +
+      const userPrompt = `Analisis batch ${sentences.length} kalimat berikut. Berikan overall_ai_score untuk batch ini dan HANYA kembalikan kalimat yang terindikasi AI (ai_score >= 40, maksimal 10 kalimat):\n\n` +
         sentences.map((s, idx) => `[ID ${idx + 1}]: "${s}"`).join('\n');
 
       const auditSchema = {
         type: Type ? Type.OBJECT : 'OBJECT',
         properties: {
-          sentences: {
+          overall_ai_score: { type: Type ? Type.NUMBER : 'NUMBER' },
+          flagged_sentences: {
             type: Type ? Type.ARRAY : 'ARRAY',
             items: {
               type: Type ? Type.OBJECT : 'OBJECT',
@@ -243,7 +234,7 @@ KRITERIA KALIBRASI KETAT:
             }
           }
         },
-        required: ['sentences']
+        required: ['overall_ai_score', 'flagged_sentences']
       };
 
       const result = await callGeminiStructured({
@@ -254,13 +245,22 @@ KRITERIA KALIBRASI KETAT:
         temperature: 0.15
       });
 
+      const flagged = result.data.flagged_sentences || result.data.sentences || [];
+      const batchAiScore = typeof result.data.overall_ai_score === 'number'
+        ? Math.round(result.data.overall_ai_score)
+        : (flagged.length > 0 ? Math.round(flagged.reduce((a, b) => a + (b.ai_score || 70), 0) / flagged.length) : 15);
+
       res.statusCode = 200;
       return res.end(JSON.stringify({
         status: 'success',
         model_used: result.model_used,
         total_tokens_used: result.total_tokens,
         usage_metadata: result.usage,
-        sentences: result.data.sentences || []
+        batch_ai_score: batchAiScore,
+        overall_ai_score: batchAiScore,
+        flagged_sentences: flagged,
+        sentences: flagged,
+        total_sentences_analyzed: sentences.length
       }));
     }
 
@@ -269,19 +269,21 @@ KRITERIA KALIBRASI KETAT:
     // -------------------------------------------------------------
     const systemInstructionText = `Anda adalah Principal Enterprise Indonesian AI Forensic Auditor & Senior Substantive Paraphraser kelas dunia.
 Tugas Anda adalah:
-1. Menganalisis kalimat input dan mendeteksi probabilitas kepengarangan AI (ai_score_before: 55–88 untuk pola kalimat AI, atau <35 jika manusiawi).
-2. Melakukan PENULISAN ULANG SUBSTANTIF (Substantive Paraphrasing) secara nyata pada setiap kalimat yang kaku atau terindikasi AI:
+1. Melakukan PENULISAN ULANG SUBSTANTIF (Substantive Paraphrasing) secara nyata pada seluruh naskah yang diberikan agar ritmenya bervariasi alami (Burstiness tinggi) dan 100% baku KBBI & EYD V.
    - Rombak total struktur sintaksis: ubah pasif ke aktif atau sebaliknya bila kaku untuk menghasilkan ritme alami.
-   - Variasikan panjang klausa secara asimetris (padukan kalimat ringkas 8–14 kata dan kalimat bernuansa 18–26 kata) sehingga Burstiness tinggi.
-   - Hapus seluruh konjungsi klise AI ("Selain itu", "Lebih lanjut", "secara holistik", "memainkan peran krusial", "tidak dapat dipungkiri bahwa", "dalam era digitalisasi yang serba cepat ini").
+   - Variasikan panjang klausa secara asimetris (padukan kalimat ringkas 8–14 kata dan kalimat bernuansa 18–26 kata).
+   - Hapus seluruh konjungsi klise AI ("Selain itu", "Lebih lanjut", "secara holistik", "memainkan peran krusial", "tidak dapat dipungkiri bahwa").
    - Wajib 100% mematuhi kaidah baku KBBI & EYD V (misal: tepercaya, analisis, risiko, praktik, sistem, standardisasi, pelindungan, aktivitas, efektivitas).
    - PRESERVASI KETAT 100%: Dilarang mengubah atau menghilangkan angka, tahun, nama regulasi (Perpres 95/2018, Perpres 132/2022, UU 27/2022, dll.), dan kode teknis SPBE (DAB, DAD, DAL, DAA, INI-xx, G-xx).
    - Targetkan ai_score_after < 15% (lolos Turnitin, GPTZero, dan CopyLeaks).
-3. Berikan karakteristik unik (characteristic_found) dan alasan teknis perbaikan (revision_reason) untuk setiap kalimat.
-4. Gaya Tulisan: ${mode}.
-5. Jangan pernah mengembalikan template atau jawaban statis yang sama untuk semua kalimat.`;
+2. INSTRUKSI EFISIENSI OUTPUT TOKEN (ULTRA-FAST):
+   - Wajib kembalikan "humanized_full_text" yang memuat SELURUH paragraf batch yang sudah direkonstruksi utuh menjadi alami dan baku KBBI.
+   - Pada array "flagged_sentences", HANYA kembalikan kalimat yang awalnya terdeteksi AI (ai_score_before >= 40, maksimal 10 kalimat per batch). Jangan masukkan kalimat yang dari awal sudah alami agar tidak membuang token.
+   - Sertakan original_text, ai_score_before, humanized_text, ai_score_after (< 15), characteristic_found, dan revision_reason.
+3. Gaya Tulisan: ${mode}.
+4. Jangan pernah mengembalikan template atau jawaban statis.`;
 
-    const userPromptText = `Berikut adalah ${sentences.length} kalimat naskah yang perlu diaudit dan diparafrase substantif secara nyata:\n\n` +
+    const userPromptText = `Berikut adalah ${sentences.length} kalimat naskah batch. Rekonstruksi utuh seluruh teks naskah ke dalam humanized_full_text dan HANYA kembalikan kalimat yang terindikasi AI (ai_score_before >= 40, maksimal 10 kalimat) ke dalam flagged_sentences:\n\n` +
       sentences.map((s, idx) => `[Kalimat ${idx + 1}]: "${s}"`).join('\n');
 
     const schemaConfig = {
@@ -292,7 +294,8 @@ Tugas Anda adalah:
         burstiness_before: { type: Type ? Type.NUMBER : 'NUMBER' },
         burstiness_after: { type: Type ? Type.NUMBER : 'NUMBER' },
         editorial_notes: { type: Type ? Type.STRING : 'STRING' },
-        sentences: {
+        humanized_full_text: { type: Type ? Type.STRING : 'STRING' },
+        flagged_sentences: {
           type: Type ? Type.ARRAY : 'ARRAY',
           items: {
             type: Type ? Type.OBJECT : 'OBJECT',
@@ -321,7 +324,8 @@ Tugas Anda adalah:
         'burstiness_before',
         'burstiness_after',
         'editorial_notes',
-        'sentences'
+        'humanized_full_text',
+        'flagged_sentences'
       ]
     };
 
@@ -334,11 +338,13 @@ Tugas Anda adalah:
     });
 
     const parsedData = result.data;
+    const fullHumanizedText = (parsedData.humanized_full_text || '').trim();
+    const flaggedItems = parsedData.flagged_sentences || parsedData.sentences || [];
 
-    const sentencePairs = (parsedData.sentences || []).map((s, idx) => {
-      const orig = (s.original_text || sentences[idx] || '').trim();
+    const sentencePairs = flaggedItems.map((s, idx) => {
+      const orig = (s.original_text || '').trim();
       const hum = (s.humanized_text || orig).trim();
-      const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 65;
+      const scoreBefore = typeof s.ai_score_before === 'number' ? Math.round(s.ai_score_before) : 75;
       const scoreAfter = typeof s.ai_score_after === 'number' ? Math.round(s.ai_score_after) : 8;
       const statusBadge = scoreAfter < 15 ? 'SUDAH ALAMI' : (scoreAfter < 35 ? 'REVISI STRUKTURAL' : 'REVISI SUBSTANTIF');
 
@@ -357,15 +363,15 @@ Tugas Anda adalah:
         ai_score_before: scoreBefore,
         ai_score_after: scoreAfter,
         ai_score: scoreAfter,
-        characteristic_found: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
-        characteristics: s.characteristic_found || 'Pola klausa majemuk terdeteksi',
-        revision_reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
-        reason: s.revision_reason || 'Rekonstruksi ritme klausa dan penyelarasan diksi baku KBBI',
+        characteristic_found: s.characteristic_found || 'Pola sintaksis terdeteksi',
+        characteristics: s.characteristic_found || 'Pola sintaksis terdeteksi',
+        revision_reason: s.revision_reason || 'Rekonstruksi klausa dan penyelarasan diksi baku KBBI',
+        reason: s.revision_reason || 'Rekonstruksi klausa dan penyelarasan diksi baku KBBI',
         level: scoreAfter < 15 ? 'low' : (scoreAfter < 35 ? 'medium' : 'high')
       };
     });
 
-    const fullHumanizedText = sentencePairs.map(p => p.humanized).join(' ');
+    const finalHumanizedText = fullHumanizedText || sentencePairs.map(p => p.humanized).join(' ');
 
     res.statusCode = 200;
     return res.end(JSON.stringify({
@@ -375,8 +381,9 @@ Tugas Anda adalah:
       usage_metadata: result.usage,
       mode: mode,
       sentence_count: sentencePairs.length,
-      humanized_text: fullHumanizedText,
-      revised_text: fullHumanizedText,
+      humanized_text: finalHumanizedText,
+      humanized_full_text: finalHumanizedText,
+      revised_text: finalHumanizedText,
       original_text: sentences.join(' '),
       ai_score_before: parsedData.overall_ai_score_before !== undefined ? Math.round(parsedData.overall_ai_score_before) : 65,
       ai_score_after: parsedData.overall_ai_score_after !== undefined ? Math.round(parsedData.overall_ai_score_after) : 8,
@@ -384,6 +391,7 @@ Tugas Anda adalah:
       burstiness_before: parsedData.burstiness_before || 0.28,
       burstiness_after: parsedData.burstiness_after || 0.62,
       editorial_notes: parsedData.editorial_notes || 'Substantive paraphrasing berhasil dilakukan dengan variasi ritme tinggi dan 100% baku KBBI.',
+      flagged_sentences: sentencePairs,
       sentence_pairs: sentencePairs,
       sentences: sentencePairs
     }));

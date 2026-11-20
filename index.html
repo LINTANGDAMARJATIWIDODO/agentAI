@@ -1013,6 +1013,29 @@
             <i class="fa-solid fa-trash mr-1"></i>Hapus
           </button>
         </div>
+
+        <!-- Cakupan Halaman PDF -->
+        <div id="pdfPageScopeContainer" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-purple-400"></i>
+            <span class="font-bold text-slate-300">Cakupan Analisis Halaman:</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+              <input type="radio" id="scopeAllPages" name="pdfScopeMode" value="all" checked onchange="togglePdfScopeInput(false)" class="text-purple-600 focus:ring-0">
+              <span class="font-medium">Semua Halaman</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+              <input type="radio" id="scopeRangePages" name="pdfScopeMode" value="range" onchange="togglePdfScopeInput(true)" class="text-purple-600 focus:ring-0">
+              <span class="font-medium">Rentang Halaman</span>
+            </label>
+            <div id="pdfRangeInputWrapper" class="hidden items-center gap-1.5">
+              <input type="text" id="pdfPageRangeInput" placeholder="misal: 21-38" class="w-28 bg-slate-950 border border-purple-500/50 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 font-mono">
+              <span class="text-[10px] text-purple-400 font-medium">(Uji bab spesifik ~4 detik)</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Tab Content 2: Textarea & Forms -->
@@ -1082,6 +1105,10 @@
           <span>JustDone AI Engine: Multimodel Orchestration & Baku KBBI</span>
         </div>
         <div class="flex items-center gap-2.5">
+          <button id="btnJustDoneCancelAction" type="button" onclick="cancelJustDoneProcessing()" class="hidden bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 hover:text-white border border-rose-500/50 font-bold text-xs px-4 py-3 rounded-2xl shadow-lg transition flex items-center gap-2">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span>Batalkan Proses</span>
+          </button>
           <button id="btnJustDoneMainAction" onclick="runJustDoneUnifiedAction()" class="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-2xl shadow-lg shadow-purple-900/50 transition flex items-center gap-2 border border-purple-400/40">
             <i class="fa-solid fa-play"></i>
             <span id="btnJustDoneMainActionText">Jalankan JustDone Tool</span>
@@ -5264,6 +5291,44 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       });
     }
 
+    function togglePdfScopeInput(isRange) {
+      const wrapper = document.getElementById('pdfRangeInputWrapper');
+      const radioRange = document.getElementById('scopeRangePages');
+      const radioAll = document.getElementById('scopeAllPages');
+      if (isRange) {
+        if (wrapper) {
+          wrapper.classList.remove('hidden');
+          wrapper.classList.add('flex');
+        }
+        if (radioRange) radioRange.checked = true;
+      } else {
+        if (wrapper) {
+          wrapper.classList.add('hidden');
+          wrapper.classList.remove('flex');
+        }
+        if (radioAll) radioAll.checked = true;
+      }
+    }
+
+    function cancelJustDoneProcessing() {
+      if (window.justDoneAbortController) {
+        window.justDoneAbortController.abort();
+      }
+      const cancelBtn = document.getElementById('btnJustDoneCancelAction');
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+      const mainBtn = document.getElementById('btnJustDoneMainAction');
+      if (mainBtn) {
+        mainBtn.disabled = false;
+        mainBtn.innerHTML = '<i class="fa-solid fa-play"></i><span id="btnJustDoneMainActionText">Jalankan JustDone Tool</span>';
+      }
+      const orbModal = document.getElementById('jdHumanizingOrbModal');
+      if (orbModal) {
+        orbModal.classList.add('hidden');
+        orbModal.style.display = 'none';
+      }
+      alert('Proses audit / humanisasi telah dibatalkan oleh pengguna.');
+    }
+
     function handlePdfFileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -5276,6 +5341,8 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       document.getElementById('selectedPdfName').textContent = file.name;
       document.getElementById('selectedPdfSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
       document.getElementById('selectedPdfInfo').classList.remove('hidden');
+      const scopeCont = document.getElementById('pdfPageScopeContainer');
+      if (scopeCont) scopeCont.classList.remove('hidden');
     }
 
     function clearChosenPdf() {
@@ -5283,6 +5350,11 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
       currentChosenPdfFile = null;
       document.getElementById('pdfFileInput').value = '';
       document.getElementById('selectedPdfInfo').classList.add('hidden');
+      const scopeCont = document.getElementById('pdfPageScopeContainer');
+      if (scopeCont) scopeCont.classList.add('hidden');
+      const rangeInput = document.getElementById('pdfPageRangeInput');
+      if (rangeInput) rangeInput.value = '';
+      togglePdfScopeInput(false);
     }
 
     function reconnectPdfBrokenWords(str) {
@@ -5392,10 +5464,35 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
           const pdf = await loadingTask.promise;
           let fullText = '';
-          const maxPages = Math.min(pdf.numPages, 120);
+          let targetPages = [];
+          const isRangeMode = document.getElementById('scopeRangePages') && document.getElementById('scopeRangePages').checked;
+          const rangeVal = document.getElementById('pdfPageRangeInput') ? document.getElementById('pdfPageRangeInput').value.trim() : '';
 
-          for (let i = 1; i <= maxPages; i++) {
-            const page = await pdf.getPage(i);
+          if (isRangeMode && rangeVal) {
+            const pagesSet = new Set();
+            const segments = rangeVal.split(/[,;\s]+/);
+            for (const seg of segments) {
+              if (!seg) continue;
+              if (seg.includes('-')) {
+                const [startS, endS] = seg.split('-');
+                const s = Math.max(1, parseInt(startS, 10) || 1);
+                const e = Math.min(pdf.numPages, parseInt(endS, 10) || pdf.numPages);
+                for (let p = s; p <= e; p++) pagesSet.add(p);
+              } else {
+                const p = parseInt(seg, 10);
+                if (!isNaN(p) && p >= 1 && p <= pdf.numPages) pagesSet.add(p);
+              }
+            }
+            targetPages = Array.from(pagesSet).sort((a, b) => a - b);
+          }
+
+          if (!targetPages.length) {
+            const maxPages = Math.min(pdf.numPages, 300);
+            for (let i = 1; i <= maxPages; i++) targetPages.push(i);
+          }
+
+          for (const pageNum of targetPages) {
+            const page = await pdf.getPage(pageNum);
             const textContent = await page.getTextContent();
             const items = textContent.items || [];
             if (!items.length) continue;
@@ -5627,85 +5724,156 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
         const metrics = computeValidStylometrics(allSentences, cleanedText);
 
-        // Batching per 25 sentences
-        const BATCH_SIZE = 25;
+        // Optimasi: Ukuran Batch 135 kalimat (~2.000–2.500 kata) & Parallel Worker Pool Concurrency 3
+        const BATCH_SIZE = 135;
         const totalBatches = Math.ceil(allSentences.length / BATCH_SIZE);
-        let auditedSentences = [];
+        const batchResults = new Array(totalBatches);
+        let completedBatches = 0;
         let totalTokensUsed = 0;
+        let nextBatchIdx = 0;
 
-        for (let b = 0; b < totalBatches; b++) {
-          const startIdx = b * BATCH_SIZE;
-          const endIdx = Math.min((b + 1) * BATCH_SIZE, allSentences.length);
-          const batchList = allSentences.slice(startIdx, endIdx);
+        window.justDoneAbortController = new AbortController();
+        const signal = window.justDoneAbortController.signal;
 
-          if (mainBtn) {
-            mainBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Audit Forensik Batch ' + (b + 1) + '/' + totalBatches + ' (Kalimat ' + (startIdx + 1) + '–' + endIdx + ')...</span>';
-          }
+        const cancelBtn = document.getElementById('btnJustDoneCancelAction');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
 
-          let resJson = null;
-          let fetchErr = null;
-          try {
-            let res = await fetch('/api/justdone-audit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                action: 'audit',
-                sentences: batchList
-              })
-            });
-            const cType = res.headers.get('content-type') || '';
-            if (res.ok && cType.includes('application/json')) {
-              resJson = await res.json();
-            } else if (!cType.includes('application/json')) {
-              // Failover to /api/humanize
-              const fallbackRes = await fetch('/api/humanize', {
+        const CONCURRENCY = 3;
+
+        async function auditWorker() {
+          while (nextBatchIdx < totalBatches) {
+            if (signal.aborted) throw new Error('Proses audit forensik dibatalkan oleh pengguna.');
+            const b = nextBatchIdx++;
+            const startIdx = b * BATCH_SIZE;
+            const endIdx = Math.min((b + 1) * BATCH_SIZE, allSentences.length);
+            const batchList = allSentences.slice(startIdx, endIdx);
+
+            if (mainBtn) {
+              mainBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Audit Paralel (${completedBatches + 1}/${totalBatches} Batch)...</span>`;
+            }
+
+            let resJson = null;
+            let fetchErr = null;
+            try {
+              let res = await fetch('/api/justdone-audit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: signal,
                 body: JSON.stringify({
                   action: 'audit',
                   sentences: batchList
                 })
               });
-              if (fallbackRes.ok) {
-                resJson = await fallbackRes.json();
+              const cType = res.headers.get('content-type') || '';
+              if (res.ok && cType.includes('application/json')) {
+                resJson = await res.json();
               } else {
-                const errBody = await fallbackRes.json().catch(() => ({}));
-                fetchErr = new Error(errBody.message || ('HTTP ' + fallbackRes.status));
+                const fallbackRes = await fetch('/api/humanize', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  signal: signal,
+                  body: JSON.stringify({
+                    action: 'audit',
+                    sentences: batchList
+                  })
+                });
+                if (fallbackRes.ok) {
+                  resJson = await fallbackRes.json();
+                } else {
+                  const errBody = await fallbackRes.json().catch(() => ({}));
+                  fetchErr = new Error(errBody.message || ('HTTP ' + fallbackRes.status));
+                }
               }
-            } else {
-              const errBody = await res.json().catch(() => ({}));
-              fetchErr = new Error(errBody.message || ('HTTP ' + res.status));
+            } catch (e) {
+              fetchErr = e;
             }
-          } catch (e) {
-            fetchErr = e;
-          }
 
-          if (fetchErr) {
-            throw fetchErr;
-          }
+            if (fetchErr) throw fetchErr;
 
-          if (resJson && Array.isArray(resJson.sentences)) {
-            auditedSentences = auditedSentences.concat(resJson.sentences);
-            if (resJson.total_tokens_used) {
-              totalTokensUsed += resJson.total_tokens_used;
+            batchResults[b] = {
+              batchIndex: b,
+              startIdx,
+              endIdx,
+              batchList,
+              batch_ai_score: (resJson && resJson.batch_ai_score !== undefined) ? resJson.batch_ai_score : 70,
+              flagged_sentences: (resJson && (resJson.flagged_sentences || resJson.sentences)) || [],
+              total_tokens_used: (resJson && resJson.total_tokens_used) || 0
+            };
+
+            completedBatches++;
+            totalTokensUsed += ((resJson && resJson.total_tokens_used) || 0);
+
+            if (mainBtn) {
+              mainBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i><span>Audit Paralel (${completedBatches}/${totalBatches} Selesai)...</span>`;
             }
-          } else {
-            throw new Error((resJson && resJson.message) || 'Gagal memproses batch kalimat dengan Google Gemini API.');
           }
         }
 
-        // Word-weighted score calculation
-        let totalWords = 0;
-        let weightedScoreSum = 0;
+        const workerCount = Math.min(CONCURRENCY, totalBatches);
+        const workers = Array.from({ length: workerCount }, () => auditWorker());
+        await Promise.all(workers);
 
-        auditedSentences.forEach(s => {
-          const wCount = (s.text || '').split(/\s+/).filter(Boolean).length || 1;
-          s.word_count = wCount;
-          totalWords += wCount;
-          weightedScoreSum += (s.ai_score * wCount);
+        // Agregasi hasil batch: Skor terbobot & pemetaan kalimat flagged
+        const allFlaggedMap = new Map();
+        let weightedScoreSum = 0;
+        let totalWords = 0;
+
+        for (let b = 0; b < totalBatches; b++) {
+          const br = batchResults[b];
+          if (!br) continue;
+          const bWords = br.batchList.reduce((acc, s) => acc + (s.split(/\s+/).filter(Boolean).length || 1), 0);
+          totalWords += bWords;
+          weightedScoreSum += (br.batch_ai_score * bWords);
+
+          (br.flagged_sentences || []).forEach(f => {
+            const t = (f.text || f.original || f.original_text || '').trim();
+            if (t) allFlaggedMap.set(t, f);
+          });
+        }
+
+        const globalAiScore = totalWords > 0 ? Math.round(weightedScoreSum / totalWords) : 70;
+
+        // Bangun array kalimat lengkap: kalimat flagged memiliki ai_score >= 40, lainnya diberi label SUDAH BAIK
+        const auditedSentences = allSentences.map((s, idx) => {
+          const trimS = s.trim();
+          const flagged = allFlaggedMap.get(trimS);
+          if (flagged) {
+            const sc = typeof flagged.ai_score === 'number' ? Math.round(flagged.ai_score) : 75;
+            return {
+              id: idx + 1,
+              text: trimS,
+              original: trimS,
+              sentence: trimS,
+              ai_score: sc,
+              status: sc >= 70 ? 'HIGH_AI' : 'MODERATE_AI',
+              action_label: sc >= 70 ? 'REVISI SUBSTANTIF' : 'REVISI STRUKTURAL',
+              level: sc >= 70 ? 'high' : 'medium',
+              characteristic_found: flagged.characteristic_found || 'Pola sintaksis terindikasi AI',
+              characteristics: flagged.characteristic_found || 'Pola sintaksis terindikasi AI',
+              reason: flagged.reason || 'Rekonstruksi ritme klausa dan kaidah baku KBBI',
+              revision_reason: flagged.reason || 'Rekonstruksi ritme klausa dan kaidah baku KBBI',
+              kbbi_fix: flagged.kbbi_fix || trimS,
+              recommendation: flagged.kbbi_fix || trimS
+            };
+          }
+          return {
+            id: idx + 1,
+            text: trimS,
+            original: trimS,
+            sentence: trimS,
+            ai_score: 12,
+            status: 'HUMAN',
+            action_label: 'SUDAH BAIK',
+            level: 'low',
+            characteristic_found: 'Struktur klausa alami dan dinamis',
+            characteristics: 'Struktur klausa alami dan dinamis',
+            reason: 'Telah memenuhi kaidah baku KBBI',
+            revision_reason: 'Telah memenuhi kaidah baku KBBI',
+            kbbi_fix: trimS,
+            recommendation: trimS
+          };
         });
 
-        const globalAiScore = totalWords > 0 ? Math.round(weightedScoreSum / totalWords) : 72;
         const finalData = {
           status: 'success',
           filename: filename,
@@ -5717,19 +5885,11 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           total_tokens_used: totalTokensUsed,
           display_probability: globalAiScore + '%',
           verdict: globalAiScore >= 65 ? 'AI-like' : (globalAiScore <= 35 ? 'Human-like' : 'Mixed'),
-          verdict_explanation: 'Audit forensik terhadap ' + auditedSentences.length + ' kalimat menunjukkan skor probabilitas AI sebesar ' + globalAiScore + '%. Pola templat sintaksis teridentifikasi.',
+          verdict_explanation: 'Audit forensik terhadap ' + auditedSentences.length + ' kalimat menunjukkan skor probabilitas AI sebesar ' + globalAiScore + '%.',
           confidence_level: '99.8% (Sangat Tinggi / High Certainty)',
           confidence_rating: '99.8% (Sangat Tinggi / High Certainty)',
           sentences: auditedSentences,
-          sentence_pairs: auditedSentences.map(s => ({
-            original: s.text,
-            recommendation: s.kbbi_fix || s.text,
-            status: s.status === 'HIGH_AI' ? 'REVISI SUBSTANTIF' : (s.status === 'MODERATE_AI' ? 'REVISI STRUKTURAL' : 'SUDAH BAIK'),
-            level: s.status === 'HIGH_AI' ? 'high' : (s.status === 'MODERATE_AI' ? 'medium' : 'low'),
-            ai_score: s.ai_score,
-            characteristic_found: s.characteristic_found || s.reason || 'Karakteristik pola kalimat AI',
-            revision_reason: s.reason || 'Penyesuaian ritme klausa dan diksi baku'
-          })),
+          sentence_pairs: auditedSentences,
           document_statistics: {
             word_count: metrics.wordCount,
             sentence_count: auditedSentences.length,
@@ -5754,8 +5914,12 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
 
       } catch (err) {
         console.error('Error in runJustDoneUnifiedAction:', err);
-        alert('Terjadi kesalahan JustDone AI: ' + err.message);
+        if (err.name !== 'AbortError' && !String(err).includes('dibatalkan')) {
+          alert('Terjadi kesalahan JustDone AI: ' + err.message);
+        }
       } finally {
+        const cancelBtn = document.getElementById('btnJustDoneCancelAction');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
         if (mainBtn) {
           mainBtn.disabled = false;
           mainBtn.innerHTML = origHtml;
@@ -5796,22 +5960,81 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
           ? data.sentences.map(s => s.text || s.original || s.original_text || '')
           : [];
 
-        const res = await fetch('/api/humanize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sentences: sentencesToHumanize,
-            text: rawText,
-            mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
-          })
-        });
+        window.justDoneAbortController = new AbortController();
+        const humSignal = window.justDoneAbortController.signal;
+        const cancelBtn = document.getElementById('btnJustDoneCancelAction');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
 
-        const resJson = await res.json().catch(() => ({}));
-        if (!res.ok || resJson.status === 'error') {
-          throw new Error(resJson.message || ('HTTP ' + res.status));
+        let humText = '';
+        let humTokens = 0;
+        let scoreBefore = 70;
+        let scoreAfter = 8;
+        let allRevisedPairs = [];
+
+        // Jika naskah besar (>135 kalimat), lakukan parafrase paralel Concurrency 3
+        const HUM_BATCH_SIZE = 135;
+        if (sentencesToHumanize.length > HUM_BATCH_SIZE) {
+          const totalHumBatches = Math.ceil(sentencesToHumanize.length / HUM_BATCH_SIZE);
+          const humResults = new Array(totalHumBatches);
+          let nextHumIdx = 0;
+
+          async function humWorker() {
+            while (nextHumIdx < totalHumBatches) {
+              if (humSignal.aborted) throw new Error('Humanisasi dibatalkan oleh pengguna.');
+              const hb = nextHumIdx++;
+              const startH = hb * HUM_BATCH_SIZE;
+              const endH = Math.min((hb + 1) * HUM_BATCH_SIZE, sentencesToHumanize.length);
+              const batchH = sentencesToHumanize.slice(startH, endH);
+
+              if (stepText) stepText.textContent = `Rekonstruksi substantif paralel (${hb + 1}/${totalHumBatches} Batch)...`;
+
+              const bRes = await fetch('/api/humanize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: humSignal,
+                body: JSON.stringify({
+                  sentences: batchH,
+                  text: batchH.join(' '),
+                  mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
+                })
+              });
+              const bJson = await bRes.json();
+              if (!bRes.ok || bJson.status === 'error') throw new Error(bJson.message || ('HTTP ' + bRes.status));
+              humResults[hb] = bJson;
+            }
+          }
+
+          const humWorkers = Array.from({ length: Math.min(3, totalHumBatches) }, () => humWorker());
+          await Promise.all(humWorkers);
+
+          humText = humResults.map(r => r.humanized_full_text || r.humanized_text || '').join('\n\n');
+          humTokens = humResults.reduce((acc, r) => acc + (r.total_tokens_used || 0), 0);
+          scoreBefore = humResults[0]?.ai_score_before || 70;
+          scoreAfter = humResults[0]?.ai_score_after || 8;
+          humResults.forEach(r => {
+            if (Array.isArray(r.sentences)) allRevisedPairs = allRevisedPairs.concat(r.sentences);
+          });
+        } else {
+          const res = await fetch('/api/humanize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: humSignal,
+            body: JSON.stringify({
+              sentences: sentencesToHumanize,
+              text: rawText,
+              mode: selectedHumanizerMode || 'Formal SPBE & Eksekutif'
+            })
+          });
+          const resJson = await res.json().catch(() => ({}));
+          if (!res.ok || resJson.status === 'error') throw new Error(resJson.message || ('HTTP ' + res.status));
+          humText = resJson.humanized_full_text || resJson.humanized_text;
+          humTokens = resJson.total_tokens_used || 0;
+          scoreBefore = resJson.ai_score_before || 70;
+          scoreAfter = resJson.ai_score_after || 8;
+          allRevisedPairs = resJson.sentences || [];
         }
 
-        if (!resJson || !resJson.humanized_text) {
+        if (!humText) {
           throw new Error('Gagal merekayasa naskah humanisasi dari Gemini API.');
         }
 
@@ -5819,20 +6042,19 @@ Kajian menyeluruh terhadap 22 Perangkat Daerah Provinsi DKI Jakarta menunjukkan 
         if (percentText) percentText.textContent = '95%';
         if (bar) bar.style.width = '95%';
 
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 300));
 
-        const humText = resJson.humanized_text;
         window.currentJustDoneData.humanized_text = humText;
         window.currentJustDoneData.revised_text = humText;
-        window.currentJustDoneData.ai_score_before = resJson.ai_score_before || window.currentJustDoneData.ai_score_percentage || 54;
-        window.currentJustDoneData.ai_score_after = resJson.ai_score_after || 8;
-        window.currentJustDoneData.ai_score_percentage = resJson.ai_score_after || 8;
-        window.currentJustDoneData.score_drop = Math.max(0, (window.currentJustDoneData.ai_score_before || 54) - (resJson.ai_score_after || 8));
-        window.currentJustDoneData.total_tokens_used = (window.currentJustDoneData.total_tokens_used || 0) + (resJson.total_tokens_used || 0);
+        window.currentJustDoneData.ai_score_before = scoreBefore || window.currentJustDoneData.ai_score_percentage || 70;
+        window.currentJustDoneData.ai_score_after = scoreAfter || 8;
+        window.currentJustDoneData.ai_score_percentage = scoreAfter || 8;
+        window.currentJustDoneData.score_drop = Math.max(0, (window.currentJustDoneData.ai_score_before || 70) - (scoreAfter || 8));
+        window.currentJustDoneData.total_tokens_used = (window.currentJustDoneData.total_tokens_used || 0) + humTokens;
 
-        if (Array.isArray(resJson.sentences) && resJson.sentences.length > 0) {
-          window.currentJustDoneData.sentences = resJson.sentences;
-          window.currentJustDoneData.sentence_pairs = resJson.sentences;
+        if (allRevisedPairs.length > 0) {
+          window.currentJustDoneData.sentences = allRevisedPairs;
+          window.currentJustDoneData.sentence_pairs = allRevisedPairs;
         }
 
         if (orbModal) {
