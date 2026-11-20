@@ -44,18 +44,18 @@ class GeminiClient {
   /**
    * Resolve appropriate model identifier based on cognitive mode / tier
    */
-  static resolveModel(cognitiveMode = 'gemini-2.5-flash') {
-    const mode = (cognitiveMode || 'gemini-2.5-flash').toLowerCase();
-    if (mode === 'gemini-2.5-pro' || mode.includes('2.5-pro') || mode.includes('pro') || mode.includes('architect') || mode.includes('deep')) {
-      return process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
+  static resolveModel(cognitiveMode = 'gemini-3.8-flash') {
+    const mode = (cognitiveMode || 'gemini-3.8-flash').toLowerCase();
+    if (mode === 'gemini-2.5-pro' || mode.includes('pro') || mode.includes('architect') || mode.includes('deep')) {
+      return process.env.GEMINI_MODEL_PRO || 'gemini-3.5-flash';
     }
     if (mode === 'claude-style' || mode.includes('claude') || mode.includes('editorial') || mode.includes('humanizer')) {
-      return process.env.GEMINI_MODEL_CLAUDE || process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro';
+      return process.env.GEMINI_MODEL_CLAUDE || 'gemini-3.5-flash';
     }
     if (mode === 'gpt-style' || mode.includes('gpt') || mode.includes('analyst')) {
-      return process.env.GEMINI_MODEL_GPT || process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+      return process.env.GEMINI_MODEL_GPT || process.env.GEMINI_MODEL_FLASH || 'gemini-3.8-flash';
     }
-    return process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash';
+    return process.env.GEMINI_MODEL_FLASH || 'gemini-3.8-flash';
   }
 
   /**
@@ -292,12 +292,12 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
     }
 
     if (!res.ok || !data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      // If primary model hit quota (429) or temporary high demand (503), attempt resilient failover to gemini-2.5-flash-lite
-      if ((res.status === 429 || res.status === 503 || data?.error?.status === 'RESOURCE_EXHAUSTED') && modelName !== 'gemini-2.5-flash-lite') {
-        console.warn(`[GEMINI API]: ${modelName} hit quota/high demand (${res.status}), attempting resilient failover to gemini-2.5-flash-lite...`);
+      // If primary model hit quota (429) or temporary high demand (503), attempt resilient failover to gemini-3.5-flash
+      if ((res.status === 429 || res.status === 503 || data?.error?.status === 'RESOURCE_EXHAUSTED') && modelName !== 'gemini-3.5-flash') {
+        console.warn(`[GEMINI API]: ${modelName} hit quota/high demand (${res.status}), attempting resilient failover to gemini-3.5-flash...`);
         const fallbackUrl = rawBaseUrl.includes('/models')
-          ? `${rawBaseUrl}/gemini-2.5-flash-lite:generateContent?key=${apiKey}`
-          : `${rawBaseUrl}/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
+          ? `${rawBaseUrl}/gemini-3.5-flash:generateContent?key=${apiKey}`
+          : `${rawBaseUrl}/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
         try {
           const fallbackRes = await fetch(fallbackUrl, {
             method: 'POST',
@@ -315,8 +315,8 @@ Jika pengguna meminta diagram, alur proses bisnis, flowchart, sequence diagram, 
             return GeminiClient.formatSuccessResponse({
               text: fText,
               agent,
-              tier: 'gemini-2.5-flash-lite',
-              model: 'gemini-2.5-flash-lite',
+              tier: 'gemini-3.5-flash',
+              model: 'gemini-3.5-flash',
               prompt,
               isWebReq,
               groundingChunks: fGrounding,

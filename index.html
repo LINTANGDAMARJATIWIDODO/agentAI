@@ -6368,7 +6368,7 @@ function applyHumanizedStateToUI() {
   // 8. Update Tokens Display & Re-enable Buttons
   const tokensElem = document.getElementById('jdTokensUsedVal');
   if (tokensElem && data.total_tokens_used) {
-    tokensElem.textContent = `${data.total_tokens_used.toLocaleString()} Token (Gemini 2.5 Flash API)`;
+    tokensElem.textContent = `${data.total_tokens_used.toLocaleString()} Token (${(data.model_used || 'Gemini 3.5 Flash API').replace('models/', '')})`;
   }
   setDownloadButtonsEnabled(true, true);
 }
@@ -7817,7 +7817,7 @@ ${fullHtml}
         doc.text(`Tingkat Deteksi AI: ${bScore}% (${bScore >= 40 ? 'High Risk' : (bScore >= 20 ? 'Moderate' : 'Low Risk')}) • Audit Forensik & Rekomendasi Standar Baku KBBI (Pedoman EYD V)`, pageWidth / 2, currentY, { align: 'center' });
         currentY += 14;
 
-        const tokensCount = (data && data.total_tokens_used) ? data.total_tokens_used.toLocaleString() + ' Token (Google Gemini 2.5 Flash API)' : ((document.getElementById('jdTokensUsedVal') && document.getElementById('jdTokensUsedVal').textContent) || 'Terverifikasi Google GenAI SDK');
+        const tokensCount = (data && data.total_tokens_used) ? data.total_tokens_used.toLocaleString() + ' Token (' + (data.model_used || 'Google Gemini 3.5 Flash API').replace('models/', '') + ')' : ((document.getElementById('jdTokensUsedVal') && document.getElementById('jdTokensUsedVal').textContent) || 'Terverifikasi Google GenAI SDK');
 
         // 2x2 Dynamic Metrics Box
         doc.autoTable({

@@ -60,7 +60,17 @@ function segmentSentences(text) {
 }
 
 async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, responseSchema, temperature = 0.25 }) {
-  const models = [process.env.GEMINI_MODEL_FLASH || 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  const primaryModel = process.env.GEMINI_MODEL_FLASH || 'gemini-3.8-flash';
+  const models = [
+    primaryModel,
+    'gemini-3.5-flash',
+    'gemini-3.7-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite'
+  ].filter((m, i, arr) => arr.indexOf(m) === i);
+
   let lastError = null;
 
   for (const model of models) {
@@ -88,7 +98,11 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
         }
       } catch (sdkErr) {
         lastError = sdkErr;
-        console.warn(`[SDK ${model} failed]:`, sdkErr.message);
+        const msg = sdkErr.message || '';
+        console.warn(`[SDK ${model} failed]:`, msg);
+        if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('404')) {
+          continue;
+        }
       }
     }
 
@@ -121,6 +135,7 @@ async function callGeminiStructured({ apiKey, systemInstruction, userPrompt, res
       } else {
         const errBody = await restRes.json().catch(() => ({}));
         lastError = new Error(errBody.error?.message || ('HTTP ' + restRes.status));
+        console.warn(`[REST ${model} failed]: HTTP ${restRes.status}`, lastError.message);
       }
     } catch (restErr) {
       lastError = restErr;
